@@ -32,27 +32,28 @@ public class BaseTestClass {
     protected Logger                logger;
     VIPCfg                          vipCfg            = VIPCfg.getInstance();
 
-	@Rule
-	public final TestRule watchman = new TestWatcher() {
-		@Override
+    @Rule
+    public final TestRule           watchman          = new TestWatcher() {
+                                                          @Override
                                                           public Statement apply(final Statement base,
                                                                   final Description description) {
                                                               logger = LoggerFactory.getLogger(
                                                                       description.getTestClass().getSimpleName());
-			return super.apply(base, description);
-		}
+                                                              return super.apply(base, description);
+                                                          }
 
-		@Override
-		protected void failed(final Throwable e, final Description description) {
-			logger.error(description.getMethodName()+" Failed.", e);
-		}
+                                                          @Override
+                                                          protected void failed(final Throwable e,
+                                                                  final Description description) {
+                                                              logger.error(description.getMethodName() + " Failed.", e);
+                                                          }
 
-		@Override
-		protected void starting(final Description description) {
+                                                          @Override
+                                                          protected void starting(final Description description) {
                                                               logger.info(
                                                                       "Starting test: " + description.getMethodName());
-		}
-	};
+                                                          }
+                                                      };
 
     @ClassRule
     public static WireMockClassRule wireMockClassRule = new WireMockClassRule(

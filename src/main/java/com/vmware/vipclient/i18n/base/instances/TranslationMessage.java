@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.json.simple.JSONObject;
@@ -325,7 +326,6 @@ public class TranslationMessage implements Message {
         return message;
     }
 
-
     /**
      * get one translation of the configured product, if translation isn't found, then source will be returned.
      *
@@ -336,7 +336,8 @@ public class TranslationMessage implements Message {
      * @param key
      *            identify the translation to get
      * @param args
-     *            used to format the message with placeholder, it's not required if the message doesn't contain any placeholder
+     *            used to format the message with placeholder, it's not required if the message doesn't contain any
+     *            placeholder
      * @return translation corresponding to the key, if the translation is not found, source will be returned.
      */
     public String getString3(final String component, final Locale locale, final String key, final Object... args) {
