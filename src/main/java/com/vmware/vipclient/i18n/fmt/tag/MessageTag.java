@@ -4,8 +4,6 @@
  */
 package com.vmware.vipclient.i18n.fmt.tag;
 
-import java.io.IOException;
-
 import javax.servlet.jsp.JspTagException;
 
 import com.vmware.vipclient.i18n.fmt.common.MessageSupport;
