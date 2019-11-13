@@ -29,6 +29,7 @@ import com.vmware.vipclient.i18n.exceptions.VIPJavaClientException;
 import com.vmware.vipclient.i18n.messages.api.opt.local.LocalSourceOpt;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.ProductService;
+import com.vmware.vipclient.i18n.util.StringUtil;
 
 /**
  * a class uses to define the global environment setting for I18nFactory
@@ -127,11 +128,33 @@ public class VIPCfg {
     }
 
     /**
-     * initialize the instance by a properties file
+     * initialize the instance by a configuration file
      *
      * @param cfg
      */
     public void initialize(final String cfg) throws VIPClientInitException {
+        if (StringUtil.isEmpty(cfg))
+            throw new VIPClientInitException("Can't not initialize VIPCfg, configuration file is empty.");
+
+        if (cfg.endsWith(".yaml"))
+            try {
+                this.initializeWithYamlFile(cfg);
+            } catch (IOException e) {
+                VIPClientInitException e1 = new VIPClientInitException(
+                        String.format("Failed to initialize VIPCfg with: {}. Error message: {}", cfg, e.getMessage()));
+                e1.setStackTrace(e.getStackTrace());
+                throw e1;
+            }
+        else
+            this.initializeWithPropFile(cfg);
+    }
+
+    /**
+     * initialize the instance by a properties file
+     *
+     * @param cfg
+     */
+    private void initializeWithPropFile(final String cfg) throws VIPClientInitException {
         final ResourceBundle prop = ResourceBundle.getBundle(cfg);
         if (prop == null)
             throw new VIPClientInitException("Can't not initialize VIPCfg, resource bundle is null.");
@@ -162,12 +185,13 @@ public class VIPCfg {
     }
 
     /**
-     * initialize the instance by a configuration file
+     * initialize the instance by a yaml configuration file
      *
      * @param cfg
+     * @throws IOException, VIPClientInitException
      */
     @SuppressWarnings("serial")
-    private void initializeWithYamlFile(final String cfg) throws IOException {
+    private void initializeWithYamlFile(final String cfg) throws IOException, VIPClientInitException {
         final InputStream stream = ClassLoader.getSystemResourceAsStream(cfg);
         final LinkedHashMap<String, Object> data = new Yaml().loadAs(stream, new LinkedHashMap<String, Object>() {}.getClass());
 
@@ -182,6 +206,10 @@ public class VIPCfg {
             } catch (SecurityException | IllegalAccessException e) {
                 throw new VIPJavaClientException("Unknow errorr");
             }
+
+        if (this.isSubInstance() && !VIPCfg.moduleCfgs.containsKey(this.productName))
+            throw new VIPClientInitException(
+                    "Can't not initialize sub VIPCfg instance, the product name is not defined in config file.");
 
         // Load source bundles
         LocalSourceOpt.loadResources(this.components);
