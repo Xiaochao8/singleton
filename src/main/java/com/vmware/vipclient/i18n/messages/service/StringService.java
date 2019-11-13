@@ -102,7 +102,7 @@ public class StringService {
                                     : (String) m.get(dto.getKey());
                         }
                     } catch (ParseException e) {
-                        logger.error(e.getMessage());
+                        logger.error("", e);
                     }
                 }
                 c.addCacheOfStatus(m);

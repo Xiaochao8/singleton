@@ -317,7 +317,7 @@ public class TranslationMessage implements Message {
                     LocaleUtility.defaultLocale);
             source = rb.getString(key);
         } catch (Exception e) {
-            this.logger.error(e.getMessage());
+            this.logger.error("", e);
             source = key;
         }
         // get translation from VIP service

@@ -32,7 +32,7 @@ public class PersistantCacheTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         gc.initializeVIPService();
         Cache c = gc.createTranslationCache(MessageCache2.class);

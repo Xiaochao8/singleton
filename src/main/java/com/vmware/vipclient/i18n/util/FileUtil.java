@@ -63,10 +63,10 @@ public class FileUtil {
                     jsonObj = (JSONObject) o;
                 }
             } catch (final Exception e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         } catch (final MalformedURLException e1) {
-            logger.error(e1.getMessage());
+            logger.error("", e1);
         }
 
         return jsonObj;
@@ -85,7 +85,7 @@ public class FileUtil {
                     jsonObj = (JSONObject) o;
                 }
             } catch (final Exception e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         }
 

@@ -28,7 +28,7 @@ public class MessageFormatTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createFormattingCache(FormattingCache.class);

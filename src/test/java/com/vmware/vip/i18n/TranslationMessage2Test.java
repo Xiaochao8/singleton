@@ -32,7 +32,7 @@ public class TranslationMessage2Test extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createTranslationCache(MessageCache.class).setXCapacity(-1);

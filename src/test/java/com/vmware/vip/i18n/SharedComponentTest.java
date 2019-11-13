@@ -32,7 +32,7 @@ public class SharedComponentTest extends BaseTestClass {
         try {
             mainCfg.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         mainCfg.initializeVIPService();
         if (mainCfg.getCacheManager() != null)
@@ -46,7 +46,7 @@ public class SharedComponentTest extends BaseTestClass {
         try {
             subCfg.initialize("vipconfig-child");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         subTranslation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class, subCfg);
     }

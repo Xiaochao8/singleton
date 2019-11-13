@@ -39,7 +39,7 @@ public class LocaleOpt {
                 respMap = (Map<String, String>) regionMap.get(ConstantsKeys.TERRITORIES);
             }
         } catch (ParseException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return respMap;
     }
@@ -68,7 +68,7 @@ public class LocaleOpt {
                 }
             }
         } catch (ParseException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return dispMap;
     }

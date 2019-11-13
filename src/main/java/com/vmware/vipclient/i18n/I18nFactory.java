@@ -98,7 +98,7 @@ public class I18nFactory {
                     messages.put(key, i);
                 }
             } catch (InstantiationException | IllegalAccessException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         }
 
@@ -139,7 +139,7 @@ public class I18nFactory {
                         formattings.put(key, i);
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error(e.getMessage());
+                    logger.error("", e);
                 }
             }
             return i;

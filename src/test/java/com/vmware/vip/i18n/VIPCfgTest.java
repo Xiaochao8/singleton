@@ -30,7 +30,7 @@ public class VIPCfgTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         gc.initializeVIPService();
         if (gc.getCacheManager() != null)

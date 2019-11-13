@@ -92,7 +92,7 @@ public class VIPComponentFilter implements Filter {
                 source.append(line);
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return source.toString();
     }
@@ -110,7 +110,7 @@ public class VIPComponentFilter implements Filter {
             try {
                 gc.initialize("vipconfig");
             } catch (VIPClientInitException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
             gc.initializeVIPService();
         }

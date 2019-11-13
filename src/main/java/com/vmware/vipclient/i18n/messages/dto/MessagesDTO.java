@@ -74,7 +74,7 @@ public class MessagesDTO extends BaseDTO {
             re_md5 = buf.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return re_md5;
     }

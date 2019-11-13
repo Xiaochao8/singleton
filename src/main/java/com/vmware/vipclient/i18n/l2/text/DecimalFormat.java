@@ -223,7 +223,7 @@ public class DecimalFormat extends NumberFormat {
                 adjustFraction4Currency(patternInfo);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
             return "";
         }
         int fractionLength = 0;

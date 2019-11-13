@@ -36,7 +36,7 @@ public class DiskCacheLoader implements Loader {
                 try {
                     fis = new FileInputStream(file);
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    logger.error("", e);
                 }
             }
             reader = new InputStreamReader(fis, "UTF-8");
@@ -45,19 +45,19 @@ public class DiskCacheLoader implements Loader {
                 map = (Map) o;
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         } finally {
             try {
                 if (fis != null)
                     fis.close();
             } catch (IOException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
             try {
                 if (reader != null)
                     reader.close();
             } catch (IOException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         }
         return map;
@@ -72,7 +72,7 @@ public class DiskCacheLoader implements Loader {
             writer = new FileWriter(rootpath + File.separator + key);
             writer.write(content);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
             return false;
         } finally {
             if (writer != null) {
@@ -80,7 +80,7 @@ public class DiskCacheLoader implements Loader {
                     writer.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
-                    logger.error(e.getMessage());
+                    logger.error("", e);
                 }
             }
         }
@@ -114,7 +114,7 @@ public class DiskCacheLoader implements Loader {
             os.writeObject(cacheSnapshot);
             return true;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("", ex);
             return false;
         }
     }
@@ -128,7 +128,7 @@ public class DiskCacheLoader implements Loader {
                 c = (CacheSnapshot) o;
             }
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("", ex);
             return null;
         }
         return c;

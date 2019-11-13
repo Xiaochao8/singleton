@@ -230,7 +230,7 @@ public class HttpRequester {
                 httpsConn.setSSLSocketFactory(getSocketFactory());
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         if (connection != null) {
             connection.setConnectTimeout(ConstantsKeys.HTTP_CONNECT_TIMEOUT);
@@ -272,7 +272,7 @@ public class HttpRequester {
                 context.init(new KeyManager[0], tm, new SecureRandom());
                 sslSocketFactory = context.getSocketFactory();
             } catch (KeyManagementException | NoSuchAlgorithmException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         }
         return sslSocketFactory;

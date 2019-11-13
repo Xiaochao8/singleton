@@ -83,7 +83,7 @@ public class TranslationCacheManager {
                 container.put(className, (Cache) obj);
             }
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
 
         return container.size();
@@ -134,7 +134,7 @@ public class TranslationCacheManager {
                 i = (Loader) o;
             }
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return i;
     }

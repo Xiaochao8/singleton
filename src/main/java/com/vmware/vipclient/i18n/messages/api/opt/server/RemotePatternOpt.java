@@ -71,7 +71,7 @@ public class RemotePatternOpt {
             }
         } catch (ParseException e) {
             // TODO Auto-generated catch block
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return msgObject;
     }

@@ -60,7 +60,7 @@ public class DateFormat extends BaseFormat {
                 }
             }
         } catch (ParseException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         return format;
     }

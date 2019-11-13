@@ -29,7 +29,7 @@ public class JSONUtils {
             try {
                 result = (Map<String, Object>) parser.parse(json, containerFactory);
             } catch (ParseException e) {
-                logger.error(e.getMessage());
+                logger.error("", e);
             }
         }
         return result;

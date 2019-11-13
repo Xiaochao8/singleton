@@ -36,7 +36,7 @@ public class HttpRequesterTest extends BaseTestClass {
         try {
             cfg.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error(e.getMessage());
+            logger.error("", e);
         }
         cfg.setVipServer(mockServer);
         cfg.setInitializeCache(false);

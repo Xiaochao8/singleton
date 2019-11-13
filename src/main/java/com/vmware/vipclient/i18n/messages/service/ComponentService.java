@@ -78,7 +78,7 @@ public class ComponentService {
                 try {
                     s = (Long) JSONValue.parseWithException(json);
                 } catch (ParseException e) {
-                    logger.error(e.getMessage());
+                    logger.error("", e);
                 }
             }
             r = (s != null) && (s.longValue() == 206);
