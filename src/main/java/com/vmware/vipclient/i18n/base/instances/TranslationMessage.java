@@ -94,14 +94,17 @@ public class TranslationMessage implements Message {
             if (source != null && !"".equals(source) && !VIPCfg.getInstance().isPseudo()) {
                 dto.setLocale(LocaleUtility.defaultLocale.toLanguageTag());
                 String remoteEnMsg = s.getString();
-                if (!source.equals(remoteEnMsg))
+                if (!source.equals(remoteEnMsg)) {
                     translation = source;
+                }
             }
 
-            if ("".equals(translation))
+            if ("".equals(translation)) {
                 translation = source;
-        } else
+            }
+        } else {
             translation = source;
+        }
 
         if (VIPCfg.getInstance().isCollectSource() || VIPCfg.getInstance().isMachineTranslation()) {
             dto.setLocale(ConstantsKeys.LATEST);
@@ -109,22 +112,27 @@ public class TranslationMessage implements Message {
             if (source != null && !source.equals(latestStr)) {
                 dto.setLocale(locale.toLanguageTag());
                 String mt = s.postString();
-                if (VIPCfg.getInstance().isMachineTranslation() && !"".equalsIgnoreCase(mt))
+                if (VIPCfg.getInstance().isMachineTranslation() && !"".equalsIgnoreCase(mt)) {
                     translation = mt;
+                }
             }
         }
 
         if (!VIPCfg.getInstance().isMachineTranslation() && VIPCfg.getInstance().isPseudo() &&
-                null != translation && translation.equals(source))
+                null != translation && translation.equals(source)) {
             // if source isn't collected by server, add PSEUDOCHAR2
             translation = ConstantsKeys.PSEUDOCHAR2 + translation + ConstantsKeys.PSEUDOCHAR2;
+        }
 
-        if (args != null && args.length > 0)
+        if (args != null && args.length > 0) {
             if ((null != translation && translation.equals(source)) || VIPCfg.getInstance().isPseudo()) {
                 translation = FormatUtils.format(translation,
                         LocaleUtility.defaultLocale, args);
-            else
+            } else {
                 translation = FormatUtils.format(translation, locale, args);
+            }
+        }
+
         return translation;
     }
 
@@ -164,8 +172,9 @@ public class TranslationMessage implements Message {
             dto.setSource(source);
             dto.setLocale(ConstantsKeys.LATEST);
             String enStr = new StringService(dto).getString();
-            if (source != null && source.equals(enStr))
+            if (source != null && source.equals(enStr)) {
                 removedList.add(jo);
+            }
         }
         sourcesList.removeAll(removedList);
         if (sourcesList.isEmpty())
@@ -347,8 +356,9 @@ public class TranslationMessage implements Message {
             this.logger.error("Failed to get source.", e);
         }
 
-        if (StringUtil.isEmpty(source))
+        if (StringUtil.isEmpty(source)) {
             source = key;
+        }
 
         // get translation from VIP service
         message = this.getString(locale, component, key, source, "", args);
