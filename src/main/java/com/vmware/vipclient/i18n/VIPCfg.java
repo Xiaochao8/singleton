@@ -71,11 +71,11 @@ public class VIPCfg {
     public static final String             CACHE_L2      = "CACHE_L2";
 
     public boolean isSubInstance() {
-        return isSubInstance;
+        return this.isSubInstance;
     }
 
     public void setSubInstance(final boolean subInstance) {
-        isSubInstance = subInstance;
+        this.isSubInstance = subInstance;
     }
 
     private boolean isSubInstance = false;
@@ -90,9 +90,8 @@ public class VIPCfg {
      * @return
      */
     public static synchronized VIPCfg getInstance() {
-        if (gcInstance == null) {
+        if (gcInstance == null)
             gcInstance = new VIPCfg();
-        }
         return gcInstance;
     }
 
@@ -137,39 +136,29 @@ public class VIPCfg {
         if (prop == null)
             throw new VIPClientInitException("Can't not initialize VIPCfg, resource bundle is null.");
 
-        if (prop.containsKey("productName")) {
-            productName = prop.getString("productName");
-        }
-        if (isSubInstance() && !VIPCfg.moduleCfgs.containsKey(productName))
+        if (prop.containsKey("productName"))
+            this.productName = prop.getString("productName");
+        if (this.isSubInstance() && !VIPCfg.moduleCfgs.containsKey(this.productName))
             throw new VIPClientInitException(
                     "Can't not initialize sub VIPCfg instance, the product name is not defined in config file.");
-        if (prop.containsKey("version")) {
-            version = prop.getString("version");
-        }
-        if (prop.containsKey("vipServer")) {
-            vipServer = prop.getString("vipServer");
-        }
-        if (prop.containsKey("pseudo")) {
-            pseudo = Boolean.parseBoolean(prop.getString("pseudo"));
-        }
-        if (prop.containsKey("collectSource")) {
-            collectSource = Boolean.parseBoolean(prop.getString("collectSource"));
-        }
-        if (prop.containsKey("initializeCache")) {
-            initializeCache = Boolean.parseBoolean(prop.getString("initializeCache"));
-        }
-        if (prop.containsKey("cleanCache")) {
-            cleanCache = Boolean.parseBoolean(prop.getString("cleanCache"));
-        }
-        if (prop.containsKey("machineTranslation")) {
-            machineTranslation = Boolean.parseBoolean(prop.getString("machineTranslation"));
-        }
-        if (prop.containsKey("i18nScope")) {
-            i18nScope = prop.getString("i18nScope");
-        }
-        if (prop.containsKey("cacheExpiredTime")) {
-            cacheExpiredTime = Long.parseLong(prop.getString("cacheExpiredTime"));
-        }
+        if (prop.containsKey("version"))
+            this.version = prop.getString("version");
+        if (prop.containsKey("vipServer"))
+            this.vipServer = prop.getString("vipServer");
+        if (prop.containsKey("pseudo"))
+            this.pseudo = Boolean.parseBoolean(prop.getString("pseudo"));
+        if (prop.containsKey("collectSource"))
+            this.collectSource = Boolean.parseBoolean(prop.getString("collectSource"));
+        if (prop.containsKey("initializeCache"))
+            this.initializeCache = Boolean.parseBoolean(prop.getString("initializeCache"));
+        if (prop.containsKey("cleanCache"))
+            this.cleanCache = Boolean.parseBoolean(prop.getString("cleanCache"));
+        if (prop.containsKey("machineTranslation"))
+            this.machineTranslation = Boolean.parseBoolean(prop.getString("machineTranslation"));
+        if (prop.containsKey("i18nScope"))
+            this.i18nScope = prop.getString("i18nScope");
+        if (prop.containsKey("cacheExpiredTime"))
+            this.cacheExpiredTime = Long.parseLong(prop.getString("cacheExpiredTime"));
     }
 
     /**
@@ -182,7 +171,7 @@ public class VIPCfg {
         final InputStream stream = ClassLoader.getSystemResourceAsStream(cfg);
         final LinkedHashMap<String, Object> data = new Yaml().loadAs(stream, new LinkedHashMap<String, Object>() {}.getClass());
 
-        for (final Entry<String, Object> entry : data.entrySet()) {
+        for (final Entry<String, Object> entry : data.entrySet())
             try {
                 this.getClass().getDeclaredField(entry.getKey()).set(this, entry.getValue());
             } catch (final IllegalArgumentException e) {
@@ -193,22 +182,21 @@ public class VIPCfg {
             } catch (SecurityException | IllegalAccessException e) {
                 throw new VIPJavaClientException("Unknow errorr");
             }
-        }
 
         // Load source bundles
-        LocalSourceOpt.loadResources(components);
+        LocalSourceOpt.loadResources(this.components);
     }
 
     /**
      * initialize VIPService instances to provide HTTP requester
      */
     public void initializeVIPService() {
-        vipService = VIPService.getVIPServiceInstance();
+        this.vipService = VIPService.getVIPServiceInstance();
         try {
-            vipService.initializeVIPService(productName, version,
-                    vipServer);
+            this.vipService.initializeVIPService(this.productName, this.version,
+                    this.vipServer);
         } catch (final MalformedURLException e) {
-            logger.error("'vipServer' in configuration isn't a valid URL!");
+            this.logger.error("'vipServer' in configuration isn't a valid URL!");
         }
     }
 
@@ -218,25 +206,24 @@ public class VIPCfg {
      * @param c
      */
     public void setTranslationCache(final Cache c) {
-        translationCacheManager = TranslationCacheManager
+        this.translationCacheManager = TranslationCacheManager
                 .createTranslationCacheManager();
-        if (translationCacheManager != null) {
-            translationCacheManager.registerCache(VIPCfg.CACHE_L3, c);
-            logger.info("Translation Cache created.");
+        if (this.translationCacheManager != null) {
+            this.translationCacheManager.registerCache(VIPCfg.CACHE_L3, c);
+            this.logger.info("Translation Cache created.");
         }
-        if (isInitializeCache()) {
-            logger.info("Initializing Cache.");
-            initializeMessageCache();
+        if (this.isInitializeCache()) {
+            this.logger.info("Initializing Cache.");
+            this.initializeMessageCache();
         }
-        if (isCleanCache()) {
-            logger.info("startTaskOfCacheClean.");
-            Task.startTaskOfCacheClean(VIPCfg.getInstance(), interalCleanCache);
+        if (this.isCleanCache()) {
+            this.logger.info("startTaskOfCacheClean.");
+            Task.startTaskOfCacheClean(VIPCfg.getInstance(), this.interalCleanCache);
         }
         final Cache createdCache = TranslationCacheManager
                 .getCache(VIPCfg.CACHE_L3);
-        if (createdCache != null && getCacheExpiredTime() > 0) {
-            c.setExpiredTime(getCacheExpiredTime());
-        }
+        if (createdCache != null && this.getCacheExpiredTime() > 0)
+            c.setExpiredTime(this.getCacheExpiredTime());
     }
 
     /**
@@ -246,25 +233,24 @@ public class VIPCfg {
      * @return
      */
     public synchronized Cache createTranslationCache(final Class<?> cacheClass) {
-        translationCacheManager = TranslationCacheManager
+        this.translationCacheManager = TranslationCacheManager
                 .createTranslationCacheManager();
-        if (translationCacheManager != null) {
+        if (this.translationCacheManager != null) {
             if (TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
-                translationCacheManager.registerCache(VIPCfg.CACHE_L3,
+                this.translationCacheManager.registerCache(VIPCfg.CACHE_L3,
                         cacheClass);
-                logger.info("Translation Cache created.");
-                if (isInitializeCache()) {
-                    logger.info("InitializeCache.");
-                    initializeMessageCache();
+                this.logger.info("Translation Cache created.");
+                if (this.isInitializeCache()) {
+                    this.logger.info("InitializeCache.");
+                    this.initializeMessageCache();
                 }
-                if (isCleanCache()) {
-                    logger.info("startTaskOfCacheClean.");
-                    Task.startTaskOfCacheClean(VIPCfg.getInstance(), interalCleanCache);
+                if (this.isCleanCache()) {
+                    this.logger.info("startTaskOfCacheClean.");
+                    Task.startTaskOfCacheClean(VIPCfg.getInstance(), this.interalCleanCache);
                 }
                 final Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
-                if (c != null && getCacheExpiredTime() > 0) {
-                    c.setExpiredTime(getCacheExpiredTime());
-                }
+                if (c != null && this.getCacheExpiredTime() > 0)
+                    c.setExpiredTime(this.getCacheExpiredTime());
             }
 
             return TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
@@ -279,16 +265,16 @@ public class VIPCfg {
      * @param cacheClass
      */
     public Cache createFormattingCache(final Class<?> cacheClass) {
-        translationCacheManager = TranslationCacheManager
+        this.translationCacheManager = TranslationCacheManager
                 .createTranslationCacheManager();
-        if (translationCacheManager != null) {
-            translationCacheManager.registerCache(VIPCfg.CACHE_L2,
+        if (this.translationCacheManager != null) {
+            this.translationCacheManager.registerCache(VIPCfg.CACHE_L2,
                     cacheClass);
-            logger.info("Formatting cache created.");
+            this.logger.info("Formatting cache created.");
         }
-        if (isCleanCache()) {
-            logger.error("clean cache.");
-            Task.startTaskOfCacheClean(VIPCfg.getInstance(), interalCleanCache);
+        if (this.isCleanCache()) {
+            this.logger.error("clean cache.");
+            Task.startTaskOfCacheClean(VIPCfg.getInstance(), this.interalCleanCache);
         }
         return TranslationCacheManager.getCache(VIPCfg.CACHE_L2);
     }
@@ -298,16 +284,15 @@ public class VIPCfg {
      */
     public void initializeMessageCache() {
         final MessagesDTO dto = new MessagesDTO();
-        dto.setProductID(getProductName());
-        dto.setVersion(getVersion());
+        dto.setProductID(this.getProductName());
+        dto.setVersion(this.getVersion());
         new ProductService(dto).getAllComponentTranslation();
-        if (translationCacheManager != null) {
-            logger.info("Translation data is loaded to cache, size is " + translationCacheManager.size() + ".");
-        }
+        if (this.translationCacheManager != null)
+            this.logger.info("Translation data is loaded to cache, size is " + this.translationCacheManager.size() + ".");
     }
 
     public String getProductName() {
-        return productName;
+        return this.productName;
     }
 
     public void setProductName(final String productName) {
@@ -315,7 +300,7 @@ public class VIPCfg {
     }
 
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     public void setVersion(final String version) {
@@ -323,7 +308,7 @@ public class VIPCfg {
     }
 
     public String getVipServer() {
-        return vipServer;
+        return this.vipServer;
     }
 
     public void setVipServer(final String vipServer) {
@@ -331,7 +316,7 @@ public class VIPCfg {
     }
 
     public boolean isPseudo() {
-        return pseudo;
+        return this.pseudo;
     }
 
     public void setPseudo(final boolean pseudo) {
@@ -339,7 +324,7 @@ public class VIPCfg {
     }
 
     public boolean isCollectSource() {
-        return collectSource;
+        return this.collectSource;
     }
 
     public void setCollectSource(final boolean collectSource) {
@@ -347,7 +332,7 @@ public class VIPCfg {
     }
 
     public boolean isCleanCache() {
-        return cleanCache;
+        return this.cleanCache;
     }
 
     public void setCleanCache(final boolean cleanCache) {
@@ -355,15 +340,15 @@ public class VIPCfg {
     }
 
     public VIPService getVipService() {
-        return vipService;
+        return this.vipService;
     }
 
     public TranslationCacheManager getCacheManager() {
-        return translationCacheManager;
+        return this.translationCacheManager;
     }
 
     public int getInteralCleanCache() {
-        return interalCleanCache;
+        return this.interalCleanCache;
     }
 
     public void setInteralCleanCache(final int interalCleanCache) {
@@ -371,7 +356,7 @@ public class VIPCfg {
     }
 
     public String getI18nScope() {
-        return i18nScope;
+        return this.i18nScope;
     }
 
     public void setI18nScope(final String i18nScope) {
@@ -379,7 +364,7 @@ public class VIPCfg {
     }
 
     public boolean isMachineTranslation() {
-        return machineTranslation;
+        return this.machineTranslation;
     }
 
     public void setMachineTranslation(final boolean machineTranslation) {
@@ -387,7 +372,7 @@ public class VIPCfg {
     }
 
     public DataSourceEnum getMessageOrigin() {
-        return messageOrigin;
+        return this.messageOrigin;
     }
 
     public void setMessageOrigin(final DataSourceEnum messageOrigin) {
@@ -395,7 +380,7 @@ public class VIPCfg {
     }
 
     public boolean isInitializeCache() {
-        return initializeCache;
+        return this.initializeCache;
     }
 
     public void setInitializeCache(final boolean initializeCache) {
@@ -403,7 +388,7 @@ public class VIPCfg {
     }
 
     public long getCacheExpiredTime() {
-        return cacheExpiredTime;
+        return this.cacheExpiredTime;
     }
 
     public void setCacheExpiredTime(final long cacheExpiredTime) {
@@ -411,7 +396,7 @@ public class VIPCfg {
     }
 
     public CacheMode getCacheMode() {
-        return cacheMode;
+        return this.cacheMode;
     }
 
     public void setCacheMode(final CacheMode cacheMode) {
@@ -419,7 +404,7 @@ public class VIPCfg {
     }
 
     public String getCachePath() {
-        return cachePath;
+        return this.cachePath;
     }
 
     public void setCachePath(final String cachePath) {
