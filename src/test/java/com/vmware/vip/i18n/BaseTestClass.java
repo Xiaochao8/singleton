@@ -29,8 +29,8 @@ import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
 
 public class BaseTestClass {
-	protected Logger logger;
-	VIPCfg vipCfg = VIPCfg.getInstance();
+    protected Logger                logger;
+    VIPCfg                          vipCfg            = VIPCfg.getInstance();
 
 	@Rule
 	public final TestRule watchman = new TestWatcher() {
@@ -53,40 +53,40 @@ public class BaseTestClass {
                                                                       "Starting test: " + description.getMethodName());
 		}
 	};
-	
+
     @ClassRule
     public static WireMockClassRule wireMockClassRule = new WireMockClassRule(
             WireMockConfiguration.options().port(8099).usingFilesUnderClasspath("mockserver"));
-	
+
     @Rule
     public WireMockClassRule        instanceRule      = wireMockClassRule;
-	
+
     // @BeforeClass
     public void ProxyToRealServer() {
         stubFor(proxyAllTo("https://").atPriority(1));
         instanceRule.snapshotRecord();
     }
 
-	protected String getSaltString() {
-		final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-		final StringBuilder salt = new StringBuilder();
-		final Random rnd = new Random();
-		while (salt.length() < 10) { // length of the random string.
-			final int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-			salt.append(SALTCHARS.charAt(index));
-		}
-		final String saltStr = salt.toString();
-		return saltStr;
+    protected String getSaltString() {
+        final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        final StringBuilder salt = new StringBuilder();
+        final Random rnd = new Random();
+        while (salt.length() < 10) { // length of the random string.
+            final int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        final String saltStr = salt.toString();
+        return saltStr;
 
-	}
-	
-	protected void setConfig(final VIPCfg inst, final String key, final Object v) {
-		try {
-			inst.getClass().getDeclaredField(key).set(inst, v);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			logger.error(e.toString());
-		}
-	}
+    }
+
+    protected void setConfig(final VIPCfg inst, final String key, final Object v) {
+        try {
+            inst.getClass().getDeclaredField(key).set(inst, v);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            logger.error(e.toString());
+        }
+    }
 
     static void printObject(final Object obj) {
         System.out.println("-----------------------------------Start Printing Object");

@@ -22,7 +22,6 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class FileUtil {
     static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
@@ -36,13 +35,13 @@ public class FileUtil {
     }
 
     public static JSONObject readJSONFile(final String file) throws ParseException, IOException {
-        try ( InputStream is = ClassLoader.getSystemResourceAsStream(file);
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(file);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));) {
             return (JSONObject) new JSONParser().parse(reader);
         }
     }
 
-    public static JSONObject readJarJsonFile(final String jarPath, final String filePath){
+    public static JSONObject readJarJsonFile(final String jarPath, final String filePath) {
         JSONObject jsonObj = null;
         URL url = null;
         String path;
@@ -57,13 +56,13 @@ public class FileUtil {
             url = new URL(path);
 
             try (InputStream fis = url.openStream();
-                    Reader reader = new InputStreamReader(fis, "UTF-8");){
+                    Reader reader = new InputStreamReader(fis, "UTF-8");) {
 
                 final Object o = new JSONParser().parse(reader);
                 if (o != null) {
                     jsonObj = (JSONObject) o;
                 }
-            }catch(final Exception e){
+            } catch (final Exception e) {
                 logger.error(e.getMessage());
             }
         } catch (final MalformedURLException e1) {
@@ -73,19 +72,19 @@ public class FileUtil {
         return jsonObj;
     }
 
-    public static JSONObject readLocalJsonFile(final String filePath){
+    public static JSONObject readLocalJsonFile(final String filePath) {
         final String basePath = FileUtil.class.getClassLoader()
                 .getResource("").getFile();
         JSONObject jsonObj = null;
-        final File file = new File(basePath+filePath);
+        final File file = new File(basePath + filePath);
         if (file.exists()) {
-            try(InputStream fis = new FileInputStream(file);
+            try (InputStream fis = new FileInputStream(file);
                     Reader reader = new InputStreamReader(fis, "UTF-8");) {
                 final Object o = new JSONParser().parse(reader);
                 if (o != null) {
                     jsonObj = (JSONObject) o;
                 }
-            }catch(final Exception e){
+            } catch (final Exception e) {
                 logger.error(e.getMessage());
             }
         }

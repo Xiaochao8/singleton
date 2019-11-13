@@ -22,45 +22,45 @@ import com.vmware.vipclient.i18n.messages.service.CacheService;
 
 public class MessageCacheTest2 extends BaseTestClass {
 
-	private CacheService cacheService;
+    private CacheService cacheService;
 
-	private MessagesDTO cacheDTO;
+    private MessagesDTO  cacheDTO;
 
-	@Before
-	public void init() throws IOException {
-		VIPCfg gc = VIPCfg.getInstance();
+    @Before
+    public void init() throws IOException {
+        VIPCfg gc = VIPCfg.getInstance();
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
             logger.error(e.getMessage());
         }
-		gc.initializeVIPService();
+        gc.initializeVIPService();
         if (gc.getCacheManager() != null)
             gc.getCacheManager().clearCache();
-		Cache c = gc.createTranslationCache(MessageCache.class);
-		c.setExpiredTime(3600);
-		cacheDTO = new MessagesDTO();
-		cacheDTO.setProductID("dragon");
-		cacheDTO.setVersion("1.0.0");
-		cacheDTO.setComponent("JAVA");
-		cacheDTO.setLocale("zh_CN");
-		cacheService = new CacheService(cacheDTO);
-	}
-	
-	@Test
-	public void testDisableCache() {
-		VIPCfg gc = VIPCfg.getInstance();
+        Cache c = gc.createTranslationCache(MessageCache.class);
+        c.setExpiredTime(3600);
+        cacheDTO = new MessagesDTO();
+        cacheDTO.setProductID("dragon");
+        cacheDTO.setVersion("1.0.0");
+        cacheDTO.setComponent("JAVA");
+        cacheDTO.setLocale("zh_CN");
+        cacheService = new CacheService(cacheDTO);
+    }
+
+    @Test
+    public void testDisableCache() {
+        VIPCfg gc = VIPCfg.getInstance();
         Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
-		c.setXCapacity(0);
-		Map data = new HashMap();
-		String k = "com.vmware.test";
-		String v = "It's a test";
-		data.put(k, v);
-		String cachedKey = "key";
-		c.put(cachedKey, data);
-		long expired = 30000;
-		c.setExpiredTime(expired);
+        c.setXCapacity(0);
+        Map data = new HashMap();
+        String k = "com.vmware.test";
+        String v = "It's a test";
+        data.put(k, v);
+        String cachedKey = "key";
+        c.put(cachedKey, data);
+        long expired = 30000;
+        c.setExpiredTime(expired);
         Map cachedData = TranslationCacheManager.getCache(VIPCfg.CACHE_L3).get(cachedKey);
-		Assert.assertNull(cachedData);
-	}
+        Assert.assertNull(cachedData);
+    }
 }

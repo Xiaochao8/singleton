@@ -21,11 +21,11 @@ import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 
 public class VIPCfgTest extends BaseTestClass {
-	TranslationMessage translation;
-	MessagesDTO dto;
-	
-	@Before
-	public void init() throws IOException {
+    TranslationMessage translation;
+    MessagesDTO        dto;
+
+    @Before
+    public void init() throws IOException {
         VIPCfg gc = VIPCfg.getInstance();
         try {
             gc.initialize("vipconfig");
@@ -38,9 +38,9 @@ public class VIPCfgTest extends BaseTestClass {
         gc.createTranslationCache(MessageCache.class);
         gc.createFormattingCache(FormattingCache.class);
         I18nFactory i18n = I18nFactory.getInstance(gc);
-        translation = (TranslationMessage)i18n.getMessageInstance(TranslationMessage.class);
+        translation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
         dto = new MessagesDTO();
-	}
+    }
 
     @Test
     public void testPseudo() {
@@ -71,7 +71,7 @@ public class VIPCfgTest extends BaseTestClass {
         VIPCfg.getInstance().setMachineTranslation(true);
         String message1 = translation.getString(locale1, component, key, source, "It's a comment");
         Assert.assertThat(message1, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase(source));
-        
+
         Locale locale2 = new Locale("fr", "FR");
         String message2 = translation.getString(locale2, component, key, source, "It's a comment");
         // Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("C'est une source de
@@ -80,9 +80,9 @@ public class VIPCfgTest extends BaseTestClass {
         Locale locale3 = new Locale("de", "DE");
         VIPCfg.getInstance().setMachineTranslation(false);
         String message3 = translation.getString(locale3, component, key, "Test source", "It's a comment");
-        //Assert.assertThat(message3, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Test source"));
+        // Assert.assertThat(message3, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Test source"));
     }
-    
+
     @Test
     public void testMT2() {
         String component = "default";
@@ -94,7 +94,7 @@ public class VIPCfgTest extends BaseTestClass {
         VIPCfg.getInstance().setMachineTranslation(true);
         String message1 = translation.getString(locale1, component, key, source, "It's a comment");
         Assert.assertThat(message1, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase(source));
-        
+
         Locale locale2 = new Locale("fr", "FR");
         String message2 = translation.getString(locale2, component, key, source, "It's a comment");
         Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase(source));
@@ -105,15 +105,15 @@ public class VIPCfgTest extends BaseTestClass {
     @Test
     public void testMT3() {
         VIPCfg gc = VIPCfg.getInstance();
-        setConfig(gc, "productName", "Sample");
-        setConfig(gc, "version", "1.0.0");
+        gc.setProductName("Sample");
+        gc.setVersion("1.0.0");
         String component = "default";
         Locale locale1 = new Locale("ru");
         VIPCfg.getInstance().setMachineTranslation(true);
         Map message1 = translation.getStrings(locale1, component);
-       // Assert.assertTrue(message1.size()>0);
-       // String mt = (String)message1.get("global_text_username");
-       // Assert.assertThat(mt, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Имя пользователя"));
+        // Assert.assertTrue(message1.size()>0);
+        // String mt = (String)message1.get("global_text_username");
+        // Assert.assertThat(mt, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Имя пользователя"));
         String key = "key.mt";
         String source = "It's a testing source";
         String message2 = translation.getString(locale1, component, key, source, "It's a comment");
@@ -123,7 +123,7 @@ public class VIPCfgTest extends BaseTestClass {
 
     @Test
     public void testCollectSource() {
-    	vipCfg.setPseudo(false);
+        vipCfg.setPseudo(false);
 
         String component = "JAVA";
         Locale locale1 = new Locale("en", "US");
@@ -132,7 +132,7 @@ public class VIPCfgTest extends BaseTestClass {
         VIPCfg.getInstance().setCollectSource(true);
         String message1 = translation.getString(locale1, component, key, source, "It's a comment");
         Assert.assertThat(message1, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase(source));
-        
+
         Locale locale2 = new Locale("de", "DE");
         String message2 = translation.getString(locale2, component, "LeadTest", source, "It's a comment");
         Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase(source));
@@ -144,5 +144,5 @@ public class VIPCfgTest extends BaseTestClass {
         String message3 = translation.getString(locale3, component, key, "Test source", "It's a comment");
         Assert.assertThat(message3, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Test source"));
     }
- 
+
 }

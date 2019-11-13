@@ -35,40 +35,40 @@ import com.vmware.vipclient.i18n.messages.service.ProductService;
  */
 public class VIPCfg {
 
-    Logger logger = LoggerFactory.getLogger(VIPCfg.class);
+    Logger                                 logger        = LoggerFactory.getLogger(VIPCfg.class);
 
     // define global instance
-    private static VIPCfg gcInstance;
-    private static Map<String, VIPCfg>     moduleCfgs    = new HashMap<String, VIPCfg>();
-    private VIPService vipService;
-    private TranslationCacheManager translationCacheManager;
+    private static VIPCfg                  gcInstance;
+    private static Map<String, VIPCfg>     moduleCfgs    = new HashMap<>();
+    private VIPService                     vipService;
+    private TranslationCacheManager        translationCacheManager;
 
     // data origin
-    private DataSourceEnum messageOrigin = DataSourceEnum.VIP;
+    private DataSourceEnum                 messageOrigin = DataSourceEnum.VIP;
 
     // cache mode
-    private CacheMode cacheMode = CacheMode.MEMORY;
+    private CacheMode                      cacheMode     = CacheMode.MEMORY;
 
-    private String cachePath;
+    private String                         cachePath;
 
     // define the global parameters
-    private boolean pseudo;
-    private boolean collectSource;
-    private boolean cleanCache;
-    private long cacheExpiredTime;
-    private boolean machineTranslation;
-    private boolean initializeCache;
-    private int interalCleanCache;
-    private String productName;
-    private String version;
-    private String vipServer;
+    private boolean                        pseudo;
+    private boolean                        collectSource;
+    private boolean                        cleanCache;
+    private long                           cacheExpiredTime;
+    private boolean                        machineTranslation;
+    private boolean                        initializeCache;
+    private int                            interalCleanCache;
+    private String                         productName;
+    private String                         version;
+    private String                         vipServer;
 
     private ArrayList<Map<String, Object>> components;
-    private String i18nScope = "numbers,dates,currencies,plurals,measurements";
+    private String                         i18nScope     = "numbers,dates,currencies,plurals,measurements";
 
     // define key for cache management
-    public static final String CACHE_L3 = "CACHE_L3";
-    public static final String CACHE_L2 = "CACHE_L2";
+    public static final String             CACHE_L3      = "CACHE_L3";
+    public static final String             CACHE_L2      = "CACHE_L2";
 
     public boolean isSubInstance() {
         return isSubInstance;
@@ -79,13 +79,14 @@ public class VIPCfg {
     }
 
     private boolean isSubInstance = false;
+
     private VIPCfg() {
 
     }
 
     /**
      * create a default instance of VIPCfg
-     * 
+     *
      * @return
      */
     public static synchronized VIPCfg getInstance() {
@@ -115,7 +116,7 @@ public class VIPCfg {
 
     /**
      * initialize the instance by parameter
-     * 
+     *
      * @param vipServer
      * @param productName
      * @param version
@@ -128,7 +129,7 @@ public class VIPCfg {
 
     /**
      * initialize the instance by a properties file
-     * 
+     *
      * @param cfg
      */
     public void initialize(final String cfg) throws VIPClientInitException {
@@ -152,27 +153,22 @@ public class VIPCfg {
             pseudo = Boolean.parseBoolean(prop.getString("pseudo"));
         }
         if (prop.containsKey("collectSource")) {
-            collectSource = Boolean.parseBoolean(prop
-                    .getString("collectSource"));
+            collectSource = Boolean.parseBoolean(prop.getString("collectSource"));
         }
         if (prop.containsKey("initializeCache")) {
-            initializeCache = Boolean.parseBoolean(prop
-                    .getString("initializeCache"));
+            initializeCache = Boolean.parseBoolean(prop.getString("initializeCache"));
         }
         if (prop.containsKey("cleanCache")) {
-            cleanCache = Boolean.parseBoolean(prop
-                    .getString("cleanCache"));
+            cleanCache = Boolean.parseBoolean(prop.getString("cleanCache"));
         }
         if (prop.containsKey("machineTranslation")) {
-            machineTranslation = Boolean.parseBoolean(prop
-                    .getString("machineTranslation"));
+            machineTranslation = Boolean.parseBoolean(prop.getString("machineTranslation"));
         }
         if (prop.containsKey("i18nScope")) {
             i18nScope = prop.getString("i18nScope");
         }
         if (prop.containsKey("cacheExpiredTime")) {
-            cacheExpiredTime = Long.parseLong(prop
-                    .getString("cacheExpiredTime"));
+            cacheExpiredTime = Long.parseLong(prop.getString("cacheExpiredTime"));
         }
     }
 
@@ -211,15 +207,14 @@ public class VIPCfg {
         try {
             vipService.initializeVIPService(productName, version,
                     vipServer);
-        }
-        catch (final MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             logger.error("'vipServer' in configuration isn't a valid URL!");
         }
     }
 
     /**
      * set cache from out-process
-     * 
+     *
      * @param c
      */
     public void setTranslationCache(final Cache c) {
@@ -246,7 +241,7 @@ public class VIPCfg {
 
     /**
      * create translation cache
-     * 
+     *
      * @param cacheClass
      * @return
      */
@@ -254,7 +249,7 @@ public class VIPCfg {
         translationCacheManager = TranslationCacheManager
                 .createTranslationCacheManager();
         if (translationCacheManager != null) {
-            if(TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
+            if (TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
                 translationCacheManager.registerCache(VIPCfg.CACHE_L3,
                         cacheClass);
                 logger.info("Translation Cache created.");
@@ -280,7 +275,7 @@ public class VIPCfg {
 
     /**
      * create cache for formatting data
-     * 
+     *
      * @param cacheClass
      */
     public Cache createFormattingCache(final Class<?> cacheClass) {
@@ -307,8 +302,7 @@ public class VIPCfg {
         dto.setVersion(getVersion());
         new ProductService(dto).getAllComponentTranslation();
         if (translationCacheManager != null) {
-            logger.info("Translation data is loaded to cache, size is "
-                    + translationCacheManager.size() + ".");
+            logger.info("Translation data is loaded to cache, size is " + translationCacheManager.size() + ".");
         }
     }
 
