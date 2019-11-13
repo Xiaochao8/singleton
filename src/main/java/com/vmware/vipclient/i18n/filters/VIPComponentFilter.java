@@ -25,6 +25,7 @@ import com.vmware.vipclient.i18n.I18nFactory;
 import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.instances.TranslationMessage;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.util.LocaleUtility;
 
 /**
@@ -103,14 +104,14 @@ public class VIPComponentFilter implements Filter {
 
 	private TranslationMessage translation;
 	private VIPCfg gc = VIPCfg.getInstance();
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		if(gc.getVipService() == null) {
-			try {
-				gc.initialize("vipconfig.yaml");
-			} catch (IOException e) {
-				logger.error(e.toString());
-			}
+
+    public void init(FilterConfig filterConfig) throws ServletException {
+        if (gc.getVipService() == null) {
+            try {
+                gc.initialize("vipconfig");
+            } catch (VIPClientInitException e) {
+                logger.error(e.getMessage());
+            }
 			gc.initializeVIPService();
 		}
 		gc.createTranslationCache(MessageCache.class);

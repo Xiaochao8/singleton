@@ -16,6 +16,7 @@ import com.vmware.vipclient.i18n.base.cache.CacheMode;
 import com.vmware.vipclient.i18n.base.cache.MessageCache2;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
 import com.vmware.vipclient.i18n.base.cache.persist.CacheSyncThreadPool;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.CacheService;
 
@@ -28,7 +29,11 @@ public class PersistantCacheTest extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
 		VIPCfg gc = VIPCfg.getInstance();
-		gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
 		gc.initializeVIPService();
 		Cache c = gc.createTranslationCache(MessageCache2.class);
 		c.setExpiredTime(3600000);
@@ -58,7 +63,7 @@ public class PersistantCacheTest extends BaseTestClass {
 				map2.put(key, source);
 			}
 			cacheService.addCacheOfComponent(map2);
-			Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
+            Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
 			logger.debug(String.valueOf(c.size()));
 		}
 		CacheSyncThreadPool t =new CacheSyncThreadPool();

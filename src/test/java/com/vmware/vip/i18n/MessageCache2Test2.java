@@ -16,6 +16,7 @@ import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.MessageCache2;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.CacheService;
 
@@ -28,9 +29,14 @@ public class MessageCache2Test2 extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
 		VIPCfg gc = VIPCfg.getInstance();
-		gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
 		gc.initializeVIPService();
-		if(gc.getCacheManager() != null) gc.getCacheManager().clearCache();
+        if (gc.getCacheManager() != null)
+            gc.getCacheManager().clearCache();
 		Cache c = gc.createTranslationCache(MessageCache2.class);
 		MessageCache2 c2 = (MessageCache2)c;
 		c2.setExpiredTime(3600);

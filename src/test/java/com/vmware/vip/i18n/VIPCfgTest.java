@@ -17,6 +17,7 @@ import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.FormattingCache;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.instances.TranslationMessage;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 
 public class VIPCfgTest extends BaseTestClass {
@@ -26,9 +27,14 @@ public class VIPCfgTest extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
         VIPCfg gc = VIPCfg.getInstance();
-        gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
         gc.initializeVIPService();
-        if(gc.getCacheManager() != null) gc.getCacheManager().clearCache();
+        if (gc.getCacheManager() != null)
+            gc.getCacheManager().clearCache();
         gc.createTranslationCache(MessageCache.class);
         gc.createFormattingCache(FormattingCache.class);
         I18nFactory i18n = I18nFactory.getInstance(gc);
@@ -68,7 +74,8 @@ public class VIPCfgTest extends BaseTestClass {
         
         Locale locale2 = new Locale("fr", "FR");
         String message2 = translation.getString(locale2, component, key, source, "It's a comment");
-        //Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("C'est une source de test"));
+        // Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("C'est une source de
+        // test"));
 
         Locale locale3 = new Locale("de", "DE");
         VIPCfg.getInstance().setMachineTranslation(false);
@@ -110,7 +117,8 @@ public class VIPCfgTest extends BaseTestClass {
         String key = "key.mt";
         String source = "It's a testing source";
         String message2 = translation.getString(locale1, component, key, source, "It's a comment");
-        //Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Это тестовый источник"));
+        // Assert.assertThat(message2, org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase("Это тестовый
+        // источник"));
     }
 
     @Test

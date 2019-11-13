@@ -23,6 +23,7 @@ import com.vmware.vipclient.i18n.I18nFactory;
 import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.instances.LocaleMessage;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.util.LocaleUtility;
 
 public class LocaleTest extends BaseTestClass {
@@ -31,7 +32,11 @@ public class LocaleTest extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
         VIPCfg gc = VIPCfg.getInstance();
-        gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
         gc.initializeVIPService();
         gc.createFormattingCache(MessageCache.class);
         I18nFactory i18n = I18nFactory.getInstance(gc);

@@ -16,9 +16,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.json.simple.JSONObject;
 
 import com.vmware.vipclient.i18n.messages.service.PatternService;
 import com.vmware.vipclient.i18n.util.LocaleUtility;
@@ -28,38 +28,42 @@ import com.vmware.vipclient.i18n.util.LocaleUtility;
  *
  */
 public class VIPPatternFilter implements Filter {
-	Logger logger = LoggerFactory.getLogger(VIPPatternFilter.class);
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-		String locale = this.getParamFromQuery(request, "locale");
-		Map<String, String> ctmap = null;
-		String messages = "{}";
-		if(!LocaleUtility.isDefaultLocale(locale)){
-			ctmap = new PatternService().getPatterns(locale);
-			if (ctmap != null) {
-				messages = JSONObject.toJSONString(ctmap);
-			}
-		}
-		OutputStream os = response.getOutputStream();
-		response.setContentType("text/javascript;charset=UTF-8");
-		os.write(("var localeData ="  + messages).getBytes("UTF-8"));
-	}
+    Logger logger = LoggerFactory.getLogger(VIPPatternFilter.class);
 
-	private String getParamFromQuery(ServletRequest request, String paramName) {
-		HttpServletRequest res = (HttpServletRequest) request;
-		String queryStr = res.getQueryString();
-		String localepath = queryStr.substring(queryStr.indexOf(paramName)
-				+ paramName.length() + 1, queryStr.length());
-		return localepath.substring(0,
-				localepath.indexOf("/") > 0 ? localepath.indexOf("/")
-						: localepath.length());
-	}
+    @Override
+    public void doFilter(final ServletRequest request, ServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
+        String locale = this.getParamFromQuery(request, "locale");
+        Map<String, String> ctmap = null;
+        String messages = "{}";
+        if (!LocaleUtility.isDefaultLocale(locale)) {
+            ctmap = new PatternService().getPatterns(locale);
+            if (ctmap != null) {
+                messages = JSONObject.toJSONString(ctmap);
+            }
+        }
+        OutputStream os = response.getOutputStream();
+        response.setContentType("text/javascript;charset=UTF-8");
+        os.write(("var localeData =" + messages).getBytes("UTF-8"));
+    }
 
-	public void destroy() {
-		// Do Nothing
-	}
+    private String getParamFromQuery(ServletRequest request, String paramName) {
+        HttpServletRequest res = (HttpServletRequest) request;
+        String queryStr = res.getQueryString();
+        String localepath = queryStr.substring(queryStr.indexOf(paramName)
+                + paramName.length() + 1, queryStr.length());
+        return localepath.substring(0,
+                localepath.indexOf("/") > 0 ? localepath.indexOf("/")
+                        : localepath.length());
+    }
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-		// Do Nothing
-	}
+    @Override
+    public void destroy() {
+        // Do Nothing
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Do Nothing
+    }
 }

@@ -16,6 +16,7 @@ import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.CacheService;
 
@@ -28,9 +29,14 @@ public class MessageCacheTest2 extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
 		VIPCfg gc = VIPCfg.getInstance();
-		gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
 		gc.initializeVIPService();
-		if(gc.getCacheManager() != null) gc.getCacheManager().clearCache();
+        if (gc.getCacheManager() != null)
+            gc.getCacheManager().clearCache();
 		Cache c = gc.createTranslationCache(MessageCache.class);
 		c.setExpiredTime(3600);
 		cacheDTO = new MessagesDTO();
@@ -44,7 +50,7 @@ public class MessageCacheTest2 extends BaseTestClass {
 	@Test
 	public void testDisableCache() {
 		VIPCfg gc = VIPCfg.getInstance();
-		Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
+        Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
 		c.setXCapacity(0);
 		Map data = new HashMap();
 		String k = "com.vmware.test";
@@ -54,7 +60,7 @@ public class MessageCacheTest2 extends BaseTestClass {
 		c.put(cachedKey, data);
 		long expired = 30000;
 		c.setExpiredTime(expired);
-		Map cachedData = TranslationCacheManager.getCache(VIPCfg.CACHE_L3).get(cachedKey);
+        Map cachedData = TranslationCacheManager.getCache(VIPCfg.CACHE_L3).get(cachedKey);
 		Assert.assertNull(cachedData);
 	}
 }

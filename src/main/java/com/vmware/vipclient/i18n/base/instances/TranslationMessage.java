@@ -5,17 +5,21 @@
 package com.vmware.vipclient.i18n.base.instances;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.vipclient.i18n.VIPCfg;
+import com.vmware.vipclient.i18n.common.ConstantsMsg;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.ComponentService;
+import com.vmware.vipclient.i18n.messages.service.ComponentsService;
 import com.vmware.vipclient.i18n.messages.service.StringService;
 import com.vmware.vipclient.i18n.util.ConstantsKeys;
 import com.vmware.vipclient.i18n.util.FormatUtils;
@@ -28,6 +32,16 @@ import com.vmware.vipclient.i18n.util.LocaleUtility;
  */
 public class TranslationMessage implements Message {
 	Logger logger = LoggerFactory.getLogger(TranslationMessage.class);
+
+    public VIPCfg getCfg() {
+        return cfg;
+    }
+
+    public void setCfg(VIPCfg cfg) {
+        this.cfg = cfg;
+    }
+
+    private VIPCfg cfg;
 
 	public TranslationMessage() {
 		super();
@@ -66,6 +80,10 @@ public class TranslationMessage implements Message {
 		dto.setKey(key);
 		dto.setSource(source);
 		dto.setLocale(locale.toLanguageTag());
+        if (cfg != null) {
+            dto.setProductID(cfg.getProductName());
+            dto.setVersion(cfg.getVersion());
+        }
 		StringService s = new StringService(dto);
 		String translation = "";
 		if (!LocaleUtility.isDefaultLocale(locale)) {
@@ -139,9 +157,13 @@ public class TranslationMessage implements Message {
 		MessagesDTO dto = new MessagesDTO();
 		dto.setLocale(locale.toLanguageTag());
 		dto.setComponent(component);
-		List<JSONObject> sourcesList = new ArrayList<>();
+        if (cfg != null) {
+            dto.setProductID(cfg.getProductName());
+            dto.setVersion(cfg.getVersion());
+        }
+        List<JSONObject> sourcesList = new ArrayList<JSONObject>();
 		sourcesList.addAll(sources);
-		List<JSONObject> removedList = new ArrayList<>();
+        List<JSONObject> removedList = new ArrayList<>();
 		for(JSONObject jo : sourcesList) {
 			String key = (String)jo.get(ConstantsKeys.KEY);
 			String source = (String)jo.get(ConstantsKeys.SOURCE);
@@ -162,7 +184,6 @@ public class TranslationMessage implements Message {
 			return s.postStrings(sourcesList);
 		}
 	}
-
 
 	/**
 	 * post a source to remote VIP server
@@ -192,14 +213,18 @@ public class TranslationMessage implements Message {
 		dto.setSource(source);
 		StringService s = new StringService(dto);
 		dto.setLocale(ConstantsKeys.LATEST);
+        if (cfg != null) {
+            dto.setProductID(cfg.getProductName());
+            dto.setVersion(cfg.getVersion());
+        }
 		String enStr = s.getString();
 		if(source != null && !"".equalsIgnoreCase(source) && !source.equals(enStr)) {
 			dto.setLocale(locale.toLanguageTag());
 			String recievedStr = s.postString();
 			return !JSONUtils.isEmpty(recievedStr);			
+        } else
+            return true;
 		}
-		else return true;
-	}
 	
 	/**
 	 * get one component's translations from VIP of the configured product
@@ -218,11 +243,47 @@ public class TranslationMessage implements Message {
 		MessagesDTO dto = new MessagesDTO();
 		dto.setLocale(locale.toLanguageTag());
 		dto.setComponent(component);
+        if (cfg != null) {
+            dto.setProductID(cfg.getProductName());
+            dto.setVersion(cfg.getVersion());
+        }
 		ComponentService cs = new ComponentService(dto);
 		return cs.getComponentTranslation();
 	}
 
 	/**
+     * get multiple components' translations from VIP server
+     *
+     * @param locales
+     *            locales to get the translations of them
+     * @param components
+     *            names of the components to get translation
+     * @return
+     *         a map contains all translations of the components of specified locales.
+     *         Key is loale; value is also a map whose key is component and value is the messages belong to
+     *         this component.
+     */
+    public Map<Locale, Map<String, Map<String, String>>> getStrings(final Set<Locale> locales,
+            final Set<String> components) {
+        logger.info("Start to execute TranslationMessage.getStrings of multiple components of multiple locales.");
+
+        Map<Locale, Map<String, Map<String, String>>> retMap = new HashMap<>();
+        if (null == locales || locales.isEmpty() || null == components || components.isEmpty()) {
+            logger.error(ConstantsMsg.WRONG_PARAMETER + "locales: {}, components: {}.", locales, components);
+            return retMap;
+        }
+
+        try {
+            final ComponentsService cs = new ComponentsService(components, locales);
+            retMap = cs.getTranslation();
+        } catch (final Exception e) {
+            logger.error(ConstantsMsg.EXCEPTION_OCCUR, e);
+        }
+
+        return retMap;
+    }
+
+    /**
 	 * get one translation of the configured product from VIP, if message not
 	 * found will get the English message from specified bundle.
 	 *
@@ -282,6 +343,10 @@ public class TranslationMessage implements Message {
 			MessagesDTO dto = new MessagesDTO();
 			dto.setComponent(component);
 			dto.setLocale(locale.toLanguageTag());
+            if (cfg != null) {
+                dto.setProductID(cfg.getProductName());
+                dto.setVersion(cfg.getVersion());
+            }
 			ComponentService cs = new ComponentService(dto);
 			available = cs.isComponentAvailable();
 		}
@@ -303,6 +368,10 @@ public class TranslationMessage implements Message {
 			dto.setComponent(component);
 			dto.setKey(key);
 			dto.setLocale(locale.toLanguageTag());
+            if (cfg != null) {
+                dto.setProductID(cfg.getProductName());
+                dto.setVersion(cfg.getVersion());
+            }
 			StringService s = new StringService(dto);
 			available = s.isStringAvailable();
 		}

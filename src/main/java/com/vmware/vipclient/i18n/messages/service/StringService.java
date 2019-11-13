@@ -53,10 +53,10 @@ public class StringService {
 			ComponentBasedOpt dao = new ComponentBasedOpt(dto);
 			r = dao.postString();
 		}
-		if(r != "") {
+        if (null != r && !r.equals("")) {
 			dto.setLocale(ConstantsKeys.LATEST);
 			CacheService c = new CacheService(dto);
-			Map<String, String> dataMap = new HashMap<>();
+            Map<String, String> dataMap = new HashMap<>();
 			dataMap.put(dto.getKey(), dto.getSource());
 			c.updateCacheOfComponent(dataMap);
 		}
@@ -72,9 +72,10 @@ public class StringService {
 		if(r) {
 			dto.setLocale(ConstantsKeys.LATEST);
 			CacheService c = new CacheService(dto);
-			Map<String, String> dataMap = new HashMap<>();
+            Map<String, String> dataMap = new HashMap<>();
 			for(JSONObject jo: sources) {
-				dataMap.put((String)jo.get(ConstantsKeys.KEY), jo.get(ConstantsKeys.SOURCE) == null ? "" : (String)jo.get(ConstantsKeys.SOURCE));
+                dataMap.put((String) jo.get(ConstantsKeys.KEY),
+                        jo.get(ConstantsKeys.SOURCE) == null ? "" : (String) jo.get(ConstantsKeys.SOURCE));
 			}
 			c.updateCacheOfComponent(dataMap);
 		}

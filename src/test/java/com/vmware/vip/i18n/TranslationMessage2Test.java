@@ -19,6 +19,7 @@ import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
 import com.vmware.vipclient.i18n.base.instances.TranslationMessage;
+import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 
 public class TranslationMessage2Test extends BaseTestClass {
 	Logger logger = LoggerFactory.getLogger(TranslationMessage2Test.class);
@@ -28,7 +29,11 @@ public class TranslationMessage2Test extends BaseTestClass {
 	@Before
 	public void init() throws IOException {
 		VIPCfg gc = VIPCfg.getInstance();
-		gc.initialize("vipconfig.yaml");
+        try {
+            gc.initialize("vipconfig");
+        } catch (VIPClientInitException e) {
+            logger.error(e.getMessage());
+        }
 		gc.initializeVIPService();
 		gc.createTranslationCache(MessageCache.class).setXCapacity(-1);
 		I18nFactory i18n = I18nFactory.getInstance(gc);
