@@ -32,13 +32,13 @@ public class MessageSupport extends BodyTagSupport {
     protected boolean          keySpecified;
     private String             var;
     private int                scope;
-    private List               params;
-    private String             component     = "JSP", bundle = "webui";
+    private final List               params;
+    private final String             component     = "JSP", bundle = "webui";
     private TranslationMessage translation;
 
     public MessageSupport() {
-        this.params = new ArrayList();
-        init();
+        this.params = new ArrayList<>();
+        this.init();
     }
 
     private void init() {
@@ -54,20 +54,22 @@ public class MessageSupport extends BodyTagSupport {
         }
         gc.initializeVIPService();
         gc.createTranslationCache(MessageCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
-        translation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.translation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
     }
 
+    @Override
     public int doStartTag() throws JspException {
         this.params.clear();
         return 2;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         String key = null;
-        if (this.keySpecified)
+        if (this.keySpecified) {
             key = this.keyAttrValue;
-        else if ((this.bodyContent != null)
+        } else if ((this.bodyContent != null)
                 && (this.bodyContent.getString() != null)) {
             key = this.bodyContent.getString().trim();
         }
@@ -81,8 +83,8 @@ public class MessageSupport extends BodyTagSupport {
         }
         Locale locale = LocaleUtility.getLocale();
         Object[] args = this.params.isEmpty() ? null : this.params.toArray();
-        String message = translation == null ? ""
-                : translation.getString2(component, bundle, locale, key, "TranslationCache", args);
+        String message = this.translation == null ? ""
+                : this.translation.getString2(this.component, this.bundle, locale, key, "TranslationCache", args);
         if (this.var != null) {
             this.pageContext.setAttribute(this.var, message, this.scope);
         } else {
@@ -95,26 +97,30 @@ public class MessageSupport extends BodyTagSupport {
         return 0;
     }
 
+    @Override
     public Tag getParent() {
         return null;
     }
 
+    @Override
     public void release() {
-        init();
+        this.init();
     }
 
-    public void setPageContext(PageContext arg0) {
+    @Override
+    public void setPageContext(final PageContext arg0) {
         this.pageContext = arg0;
     }
 
-    public void setParent(Tag arg0) {
+    @Override
+    public void setParent(final Tag arg0) {
     }
 
     public String getVar() {
         return this.var;
     }
 
-    public void setVar(String var) {
+    public void setVar(final String var) {
         this.var = var;
     }
 
@@ -122,11 +128,11 @@ public class MessageSupport extends BodyTagSupport {
         return this.scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(final String scope) {
         this.scope = Util.getScope(scope);
     }
 
-    public void addParam(Object arg) {
+    public void addParam(final Object arg) {
         this.params.add(arg);
     }
 }

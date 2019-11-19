@@ -30,11 +30,11 @@ public class PluralFormatTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createFormattingCache(FormattingCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
+        I18nFactory i18n = I18nFactory.getInstance();
     }
 
     @Test

@@ -27,12 +27,12 @@ public class NumberFormatUtilTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createFormattingCache(FormattingCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
-        numberFormatI18n = (NumberFormatting) i18n.getFormattingInstance(NumberFormatting.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.numberFormatI18n = (NumberFormatting) i18n.getFormattingInstance(NumberFormatting.class);
     }
 
     @Test
@@ -44,43 +44,43 @@ public class NumberFormatUtilTest extends BaseTestClass {
         String language = "zh-Hans";
         String region = "CN";
 
-        Assert.assertEquals("201,703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703", this.numberFormatI18n.formatNumber(num1,
                 language, region));
-        Assert.assertEquals("201,703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703", this.numberFormatI18n.formatNumber(num1,
                 -1, language, region));
-        Assert.assertEquals("201,703.00", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703.00", this.numberFormatI18n.formatNumber(num1,
                 2, language, region));
-        Assert.assertEquals("201,703.00000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703.00000", this.numberFormatI18n.formatNumber(num1,
                 5, language, region));
 
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num2,
                 language, region));
-        Assert.assertEquals("201,704", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,704", this.numberFormatI18n.formatNumber(num2,
                 -1, language, region));
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num2,
                 2, language, region));
-        Assert.assertEquals("201,703.54000", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54000", this.numberFormatI18n.formatNumber(num2,
                 5, language, region));
 
-        Assert.assertEquals("201,703.542", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.542", this.numberFormatI18n.formatNumber(num3,
                 language, region));
-        Assert.assertEquals("201,704", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,704", this.numberFormatI18n.formatNumber(num3,
                 -1, language, region));
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num3,
                 2, language, region));
-        Assert.assertEquals("201,703.54169", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.54169", this.numberFormatI18n.formatNumber(num3,
                 5, language, region));
 
         String frlanguage = "fr";
         String frregion = "FR";
 
-        Assert.assertEquals("201 703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703", this.numberFormatI18n.formatNumber(num1,
                 frlanguage, frregion));
-        Assert.assertEquals("201 703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703", this.numberFormatI18n.formatNumber(num1,
                 -10, frlanguage, frregion));
-        Assert.assertEquals("201 703,000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703,000", this.numberFormatI18n.formatNumber(num1,
                 3, frlanguage, frregion));
-        Assert.assertEquals("201 703,0000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703,0000", this.numberFormatI18n.formatNumber(num1,
                 4, frlanguage, frregion));
     }
 
@@ -91,41 +91,41 @@ public class NumberFormatUtilTest extends BaseTestClass {
         String num3 = "201703.5416926";
 
         final Locale zhLocale = new Locale("zh", "CN");
-        Assert.assertEquals("201,703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703", this.numberFormatI18n.formatNumber(num1,
                 zhLocale));
-        Assert.assertEquals("201,703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703", this.numberFormatI18n.formatNumber(num1,
                 -1, zhLocale));
-        Assert.assertEquals("201,703.00", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703.00", this.numberFormatI18n.formatNumber(num1,
                 2, zhLocale));
-        Assert.assertEquals("201,703.00000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201,703.00000", this.numberFormatI18n.formatNumber(num1,
                 5, zhLocale));
 
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num2,
                 zhLocale));
-        Assert.assertEquals("201,704", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,704", this.numberFormatI18n.formatNumber(num2,
                 -1, zhLocale));
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num2,
                 2, zhLocale));
-        Assert.assertEquals("201,703.54000", numberFormatI18n.formatNumber(num2,
+        Assert.assertEquals("201,703.54000", this.numberFormatI18n.formatNumber(num2,
                 5, zhLocale));
 
-        Assert.assertEquals("201,703.542", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.542", this.numberFormatI18n.formatNumber(num3,
                 zhLocale));
-        Assert.assertEquals("201,704", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,704", this.numberFormatI18n.formatNumber(num3,
                 -1, zhLocale));
-        Assert.assertEquals("201,703.54", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.54", this.numberFormatI18n.formatNumber(num3,
                 2, zhLocale));
-        Assert.assertEquals("201,703.54169", numberFormatI18n.formatNumber(num3,
+        Assert.assertEquals("201,703.54169", this.numberFormatI18n.formatNumber(num3,
                 5, zhLocale));
 
         final Locale frLocale = new Locale("fr", "");
-        Assert.assertEquals("201 703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703", this.numberFormatI18n.formatNumber(num1,
                 frLocale));
-        Assert.assertEquals("201 703", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703", this.numberFormatI18n.formatNumber(num1,
                 -10, frLocale));
-        Assert.assertEquals("201 703,000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703,000", this.numberFormatI18n.formatNumber(num1,
                 3, frLocale));
-        Assert.assertEquals("201 703,0000", numberFormatI18n.formatNumber(num1,
+        Assert.assertEquals("201 703,0000", this.numberFormatI18n.formatNumber(num1,
                 4, frLocale));
     }
 
@@ -134,19 +134,19 @@ public class NumberFormatUtilTest extends BaseTestClass {
         double num1 = 0.354;
 
         final Locale zhLocale = new Locale("zh", "CN");
-        Assert.assertEquals("35%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35%", this.numberFormatI18n.formatPercent(num1,
                 zhLocale));
-        Assert.assertEquals("35%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35%", this.numberFormatI18n.formatPercent(num1,
                 -1, zhLocale));
-        Assert.assertEquals("35.40%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35.40%", this.numberFormatI18n.formatPercent(num1,
                 2, zhLocale));
 
         final Locale frLocale = new Locale("fr", "");
-        Assert.assertEquals("35 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35 %", this.numberFormatI18n.formatPercent(num1,
                 frLocale));
-        Assert.assertEquals("35 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35 %", this.numberFormatI18n.formatPercent(num1,
                 -3, frLocale));
-        Assert.assertEquals("35,40000 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35,40000 %", this.numberFormatI18n.formatPercent(num1,
                 5, frLocale));
     }
 
@@ -156,21 +156,21 @@ public class NumberFormatUtilTest extends BaseTestClass {
 
         String language = "zh-Hans";
         String region = "CN";
-        Assert.assertEquals("35%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35%", this.numberFormatI18n.formatPercent(num1,
                 language, region));
-        Assert.assertEquals("35%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35%", this.numberFormatI18n.formatPercent(num1,
                 -1, language, region));
-        Assert.assertEquals("35.40%", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35.40%", this.numberFormatI18n.formatPercent(num1,
                 2, language, region));
 
         String frlanguage = "fr";
         String frregion = "FR";
 
-        Assert.assertEquals("35 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35 %", this.numberFormatI18n.formatPercent(num1,
                 frlanguage, frregion));
-        Assert.assertEquals("35 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35 %", this.numberFormatI18n.formatPercent(num1,
                 -3, frlanguage, frregion));
-        Assert.assertEquals("35,40000 %", numberFormatI18n.formatPercent(num1,
+        Assert.assertEquals("35,40000 %", this.numberFormatI18n.formatPercent(num1,
                 5, frlanguage, frregion));
     }
 
@@ -182,9 +182,9 @@ public class NumberFormatUtilTest extends BaseTestClass {
         String num3 = "201704.5456926";
 
         final Locale zhLocale = new Locale("zh", "CN");
-        Assert.assertEquals("US$201,703.00", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,703.00", this.numberFormatI18n.formatCurrency(
                 num1, zhLocale));
-        Assert.assertEquals("JP¥201,703", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,703", this.numberFormatI18n.formatCurrency(
                 num1, currencyCode, zhLocale));
         /*
          * Assert.assertEquals("￥201,703", numberFormatI18n.formatCurrency(
@@ -195,9 +195,9 @@ public class NumberFormatUtilTest extends BaseTestClass {
          * .formatCurrency(num1, 5, zhLocale));
          */
 
-        Assert.assertEquals("US$201,703.54", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,703.54", this.numberFormatI18n.formatCurrency(
                 num2, zhLocale));
-        Assert.assertEquals("JP¥201,704", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,704", this.numberFormatI18n.formatCurrency(
                 num2, currencyCode, zhLocale));
         /*
          * Assert.assertEquals("￥201,704", numberFormatI18n.formatCurrency(
@@ -208,9 +208,9 @@ public class NumberFormatUtilTest extends BaseTestClass {
          * .formatCurrency(num2, 5, zhLocale));
          */
 
-        Assert.assertEquals("US$201,704.55", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,704.55", this.numberFormatI18n.formatCurrency(
                 num3, zhLocale));
-        Assert.assertEquals("JP¥201,705", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,705", this.numberFormatI18n.formatCurrency(
                 num3, currencyCode, zhLocale));
         /*
          * Assert.assertEquals("￥201,704", numberFormatI18n.formatCurrency(
@@ -222,9 +222,9 @@ public class NumberFormatUtilTest extends BaseTestClass {
          */
 
         final Locale frLocale = new Locale("fr", "");
-        Assert.assertEquals("201 703,00 $US", numberFormatI18n
+        Assert.assertEquals("201 703,00 $US", this.numberFormatI18n
                 .formatCurrency(num1, frLocale));
-        Assert.assertEquals("201 703 JPY", numberFormatI18n
+        Assert.assertEquals("201 703 JPY", this.numberFormatI18n
                 .formatCurrency(num1, currencyCode, frLocale));
         /*
          * Assert.assertEquals("201 703 €", numberFormatI18n.formatCurrency(
@@ -246,27 +246,27 @@ public class NumberFormatUtilTest extends BaseTestClass {
         String language = "zh-Hans";
         String region = "CN";
 
-        Assert.assertEquals("US$201,703.00", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,703.00", this.numberFormatI18n.formatCurrency(
                 num1, language, region));
-        Assert.assertEquals("JP¥201,703", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,703", this.numberFormatI18n.formatCurrency(
                 num1, currencyCode, language, region));
 
-        Assert.assertEquals("US$201,703.54", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,703.54", this.numberFormatI18n.formatCurrency(
                 num2, language, region));
-        Assert.assertEquals("JP¥201,704", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,704", this.numberFormatI18n.formatCurrency(
                 num2, currencyCode, language, region));
 
-        Assert.assertEquals("US$201,704.55", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("US$201,704.55", this.numberFormatI18n.formatCurrency(
                 num3, language, region));
-        Assert.assertEquals("JP¥201,705", numberFormatI18n.formatCurrency(
+        Assert.assertEquals("JP¥201,705", this.numberFormatI18n.formatCurrency(
                 num3, currencyCode, language, region));
 
         String frlanguage = "fr";
         String frregion = "FR";
 
-        Assert.assertEquals("201 703,00 $US", numberFormatI18n
+        Assert.assertEquals("201 703,00 $US", this.numberFormatI18n
                 .formatCurrency(num1, frlanguage, frregion));
-        Assert.assertEquals("201 703 JPY", numberFormatI18n
+        Assert.assertEquals("201 703 JPY", this.numberFormatI18n
                 .formatCurrency(num1, currencyCode, frlanguage, frregion));
 
     }

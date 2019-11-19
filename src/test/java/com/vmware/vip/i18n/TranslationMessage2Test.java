@@ -32,12 +32,12 @@ public class TranslationMessage2Test extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createTranslationCache(MessageCache.class).setXCapacity(-1);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
-        translation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.translation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
     }
 
     @Test
@@ -48,21 +48,21 @@ public class TranslationMessage2Test extends BaseTestClass {
         String key = "table.host";
         VIPCfg.getInstance().setPseudo(false);
         long bl = System.currentTimeMillis();
-        logger.info(String.valueOf(bl));
-        boolean a1 = translation.isAvailable(component, key, locale1);
+        this.logger.info(String.valueOf(bl));
+        boolean a1 = this.translation.isAvailable(component, key, locale1);
         long b2 = System.currentTimeMillis();
-        logger.info(String.valueOf(b2));
+        this.logger.info(String.valueOf(b2));
         Assert.assertTrue(a1);
         String key2 = "table.host";
-        boolean a2 = translation.isAvailable(component, key2, locale1);
+        boolean a2 = this.translation.isAvailable(component, key2, locale1);
         long b3 = System.currentTimeMillis();
-        logger.info(String.valueOf(b3));
+        this.logger.info(String.valueOf(b3));
         Assert.assertTrue((b3 - b2) < 10);
         Assert.assertTrue(a2);
-        boolean a3 = translation.isAvailable(component, locale1);
+        boolean a3 = this.translation.isAvailable(component, locale1);
         Assert.assertFalse(a3);
         Locale locale2 = new Locale("zh", "CN");
-        boolean a4 = translation.isAvailable(component, locale2);
+        boolean a4 = this.translation.isAvailable(component, locale2);
         Assert.assertFalse(a4);
         Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
         c.setExpiredTime(3000);
@@ -73,7 +73,7 @@ public class TranslationMessage2Test extends BaseTestClass {
         }
         Cache c2 = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
         Assert.assertTrue(c2.keySet().size() == 0);
-        boolean a7 = translation.isAvailable(component, key, locale1);
+        boolean a7 = this.translation.isAvailable(component, key, locale1);
         Assert.assertTrue(a7);
     }
 
@@ -83,19 +83,19 @@ public class TranslationMessage2Test extends BaseTestClass {
                 .getProductName()) ? "default" : "JAVA";
         Locale locale1 = new Locale("de", "DE");
         String key3 = "com.vmware.not.exist";
-        boolean a5 = translation.isAvailable(component, key3, locale1);
+        boolean a5 = this.translation.isAvailable(component, key3, locale1);
         Assert.assertFalse(a5);
-        boolean a6 = translation.isAvailable(component, key3, locale1);
+        boolean a6 = this.translation.isAvailable(component, key3, locale1);
         Assert.assertFalse(a6);
         Locale locale2 = new Locale("zh", "CN");
         String component2 = "NotExist";
-        boolean a7 = translation.isAvailable(component2, locale2);
+        boolean a7 = this.translation.isAvailable(component2, locale2);
         Assert.assertFalse(a7);
-        boolean a8 = translation.isAvailable(component2, locale2);
+        boolean a8 = this.translation.isAvailable(component2, locale2);
         Assert.assertFalse(a8);
-        boolean a9 = translation.isAvailable(component, key3, locale1);
+        boolean a9 = this.translation.isAvailable(component, key3, locale1);
         Assert.assertFalse(a9);
-        boolean a10 = translation.isAvailable(component, key3, locale1);
+        boolean a10 = this.translation.isAvailable(component, key3, locale1);
         Assert.assertFalse(a10);
     }
 }

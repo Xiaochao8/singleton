@@ -32,23 +32,24 @@ public class SharedComponentTest extends BaseTestClass {
         try {
             mainCfg.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         mainCfg.initializeVIPService();
-        if (mainCfg.getCacheManager() != null)
+        if (mainCfg.getCacheManager() != null) {
             mainCfg.getCacheManager().clearCache();
+        }
         mainCfg.createTranslationCache(MessageCache.class);
         mainCfg.createFormattingCache(FormattingCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(mainCfg);
-        mainTranslation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.mainTranslation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class);
 
-        VIPCfg subCfg = VIPCfg.getSubInstance(subProductName);
+        VIPCfg subCfg = VIPCfg.getSubInstance(this.subProductName);
         try {
             subCfg.initialize("vipconfig-child");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
-        subTranslation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class, subCfg);
+        this.subTranslation = (TranslationMessage) i18n.getMessageInstance(TranslationMessage.class, subCfg);
     }
 
     @Test
@@ -57,17 +58,17 @@ public class SharedComponentTest extends BaseTestClass {
         String comp = "JAVA";
         String key = "table.host";
         String source = "Host";
-        String trans1 = mainTranslation.getString(zhLocale, comp, key, source, "");
-        logger.debug("pseudoTrans1: " + trans1);
+        String trans1 = this.mainTranslation.getString(zhLocale, comp, key, source, "");
+        this.logger.debug("pseudoTrans1: " + trans1);
 
         Locale zhLocale2 = new Locale("de", "");
         String comp2 = "JSP";
         String key2 = "table.head";
         String source2 = "VM";
-        String trans2 = subTranslation.getString(zhLocale2, comp2, key2, source2, "");
-        logger.debug("pseudoTrans1: " + trans2);
-        Assert.assertTrue(VIPCfg.getInstance().getProductName().equals(mainProductName));
-        Assert.assertTrue(subTranslation.getCfg().getProductName().equals(subProductName));
+        String trans2 = this.subTranslation.getString(zhLocale2, comp2, key2, source2, "");
+        this.logger.debug("pseudoTrans1: " + trans2);
+        Assert.assertTrue(VIPCfg.getInstance().getProductName().equals(this.mainProductName));
+        Assert.assertTrue(this.subTranslation.getCfg().getProductName().equals(this.subProductName));
 
         VIPCfg gc = VIPCfg.getInstance();
         Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);

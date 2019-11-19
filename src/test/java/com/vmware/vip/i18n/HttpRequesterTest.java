@@ -36,15 +36,15 @@ public class HttpRequesterTest extends BaseTestClass {
         try {
             cfg.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         cfg.setVipServer(mockServer);
         cfg.setInitializeCache(false);
         cfg.initializeVIPService();
         cfg.createTranslationCache(MessageCache.class);
         cfg.createFormattingCache(FormattingCache.class);
-        I18nFactory.getInstance(cfg);
-        realServer = VIPCfg.getInstance().getVipService().getHttpRequester().getBaseURL();
+        I18nFactory.getInstance();
+        this.realServer = VIPCfg.getInstance().getVipService().getHttpRequester().getBaseURL();
         VIPCfg.getInstance().getVipService().getHttpRequester().setBaseURL(mockServer);
     }
 
@@ -73,7 +73,7 @@ public class HttpRequesterTest extends BaseTestClass {
 
     @After
     public void teardown() {
-        VIPCfg.getInstance().getVipService().getHttpRequester().setBaseURL(realServer);
+        VIPCfg.getInstance().getVipService().getHttpRequester().setBaseURL(this.realServer);
 
     }
 }

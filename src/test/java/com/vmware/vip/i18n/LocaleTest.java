@@ -35,12 +35,12 @@ public class LocaleTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createFormattingCache(MessageCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
-        localeI18n = (LocaleMessage) i18n.getMessageInstance(LocaleMessage.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.localeI18n = (LocaleMessage) i18n.getMessageInstance(LocaleMessage.class);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class LocaleTest extends BaseTestClass {
                     Arrays.asList(supportedLocales), testLocales[i])
                     .toLanguageTag();
 
-            logger.debug(matchedLanguageTag + "-----" + expectedLocales[i]);
+            this.logger.debug(matchedLanguageTag + "-----" + expectedLocales[i]);
             Assert.assertEquals(expectedLocales[i], matchedLanguageTag);
         }
     }
@@ -95,16 +95,16 @@ public class LocaleTest extends BaseTestClass {
         list.add("zh_Hant");
         list.add("ja");
         list.add("de");
-        Map<String, Map<String, String>> result = localeI18n.getRegionList(list);
+        Map<String, Map<String, String>> result = this.localeI18n.getRegionList(list);
         Assert.assertNotNull(result);
-        localeI18n.getRegionList(list);// get data from cache
+        this.localeI18n.getRegionList(list);// get data from cache
     }
 
     @Test
     public void testGetDisplayNamesByLanguage() throws ParseException {
-        Map<String, String> resp = localeI18n.getDisplayLanguagesList("zh_Hans");
+        Map<String, String> resp = this.localeI18n.getDisplayLanguagesList("zh_Hans");
         Assert.assertNotNull(resp);
-        localeI18n.getDisplayLanguagesList("zh_Hans");// get data from cache
+        this.localeI18n.getDisplayLanguagesList("zh_Hans");// get data from cache
     }
 
     @Test
@@ -116,7 +116,7 @@ public class LocaleTest extends BaseTestClass {
 
         LocaleUtility.setLocale(LocaleUtility.defaultLocale);
         // cp. check the default locale isn't zh-Hans.
-        Assert.assertNotEquals("Error! Default locale is: " + locale, localeZhCN, LocaleUtility.getLocale());
+        Assert.assertNotEquals("Error! Default locale is: " + this.locale, localeZhCN, LocaleUtility.getLocale());
 
         // Set locale in current thread
         LocaleUtility.setLocale(localeZhCN);
@@ -125,108 +125,114 @@ public class LocaleTest extends BaseTestClass {
         Assert.assertEquals("Error! Locale isn't set successfully.", localeZhCN, LocaleUtility.getLocale());
 
         // Create a new sub-thread, and read its initial locale
-        t = 11;
-        new Thread(subThreadOne).start();
+        this.t = 11;
+        new Thread(this.subThreadOne).start();
 
         // cp2. check the locale of sub-thread is same as parent thread
-        lock.lock();
+        this.lock.lock();
         try {
-            while (t != 0)
-                con.await();
-            Assert.assertEquals("Didn't inherit successfully", LocaleUtility.getLocale(), locale);
+            while (this.t != 0) {
+                this.con.await();
+            }
+            Assert.assertEquals("Didn't inherit successfully", LocaleUtility.getLocale(), this.locale);
 
             // Change locale in sub-thread,
-            locale = localeZhTW;
-            t = 12;
-            con.signal();
+            this.locale = localeZhTW;
+            this.t = 12;
+            this.con.signal();
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
 
         // cp3. check parent locale doesn't change
-        lock.lock();
+        this.lock.lock();
         try {
-            while (t != 0)
-                con.await();
+            while (this.t != 0) {
+                this.con.await();
+            }
             Assert.assertEquals("Child interfere parent!", localeZhCN, LocaleUtility.getLocale());
 
             // Change locale in parent thread,
             LocaleUtility.setLocale(localeKoKR);
-            t = 11;
-            con.signal();
+            this.t = 11;
+            this.con.signal();
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
 
         // cp4. check sub-thread locale doesn't change
-        lock.lock();
+        this.lock.lock();
         try {
-            while (t != 0)
-                con.await();
-            Assert.assertEquals("Parent interfere child!", localeZhTW, locale);
+            while (this.t != 0) {
+                this.con.await();
+            }
+            Assert.assertEquals("Parent interfere child!", localeZhTW, this.locale);
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
 
         // Launch another sub-thread, change locale in this sub-thread
-        t = 22;
-        locale = localeDeDE;
-        new Thread(subThreadTwo).start();
+        this.t = 22;
+        this.locale = localeDeDE;
+        new Thread(this.subThreadTwo).start();
 
         // cp5. Check first sub-thread locale doesn't change
-        lock.lock();
+        this.lock.lock();
         try {
-            while (t != 0)
-                con.await();
-            Assert.assertEquals("Child interfere child!", localeZhTW, locale);
+            while (this.t != 0) {
+                this.con.await();
+            }
+            Assert.assertEquals("Child interfere child!", localeZhTW, this.locale);
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
     private Locale    locale       = null;
-    private Lock      lock         = new ReentrantLock(true);
-    private Condition con          = lock.newCondition();
+    private final Lock      lock         = new ReentrantLock(true);
+    private final Condition con          = this.lock.newCondition();
     private int       t            = 1;
 
-    private Runnable  subThreadOne = () -> {
-                                       while (true) {
-                                           lock.lock();
-                                           try {
-                                               while (!(t >= 10 && t < 20))
-                                                   con.await();
-                                               if (t == 11) {
-                                                   locale = LocaleUtility.getLocale();
-                                               } else if (t == 12) {
-                                                   LocaleUtility.setLocale(locale);
-                                               }
-                                               t = 0;
-                                               con.signal();
-                                           } catch (InterruptedException e) {
-                                               e.printStackTrace();
-                                           } finally {
-                                               lock.unlock();
-                                           }
-                                       }
+    private final Runnable  subThreadOne = () -> {
+        while (true) {
+            this.lock.lock();
+            try {
+                while (!(this.t >= 10 && this.t < 20)) {
+                    this.con.await();
+                }
+                if (this.t == 11) {
+                    this.locale = LocaleUtility.getLocale();
+                } else if (this.t == 12) {
+                    LocaleUtility.setLocale(this.locale);
+                }
+                this.t = 0;
+                this.con.signal();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                this.lock.unlock();
+            }
+        }
 
-                                   };
+    };
 
-    private Runnable  subThreadTwo = () -> {
-                                       lock.lock();
-                                       try {
-                                           while (!(t >= 20 && t < 30))
-                                               con.await();
-                                           if (t == 21) {
-                                               locale = LocaleUtility.getLocale();
-                                           } else if (t == 22) {
-                                               LocaleUtility.setLocale(locale);
-                                           }
-                                           t = 11;
-                                           con.signalAll();
-                                       } catch (InterruptedException e) {
-                                           e.printStackTrace();
-                                       } finally {
-                                           lock.unlock();
-                                       }
-                                   };
+    private final Runnable  subThreadTwo = () -> {
+        this.lock.lock();
+        try {
+            while (!(this.t >= 20 && this.t < 30)) {
+                this.con.await();
+            }
+            if (this.t == 21) {
+                this.locale = LocaleUtility.getLocale();
+            } else if (this.t == 22) {
+                LocaleUtility.setLocale(this.locale);
+            }
+            this.t = 11;
+            this.con.signalAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            this.lock.unlock();
+        }
+    };
 }

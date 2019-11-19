@@ -12,9 +12,9 @@ import org.junit.Before;
 import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
+import com.vmware.vipclient.i18n.datasource.CacheService;
 import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
-import com.vmware.vipclient.i18n.messages.service.CacheService;
 
 public class CacheManagerTest extends BaseTestClass {
 

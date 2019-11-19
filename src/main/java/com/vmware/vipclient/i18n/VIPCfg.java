@@ -24,11 +24,10 @@ import com.vmware.vipclient.i18n.base.VIPService;
 import com.vmware.vipclient.i18n.base.cache.Cache;
 import com.vmware.vipclient.i18n.base.cache.CacheMode;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
+import com.vmware.vipclient.i18n.datasource.DataSourceManager;
 import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.exceptions.VIPJavaClientException;
 import com.vmware.vipclient.i18n.messages.api.opt.local.LocalSourceOpt;
-import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
-import com.vmware.vipclient.i18n.messages.service.ProductService;
 import com.vmware.vipclient.i18n.util.StringUtil;
 
 /**
@@ -65,6 +64,8 @@ public class VIPCfg {
     private String                         vipServer;
 
     private ArrayList<Map<String, Object>> components;
+
+    private String                         bundleFolder;
     private String                         i18nScope     = "numbers,dates,currencies,plurals,measurements";
 
     // define key for cache management
@@ -91,8 +92,9 @@ public class VIPCfg {
      * @return
      */
     public static synchronized VIPCfg getInstance() {
-        if (gcInstance == null)
+        if (gcInstance == null) {
             gcInstance = new VIPCfg();
+        }
         return gcInstance;
     }
 
@@ -136,17 +138,19 @@ public class VIPCfg {
         if (StringUtil.isEmpty(cfg))
             throw new VIPClientInitException("Can't not initialize VIPCfg, configuration file is empty.");
 
-        if (cfg.endsWith(".yaml"))
+        if (cfg.endsWith(".yaml")) {
             try {
                 this.initializeWithYamlFile(cfg);
             } catch (IOException e) {
                 VIPClientInitException e1 = new VIPClientInitException(
-                        String.format("Failed to initialize VIPCfg with: {}. Error message: {}", cfg, e.getMessage()));
+                        String.format("Failed to initialize VIPCfg with: %s. Error message: %s", cfg, e.getMessage()));
                 e1.setStackTrace(e.getStackTrace());
                 throw e1;
             }
-        else
+        } else {
             this.initializeWithPropFile(cfg);
+        }
+
     }
 
     /**
@@ -159,29 +163,39 @@ public class VIPCfg {
         if (prop == null)
             throw new VIPClientInitException("Can't not initialize VIPCfg, resource bundle is null.");
 
-        if (prop.containsKey("productName"))
+        if (prop.containsKey("productName")) {
             this.productName = prop.getString("productName");
+        }
         if (this.isSubInstance() && !VIPCfg.moduleCfgs.containsKey(this.productName))
             throw new VIPClientInitException(
                     "Can't not initialize sub VIPCfg instance, the product name is not defined in config file.");
-        if (prop.containsKey("version"))
+        if (prop.containsKey("version")) {
             this.version = prop.getString("version");
-        if (prop.containsKey("vipServer"))
+        }
+        if (prop.containsKey("vipServer")) {
             this.vipServer = prop.getString("vipServer");
-        if (prop.containsKey("pseudo"))
+        }
+        if (prop.containsKey("pseudo")) {
             this.pseudo = Boolean.parseBoolean(prop.getString("pseudo"));
-        if (prop.containsKey("collectSource"))
+        }
+        if (prop.containsKey("collectSource")) {
             this.collectSource = Boolean.parseBoolean(prop.getString("collectSource"));
-        if (prop.containsKey("initializeCache"))
+        }
+        if (prop.containsKey("initializeCache")) {
             this.initializeCache = Boolean.parseBoolean(prop.getString("initializeCache"));
-        if (prop.containsKey("cleanCache"))
+        }
+        if (prop.containsKey("cleanCache")) {
             this.cleanCache = Boolean.parseBoolean(prop.getString("cleanCache"));
-        if (prop.containsKey("machineTranslation"))
+        }
+        if (prop.containsKey("machineTranslation")) {
             this.machineTranslation = Boolean.parseBoolean(prop.getString("machineTranslation"));
-        if (prop.containsKey("i18nScope"))
+        }
+        if (prop.containsKey("i18nScope")) {
             this.i18nScope = prop.getString("i18nScope");
-        if (prop.containsKey("cacheExpiredTime"))
+        }
+        if (prop.containsKey("cacheExpiredTime")) {
             this.cacheExpiredTime = Long.parseLong(prop.getString("cacheExpiredTime"));
+        }
     }
 
     /**
@@ -195,7 +209,7 @@ public class VIPCfg {
         final InputStream stream = ClassLoader.getSystemResourceAsStream(cfg);
         final LinkedHashMap<String, Object> data = new Yaml().loadAs(stream, new LinkedHashMap<String, Object>() {}.getClass());
 
-        for (final Entry<String, Object> entry : data.entrySet())
+        for (final Entry<String, Object> entry : data.entrySet()) {
             try {
                 this.getClass().getDeclaredField(entry.getKey()).set(this, entry.getValue());
             } catch (final IllegalArgumentException e) {
@@ -206,6 +220,7 @@ public class VIPCfg {
             } catch (SecurityException | IllegalAccessException e) {
                 throw new VIPJavaClientException("Unknow errorr");
             }
+        }
 
         if (this.isSubInstance() && !VIPCfg.moduleCfgs.containsKey(this.productName))
             throw new VIPClientInitException(
@@ -250,8 +265,9 @@ public class VIPCfg {
         }
         final Cache createdCache = TranslationCacheManager
                 .getCache(VIPCfg.CACHE_L3);
-        if (createdCache != null && this.getCacheExpiredTime() > 0)
+        if (createdCache != null && this.getCacheExpiredTime() > 0) {
             c.setExpiredTime(this.getCacheExpiredTime());
+        }
     }
 
     /**
@@ -261,30 +277,10 @@ public class VIPCfg {
      * @return
      */
     public synchronized Cache createTranslationCache(final Class<?> cacheClass) {
-        this.translationCacheManager = TranslationCacheManager
-                .createTranslationCacheManager();
-        if (this.translationCacheManager != null) {
-            if (TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
-                this.translationCacheManager.registerCache(VIPCfg.CACHE_L3,
-                        cacheClass);
-                this.logger.info("Translation Cache created.");
-                if (this.isInitializeCache()) {
-                    this.logger.info("InitializeCache.");
-                    this.initializeMessageCache();
-                }
-                if (this.isCleanCache()) {
-                    this.logger.info("startTaskOfCacheClean.");
-                    Task.startTaskOfCacheClean(VIPCfg.getInstance(), this.interalCleanCache);
-                }
-                final Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
-                if (c != null && this.getCacheExpiredTime() > 0)
-                    c.setExpiredTime(this.getCacheExpiredTime());
-            }
+        DataSourceManager.instance().addProduct(this);
 
-            return TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
-        } else
-            return null;
-
+        this.translationCacheManager = TranslationCacheManager.createTranslationCacheManager();
+        return TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
     }
 
     /**
@@ -311,12 +307,7 @@ public class VIPCfg {
      * load all translation to cache by product
      */
     public void initializeMessageCache() {
-        final MessagesDTO dto = new MessagesDTO();
-        dto.setProductID(this.getProductName());
-        dto.setVersion(this.getVersion());
-        new ProductService(dto).getAllComponentTranslation();
-        if (this.translationCacheManager != null)
-            this.logger.info("Translation data is loaded to cache, size is " + this.translationCacheManager.size() + ".");
+        DataSourceManager.instance().initCache(this);
     }
 
     public String getProductName() {
@@ -438,4 +429,13 @@ public class VIPCfg {
     public void setCachePath(final String cachePath) {
         this.cachePath = cachePath;
     }
+
+    public String getBundleFolder() {
+        return this.bundleFolder;
+    }
+
+    public void setBundleFolder(final String bundleFolder) {
+        this.bundleFolder = bundleFolder;
+    }
+
 }

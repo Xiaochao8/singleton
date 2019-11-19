@@ -26,12 +26,12 @@ public class DateFormatUtilTest extends BaseTestClass {
         try {
             gc.initialize("vipconfig");
         } catch (VIPClientInitException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         gc.initializeVIPService();
         gc.createFormattingCache(FormattingCache.class);
-        I18nFactory i18n = I18nFactory.getInstance(gc);
-        dateFormatI18n = (DateFormatting) i18n.getFormattingInstance(DateFormatting.class);
+        I18nFactory i18n = I18nFactory.getInstance();
+        this.dateFormatI18n = (DateFormatting) i18n.getFormattingInstance(DateFormatting.class);
     }
 
     @Test
@@ -68,55 +68,55 @@ public class DateFormatUtilTest extends BaseTestClass {
         Date date = new Date(timestamp);
 
         final Locale zhLocale = new Locale("zh", "CN");
-        Assert.assertEquals(fullDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullDateForZh, this.dateFormatI18n.formatDate(date,
                 "fullDate", timeZone, zhLocale));
-        Assert.assertEquals(longDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longDateForZh, this.dateFormatI18n.formatDate(date,
                 "longDate", timeZone, zhLocale));
-        Assert.assertEquals(mediumDateForZh, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumDateForZh, this.dateFormatI18n.formatDate(
                 date, "mediumDate", timeZone, zhLocale));
-        Assert.assertEquals(shortDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortDateForZh, this.dateFormatI18n.formatDate(date,
                 "shortDate", timeZone, zhLocale));
-        Assert.assertEquals(fullTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullTimeForZh, this.dateFormatI18n.formatDate(date,
                 "fullTime", timeZone, zhLocale));
-        Assert.assertEquals(longTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longTimeForZh, this.dateFormatI18n.formatDate(date,
                 "longTime", timeZone, zhLocale));
-        Assert.assertEquals(mediumTimeForZh, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumTimeForZh, this.dateFormatI18n.formatDate(
                 date, "mediumTime", timeZone, zhLocale));
-        Assert.assertEquals(shortTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortTimeForZh, this.dateFormatI18n.formatDate(date,
                 "shortTime", timeZone, zhLocale));
-        Assert.assertEquals(fullForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullForZh, this.dateFormatI18n.formatDate(date,
                 "full", timeZone, zhLocale));
-        Assert.assertEquals(longForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longForZh, this.dateFormatI18n.formatDate(date,
                 "long", timeZone, zhLocale));
-        Assert.assertEquals(mediumForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(mediumForZh, this.dateFormatI18n.formatDate(date,
                 "medium", timeZone, zhLocale));
-        Assert.assertEquals(shortForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortForZh, this.dateFormatI18n.formatDate(date,
                 "short", timeZone, zhLocale));
 
         final Locale frLocale = new Locale("fr", "");
-        Assert.assertEquals(fullDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullDateForFr, this.dateFormatI18n.formatDate(date,
                 "fullDate", timeZone, frLocale));
-        Assert.assertEquals(longDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longDateForFr, this.dateFormatI18n.formatDate(date,
                 "longDate", timeZone, frLocale));
-        Assert.assertEquals(mediumDateForFr, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumDateForFr, this.dateFormatI18n.formatDate(
                 date, "mediumDate", timeZone, frLocale));
-        Assert.assertEquals(shortDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortDateForFr, this.dateFormatI18n.formatDate(date,
                 "shortDate", timeZone, frLocale));
-        Assert.assertEquals(fullTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullTimeForFr, this.dateFormatI18n.formatDate(date,
                 "fullTime", timeZone, frLocale));
-        Assert.assertEquals(longTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longTimeForFr, this.dateFormatI18n.formatDate(date,
                 "longTime", timeZone, frLocale));
-        Assert.assertEquals(mediumTimeForFr, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumTimeForFr, this.dateFormatI18n.formatDate(
                 date, "mediumTime", timeZone, frLocale));
-        Assert.assertEquals(shortTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortTimeForFr, this.dateFormatI18n.formatDate(date,
                 "shortTime", timeZone, frLocale));
-        Assert.assertEquals(fullForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullForFr, this.dateFormatI18n.formatDate(date,
                 "full", timeZone, frLocale));
-        Assert.assertEquals(longForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longForFr, this.dateFormatI18n.formatDate(date,
                 "long", timeZone, frLocale));
-        Assert.assertEquals(mediumForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(mediumForFr, this.dateFormatI18n.formatDate(date,
                 "medium", timeZone, frLocale));
-        Assert.assertEquals(shortForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortForFr, this.dateFormatI18n.formatDate(date,
                 "short", timeZone, frLocale));
     }
 
@@ -155,57 +155,57 @@ public class DateFormatUtilTest extends BaseTestClass {
         String language = "zh-Hans";
         String region = "CN";
 
-        Assert.assertEquals(fullDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullDateForZh, this.dateFormatI18n.formatDate(date,
                 "fullDate", timeZone, language, region));
-        Assert.assertEquals(longDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longDateForZh, this.dateFormatI18n.formatDate(date,
                 "longDate", timeZone, language, region));
-        Assert.assertEquals(mediumDateForZh, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumDateForZh, this.dateFormatI18n.formatDate(
                 date, "mediumDate", timeZone, language, region));
-        Assert.assertEquals(shortDateForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortDateForZh, this.dateFormatI18n.formatDate(date,
                 "shortDate", timeZone, language, region));
-        Assert.assertEquals(fullTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullTimeForZh, this.dateFormatI18n.formatDate(date,
                 "fullTime", timeZone, language, region));
-        Assert.assertEquals(longTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longTimeForZh, this.dateFormatI18n.formatDate(date,
                 "longTime", timeZone, language, region));
-        Assert.assertEquals(mediumTimeForZh, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumTimeForZh, this.dateFormatI18n.formatDate(
                 date, "mediumTime", timeZone, language, region));
-        Assert.assertEquals(shortTimeForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortTimeForZh, this.dateFormatI18n.formatDate(date,
                 "shortTime", timeZone, language, region));
-        Assert.assertEquals(fullForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullForZh, this.dateFormatI18n.formatDate(date,
                 "full", timeZone, language, region));
-        Assert.assertEquals(longForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longForZh, this.dateFormatI18n.formatDate(date,
                 "long", timeZone, language, region));
-        Assert.assertEquals(mediumForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(mediumForZh, this.dateFormatI18n.formatDate(date,
                 "medium", timeZone, language, region));
-        Assert.assertEquals(shortForZh, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortForZh, this.dateFormatI18n.formatDate(date,
                 "short", timeZone, language, region));
 
         String frlanguage = "fr";
         String frregion = "FR";
         // final Locale frLocale = new Locale("fr", "");
-        Assert.assertEquals(fullDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullDateForFr, this.dateFormatI18n.formatDate(date,
                 "fullDate", timeZone, frlanguage, frregion));
-        Assert.assertEquals(longDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longDateForFr, this.dateFormatI18n.formatDate(date,
                 "longDate", timeZone, frlanguage, frregion));
-        Assert.assertEquals(mediumDateForFr, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumDateForFr, this.dateFormatI18n.formatDate(
                 date, "mediumDate", timeZone, frlanguage, frregion));
-        Assert.assertEquals(shortDateForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortDateForFr, this.dateFormatI18n.formatDate(date,
                 "shortDate", timeZone, frlanguage, frregion));
-        Assert.assertEquals(fullTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullTimeForFr, this.dateFormatI18n.formatDate(date,
                 "fullTime", timeZone, frlanguage, frregion));
-        Assert.assertEquals(longTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longTimeForFr, this.dateFormatI18n.formatDate(date,
                 "longTime", timeZone, frlanguage, frregion));
-        Assert.assertEquals(mediumTimeForFr, dateFormatI18n.formatDate(
+        Assert.assertEquals(mediumTimeForFr, this.dateFormatI18n.formatDate(
                 date, "mediumTime", timeZone, frlanguage, frregion));
-        Assert.assertEquals(shortTimeForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortTimeForFr, this.dateFormatI18n.formatDate(date,
                 "shortTime", timeZone, frlanguage, frregion));
-        Assert.assertEquals(fullForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(fullForFr, this.dateFormatI18n.formatDate(date,
                 "full", timeZone, frlanguage, frregion));
-        Assert.assertEquals(longForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(longForFr, this.dateFormatI18n.formatDate(date,
                 "long", timeZone, frlanguage, frregion));
-        Assert.assertEquals(mediumForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(mediumForFr, this.dateFormatI18n.formatDate(date,
                 "medium", timeZone, frlanguage, frregion));
-        Assert.assertEquals(shortForFr, dateFormatI18n.formatDate(date,
+        Assert.assertEquals(shortForFr, this.dateFormatI18n.formatDate(date,
                 "short", timeZone, frlanguage, frregion));
     }
 

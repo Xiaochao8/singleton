@@ -91,4 +91,16 @@ public class FileUtil {
 
         return jsonObj;
     }
+
+    public static String getFileExtension(final File file) {
+        String name = file.getName();
+        int lastIndexOf = name.lastIndexOf('.');
+        if (lastIndexOf == -1)
+            return ""; // empty extension
+        return name.substring(lastIndexOf);
+    }
+
+    public static String getFileBasename(final File file) {
+        return file.getName().replaceFirst("[.][^.]+$", "");
+    }
 }

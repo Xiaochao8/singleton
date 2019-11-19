@@ -37,7 +37,7 @@ public class ComponentsBasedOpt extends BaseOpt implements Opt {
 
     public JSONObject queryFromServer() {
         String url = V2URL
-                .getComponentsTranslationURL(VIPCfg.getInstance().getVipService().getHttpRequester().getBaseURL());
+                .getProductTranslationURL(VIPCfg.getInstance().getVipService().getHttpRequester().getBaseURL());
 
         HashMap<String, String> requestData = new HashMap<>();
         requestData.put(ConstantsKeys.LOCALES, String.join(",", locales));
