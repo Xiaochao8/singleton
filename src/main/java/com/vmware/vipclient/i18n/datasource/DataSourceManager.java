@@ -132,19 +132,16 @@ public class DataSourceManager {
 
         this.initCache(cfg);
 
-            DataSynchronizer.startSynchronizer(cfg);
     }
 
     public void initCache(final VIPCfg cfg) {
-        if (!cfg.isInitializeCache())
-            return;
+        if (cfg.isInitializeCache() && this.cacheDataSource.getSourceStatus() == Status.READY) {
+            logger.info("Initialize Cache.");
 
-        if (this.cacheDataSource.getSourceStatus() == Status.READY)
-            return;
+            this.getProductTranslation(cfg.getProductName(), cfg.getVersion());
+        }
 
-        logger.info("Initialize Cache.");
-
-        this.getProductTranslation(cfg.getProductName(), cfg.getVersion());
+        DataSynchronizer.startSynchronizer(cfg);
 
         // final Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
         // if (c != null && cfg.getCacheExpiredTime() > 0) {

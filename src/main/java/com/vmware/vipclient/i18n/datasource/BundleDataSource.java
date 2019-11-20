@@ -159,8 +159,8 @@ public class BundleDataSource extends AbstractDataSource {
 
                     try {
                         Properties messages = FileUtil.readPropertiesFile(file.toFile().getAbsolutePath());
-                        String locale = FileUtil.getFileBasename(file.toFile());
-                        String component = FileUtil.getFileExtension(file.toFile());
+                        String component = file.getParent().getFileName().toString();
+                        String locale = FileUtil.getLocale(file.toFile());
 
                         LocaleData localeData = pData.get(locale);
                         if (null == localeData) {

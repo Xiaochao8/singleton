@@ -103,4 +103,9 @@ public class FileUtil {
     public static String getFileBasename(final File file) {
         return file.getName().replaceFirst("[.][^.]+$", "");
     }
+
+    public static String getLocale(final File file) {
+        String baseName = getFileBasename(file);
+        return baseName.substring(baseName.lastIndexOf('_') + 1);
+    }
 }
