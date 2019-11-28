@@ -52,14 +52,14 @@ public class MessageFormat {
 
     }
 
-    public MessageFormat(String pattern) {
-        this.locale = LocaleUtility.defaultLocale;
-        applyPattern(pattern);
+    public MessageFormat(final String pattern) {
+        this.locale = LocaleUtility.getDefaultLocale();
+        this.applyPattern(pattern);
     }
 
-    public MessageFormat(String pattern, Locale locale) {
+    public MessageFormat(final String pattern, final Locale locale) {
         this.locale = locale;
-        applyPattern(pattern);
+        this.applyPattern(pattern);
     }
 
     /**
@@ -73,16 +73,16 @@ public class MessageFormat {
      * @throws IllegalArgumentException
      *             if the pattern is invalid
      */
-    public void applyPattern(String pttrn) {
+    public void applyPattern(final String pttrn) {
         try {
-            if (msgPattern == null) {
-                msgPattern = new MessagePattern(pttrn);
+            if (this.msgPattern == null) {
+                this.msgPattern = new MessagePattern(pttrn);
             } else {
-                msgPattern.parse(pttrn);
+                this.msgPattern.parse(pttrn);
             }
             // Cache the formats that are explicitly mentioned in the message pattern.
         } catch (RuntimeException e) {
-            resetPattern();
+            this.resetPattern();
             throw e;
         }
     }
@@ -104,35 +104,34 @@ public class MessageFormat {
      *             if the pattern is invalid
      * @see MessagePattern.ApostropheMode
      */
-    public void applyPattern(String pattern, MessagePattern.ApostropheMode aposMode) {
-        if (msgPattern == null) {
-            msgPattern = new MessagePattern(aposMode);
-        } else if (aposMode != msgPattern.getApostropheMode()) {
-            msgPattern.clearPatternAndSetApostropheMode(aposMode);
+    public void applyPattern(final String pattern, final MessagePattern.ApostropheMode aposMode) {
+        if (this.msgPattern == null) {
+            this.msgPattern = new MessagePattern(aposMode);
+        } else if (aposMode != this.msgPattern.getApostropheMode()) {
+            this.msgPattern.clearPatternAndSetApostropheMode(aposMode);
         }
-        applyPattern(pattern);
+        this.applyPattern(pattern);
     }
 
-    public final StringBuilder format(Object[] arguments, StringBuilder result,
-            FieldPosition pos) {
-        format(arguments, null, new AppendableWrapper(result), pos);
+    public final StringBuilder format(final Object[] arguments, final StringBuilder result,
+            final FieldPosition pos) {
+        this.format(arguments, null, new AppendableWrapper(result), pos);
         return result;
     }
 
-    public final StringBuilder format(Map<String, Object> arguments,
-            StringBuilder result, FieldPosition pos) {
-        format(null, arguments, new AppendableWrapper(result), pos);
+    public final StringBuilder format(final Map<String, Object> arguments,
+            final StringBuilder result, final FieldPosition pos) {
+        this.format(null, arguments, new AppendableWrapper(result), pos);
         return result;
     }
 
-    private void format(Object[] arguments, Map<String, Object> argsMap,
-            AppendableWrapper dest, FieldPosition fp) {
-        if (arguments != null && msgPattern.hasNamedArguments()) {
+    private void format(final Object[] arguments, final Map<String, Object> argsMap,
+            final AppendableWrapper dest, final FieldPosition fp) {
+        if (arguments != null && this.msgPattern.hasNamedArguments())
             throw new IllegalArgumentException(
                     "This method is not available in MessageFormat objects "
                             + "that use alphanumeric argument names.");
-        }
-        format(0, null, arguments, argsMap, dest, fp);
+        this.format(0, null, arguments, argsMap, dest, fp);
     }
 
     // *Important*: All fields must be declared *transient*.
@@ -160,20 +159,19 @@ public class MessageFormat {
      * @param fp
      *            Field position status.
      */
-    private void format(int msgStart, PluralSelectorContext pluralNumber,
-            Object[] args, Map<String, Object> argsMap,
-            AppendableWrapper dest, FieldPosition fp) {
-        String msgString = msgPattern.getPatternString();
-        int prevIndex = msgPattern.getPart(msgStart).getLimit();
+    private void format(final int msgStart, final PluralSelectorContext pluralNumber,
+            final Object[] args, final Map<String, Object> argsMap,
+            final AppendableWrapper dest, final FieldPosition fp) {
+        String msgString = this.msgPattern.getPatternString();
+        int prevIndex = this.msgPattern.getPart(msgStart).getLimit();
         int i = msgStart + 1;
         for (;; ++i) {
-            Part part = msgPattern.getPart(i);
+            Part part = this.msgPattern.getPart(i);
             Part.Type type = part.getType();
             int index = part.getIndex();
             dest.append(msgString, prevIndex, index);
-            if (type == Part.Type.MSG_LIMIT) {
+            if (type == Part.Type.MSG_LIMIT)
                 return;
-            }
             prevIndex = part.getLimit();
             if (type == Part.Type.REPLACE_NUMBER) {
                 if (pluralNumber.forReplaceNumber) {
@@ -184,46 +182,46 @@ public class MessageFormat {
                     I18nFactory factory = I18nFactory.getInstance();
                     NumberFormatting p = (NumberFormatting) factory.getFormattingInstance(NumberFormatting.class);
                     // dest.append(new NumberFormatting().formatNumber(pluralNumber.number, locale.toLanguageTag()));
-                    dest.append(p.formatNumber(pluralNumber.number, locale));
+                    dest.append(p.formatNumber(pluralNumber.number, this.locale));
                 }
                 continue;
             }
             if (type != Part.Type.ARG_START) {
                 continue;
             }
-            Map dataMap = formatArg(pluralNumber, args, argsMap, dest, fp, i);
+            Map dataMap = this.formatArg(pluralNumber, args, argsMap, dest, fp, i);
             prevIndex = (int) dataMap.get("prevIndex");
             i = (int) dataMap.get("argLimit");
         }
     }
 
-    private Map formatArg(PluralSelectorContext pluralNumber,
-            Object[] args, Map<String, Object> argsMap,
-            AppendableWrapper dest, FieldPosition fp, int i) {
-        Map<String, Integer> dataMap = new HashMap<String, Integer>();
-        int argLimit = msgPattern.getLimitPartIndex(i);
-        Part part = msgPattern.getPart(++i);
-        String argName = msgPattern.getSubstring(part);
-        Map<String, Object> argMap = getArgValue(args, argsMap, dest, part);
+    private Map formatArg(final PluralSelectorContext pluralNumber,
+            final Object[] args, final Map<String, Object> argsMap,
+            final AppendableWrapper dest, final FieldPosition fp, int i) {
+        Map<String, Integer> dataMap = new HashMap<>();
+        int argLimit = this.msgPattern.getLimitPartIndex(i);
+        Part part = this.msgPattern.getPart(++i);
+        String argName = this.msgPattern.getSubstring(part);
+        Map<String, Object> argMap = this.getArgValue(args, argsMap, dest, part);
         Object argId = argMap.get("argId");
         ++i;
         int prevDestLength = dest.length;
-        format(pluralNumber, i, argName, argMap, args, argsMap,
+        this.format(pluralNumber, i, argName, argMap, args, argsMap,
                 dest);
-        updateMetaData(dest, prevDestLength, fp, argId);
-        int prevIndex = msgPattern.getPart(argLimit).getLimit();
+        this.updateMetaData(dest, prevDestLength, fp, argId);
+        int prevIndex = this.msgPattern.getPart(argLimit).getLimit();
         dataMap.put("argLimit", argLimit);
         dataMap.put("prevIndex", prevIndex);
         return dataMap;
     }
 
-    private Map<String, Object> getArgValue(Object[] args, Map<String, Object> argsMap,
-            AppendableWrapper dest, Part part) {
-        Map<String, Object> map = new HashMap<String, Object>();
+    private Map<String, Object> getArgValue(final Object[] args, final Map<String, Object> argsMap,
+            final AppendableWrapper dest, final Part part) {
+        Map<String, Object> map = new HashMap<>();
         Object arg;
         boolean noArg = false;
         Object argId = null;
-        String argName = msgPattern.getSubstring(part);
+        String argName = this.msgPattern.getSubstring(part);
         if (args != null) {
             int argNumber = part.getValue(); // ARG_NUMBER
             if (dest.attributes != null) {
@@ -251,11 +249,11 @@ public class MessageFormat {
         return map;
     }
 
-    private void format(PluralSelectorContext pluralNumber, int i, String argName, Map map, Object[] args,
-            Map<String, Object> argsMap,
-            AppendableWrapper dest) {
+    private void format(final PluralSelectorContext pluralNumber, final int i, final String argName, final Map map, final Object[] args,
+            final Map<String, Object> argsMap,
+            final AppendableWrapper dest) {
         Format formatter = null;
-        Part part = msgPattern.getPart(i - 2);
+        Part part = this.msgPattern.getPart(i - 2);
         ArgType argType = part.getArgType();
         Object arg = map.get("arg");
         boolean noArg = (boolean) map.get("noArg");
@@ -273,54 +271,52 @@ public class MessageFormat {
                 dest.formatAndAppend(pluralNumber.formatter, arg);
             }
         } else if (argType == ArgType.NONE ||
-                (cachedFormatters != null && cachedFormatters.containsKey(i - 2))) {
+                (this.cachedFormatters != null && this.cachedFormatters.containsKey(i - 2))) {
             dest.append(arg.toString());
         } else if (argType.hasPluralStyle()) {
-            formatPluralOrSelectMsg(argType, i, argName, arg, args, argsMap, dest);
-        } else {
+            this.formatPluralOrSelectMsg(argType, i, argName, arg, args, argsMap, dest);
+        } else
             // This should never happen.
             throw new IllegalStateException("unexpected argType " + argType);
-        }
     }
 
-    private void formatPluralOrSelectMsg(ArgType argType, int i, String argName, Object arg, Object[] args,
-            Map<String, Object> argsMap,
-            AppendableWrapper dest) {
-        if (!(arg instanceof Number)) {
+    private void formatPluralOrSelectMsg(final ArgType argType, final int i, final String argName, final Object arg, final Object[] args,
+            final Map<String, Object> argsMap,
+            final AppendableWrapper dest) {
+        if (!(arg instanceof Number))
             throw new IllegalArgumentException("'" + arg + "' is not a Number");
-        }
         PluralSelectorProvider selector;
         if (argType == ArgType.PLURAL) {
-            if (pluralProvider == null) {
-                pluralProvider = new PluralSelectorProvider(this, PluralType.CARDINAL);
+            if (this.pluralProvider == null) {
+                this.pluralProvider = new PluralSelectorProvider(this, PluralType.CARDINAL);
             }
-            selector = pluralProvider;
+            selector = this.pluralProvider;
         } else {
-            if (ordinalProvider == null) {
-                ordinalProvider = new PluralSelectorProvider(this, PluralType.ORDINAL);
+            if (this.ordinalProvider == null) {
+                this.ordinalProvider = new PluralSelectorProvider(this, PluralType.ORDINAL);
             }
-            selector = ordinalProvider;
+            selector = this.ordinalProvider;
         }
         Number number = (Number) arg;
-        double offset = msgPattern.getPluralOffset(i);
+        double offset = this.msgPattern.getPluralOffset(i);
         PluralSelectorContext context = new PluralSelectorContext(i, argName, number, offset);
         int subMsgStart = PluralFormat.findSubMessage(
-                msgPattern, i, selector, context, number.doubleValue());
-        formatComplexSubMessage(subMsgStart, context, args, argsMap, dest);
+                this.msgPattern, i, selector, context, number.doubleValue());
+        this.formatComplexSubMessage(subMsgStart, context, args, argsMap, dest);
     }
 
     private void formatComplexSubMessage(
-            int msgStart, PluralSelectorContext pluralNumber,
-            Object[] args, Map<String, Object> argsMap,
-            AppendableWrapper dest) {
-        if (!msgPattern.jdkAposMode()) {
-            format(msgStart, pluralNumber, args, argsMap, dest, null);
+            final int msgStart, final PluralSelectorContext pluralNumber,
+            final Object[] args, final Map<String, Object> argsMap,
+            final AppendableWrapper dest) {
+        if (!this.msgPattern.jdkAposMode()) {
+            this.format(msgStart, pluralNumber, args, argsMap, dest, null);
             return;
         }
     }
 
-    private FieldPosition updateMetaData(AppendableWrapper dest,
-            int prevLength, FieldPosition fp, Object argId) {
+    private FieldPosition updateMetaData(final AppendableWrapper dest,
+            final int prevLength, final FieldPosition fp, final Object argId) {
         if (dest.attributes != null && prevLength < dest.length) {
             dest.attributes.add(new AttributeAndPosition(argId, prevLength,
                     dest.length));
@@ -334,11 +330,11 @@ public class MessageFormat {
     }
 
     private void resetPattern() {
-        if (msgPattern != null) {
-            msgPattern.clear();
+        if (this.msgPattern != null) {
+            this.msgPattern.clear();
         }
-        if (cachedFormatters != null) {
-            cachedFormatters.clear();
+        if (this.cachedFormatters != null) {
+            this.cachedFormatters.clear();
         }
     }
 
@@ -352,7 +348,7 @@ public class MessageFormat {
          * @param name
          *            The name of the attribute
          */
-        protected Field2(String name) {
+        protected Field2(final String name) {
             super(name);
         }
 
@@ -365,15 +361,13 @@ public class MessageFormat {
          */
         @Override
         protected Object readResolve() throws InvalidObjectException {
-            if (this.getClass() != MessageFormat.Field2.class) {
+            if (this.getClass() != MessageFormat.Field2.class)
                 throw new InvalidObjectException(
                         "A subclass of MessageFormat.Field must implement readResolve.");
-            }
-            if (this.getName().equals(ARGUMENT.getName())) {
+            if (this.getName().equals(ARGUMENT.getName()))
                 return ARGUMENT;
-            } else {
+            else
                 throw new InvalidObjectException("Unknown attribute name.");
-            }
         }
 
         /**
@@ -391,18 +385,18 @@ public class MessageFormat {
      * Separate so that it is possible to make MessageFormat Freezable.
      */
     private static final class PluralSelectorContext {
-        private PluralSelectorContext(int start, String name, Number num, double off) {
-            startIndex = start;
-            argName = name;
+        private PluralSelectorContext(final int start, final String name, final Number num, final double off) {
+            this.startIndex = start;
+            this.argName = name;
             // number needs to be set even when select() is not called.
             // Keep it as a Number/Formattable:
             // For format() methods, and to preserve information (e.g., BigDecimal).
             if (off == 0) {
-                number = num;
+                this.number = num;
             } else {
-                number = num.doubleValue() - off;
+                this.number = num.doubleValue() - off;
             }
-            offset = off;
+            this.offset = off;
         }
 
         @Override
@@ -433,21 +427,22 @@ public class MessageFormat {
      * we do not need any PluralRules.
      */
     private static final class PluralSelectorProvider implements PluralFormat.PluralSelector {
-        public PluralSelectorProvider(MessageFormat mf, PluralType type) {
-            msgFormat = mf;
+        public PluralSelectorProvider(final MessageFormat mf, final PluralType type) {
+            this.msgFormat = mf;
             this.type = type;
         }
 
-        public String select(Object ctx, double number) {
-            if (rules == null) {
-                rules = PluralRules.forLocale(msgFormat.locale, type);
+        @Override
+        public String select(final Object ctx, final double number) {
+            if (this.rules == null) {
+                this.rules = PluralRules.forLocale(this.msgFormat.locale, this.type);
             }
-            return rules.select(number);
+            return this.rules.select(number);
         }
 
-        private MessageFormat msgFormat;
+        private final MessageFormat msgFormat;
         private PluralRules   rules;
-        private PluralType    type;
+        private final PluralType    type;
     }
 
     /**
@@ -456,39 +451,39 @@ public class MessageFormat {
      * so that we need no throws clauses.
      */
     private static final class AppendableWrapper {
-        public AppendableWrapper(StringBuilder sb) {
-            app = sb;
-            length = sb.length();
-            attributes = null;
+        public AppendableWrapper(final StringBuilder sb) {
+            this.app = sb;
+            this.length = sb.length();
+            this.attributes = null;
         }
 
         public void useAttributes() {
-            attributes = new ArrayList<AttributeAndPosition>();
+            this.attributes = new ArrayList<>();
         }
 
-        public void append(CharSequence s) {
+        public void append(final CharSequence s) {
             try {
-                app.append(s);
-                length += s.length();
+                this.app.append(s);
+                this.length += s.length();
             } catch (IOException e) {
                 throw new VIPUncheckedIOException(e);
             }
         }
 
-        public void append(CharSequence s, int start, int limit) {
+        public void append(final CharSequence s, final int start, final int limit) {
             try {
-                app.append(s, start, limit);
-                length += limit - start;
+                this.app.append(s, start, limit);
+                this.length += limit - start;
             } catch (IOException e) {
                 throw new VIPUncheckedIOException(e);
             }
         }
 
-        public void append(CharacterIterator iterator) {
-            length += append(app, iterator);
+        public void append(final CharacterIterator iterator) {
+            this.length += append(this.app, iterator);
         }
 
-        public static int append(Appendable result, CharacterIterator iterator) {
+        public static int append(final Appendable result, final CharacterIterator iterator) {
             try {
                 int start = iterator.getBeginIndex();
                 int limit = iterator.getEndIndex();
@@ -505,13 +500,13 @@ public class MessageFormat {
             }
         }
 
-        public void formatAndAppend(Format formatter, Object arg) {
-            if (attributes == null) {
-                append(formatter.format(arg));
+        public void formatAndAppend(final Format formatter, final Object arg) {
+            if (this.attributes == null) {
+                this.append(formatter.format(arg));
             } else {
                 AttributedCharacterIterator formattedArg = formatter.formatToCharacterIterator(arg);
-                int prevLength = length;
-                append(formattedArg);
+                int prevLength = this.length;
+                this.append(formattedArg);
                 // Copy all of the attributes from formattedArg to our attributes list.
                 formattedArg.first();
                 int start = formattedArg.getIndex(); // Should be 0 but might not be.
@@ -522,7 +517,7 @@ public class MessageFormat {
                     int runLimit = formattedArg.getRunLimit();
                     if (map.size() != 0) {
                         for (Map.Entry<Attribute, Object> entry : map.entrySet()) {
-                            attributes.add(
+                            this.attributes.add(
                                     new AttributeAndPosition(
                                             entry.getKey(), entry.getValue(),
                                             offset + start, offset + runLimit));
@@ -534,15 +529,15 @@ public class MessageFormat {
             }
         }
 
-        public void formatAndAppend(Format formatter, Object arg, String argString) {
-            if (attributes == null && argString != null) {
-                append(argString);
+        public void formatAndAppend(final Format formatter, final Object arg, final String argString) {
+            if (this.attributes == null && argString != null) {
+                this.append(argString);
             } else {
-                formatAndAppend(formatter, arg);
+                this.formatAndAppend(formatter, arg);
             }
         }
 
-        private Appendable                 app;
+        private final Appendable                 app;
         private int                        length;
         private List<AttributeAndPosition> attributes;
     }
@@ -551,30 +546,34 @@ public class MessageFormat {
         /**
          * Defaults the field to Field.ARGUMENT.
          */
-        public AttributeAndPosition(Object fieldValue, int startIndex, int limitIndex) {
-            init(Field2.ARGUMENT, fieldValue, startIndex, limitIndex);
+        public AttributeAndPosition(final Object fieldValue, final int startIndex, final int limitIndex) {
+            this.init(Field2.ARGUMENT, fieldValue, startIndex, limitIndex);
         }
 
-        public AttributeAndPosition(Attribute field, Object fieldValue, int startIndex, int limitIndex) {
-            init(field, fieldValue, startIndex, limitIndex);
+        public AttributeAndPosition(final Attribute field, final Object fieldValue, final int startIndex, final int limitIndex) {
+            this.init(field, fieldValue, startIndex, limitIndex);
         }
 
-        public void init(Attribute field, Object fieldValue, int startIndex, int limitIndex) {
-            key = field;
-            value = fieldValue;
-            start = startIndex;
-            limit = limitIndex;
+        public void init(final Attribute field, final Object fieldValue, final int startIndex, final int limitIndex) {
+            this.key = field;
+            this.value = fieldValue;
+            this.start = startIndex;
+            this.limit = limitIndex;
         }
 
         public void redundantMethod() {
-            if (key == null)
+            if (this.key == null) {
                 ;
-            if (value == null)
+            }
+            if (this.value == null) {
                 ;
-            if (start == 0)
+            }
+            if (this.start == 0) {
                 ;
-            if (limit == 0)
+            }
+            if (this.limit == 0) {
                 ;
+            }
         }
 
         private Attribute key;

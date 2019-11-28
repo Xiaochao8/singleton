@@ -114,7 +114,7 @@ public class LocaleTest extends BaseTestClass {
         Locale localeKoKR = new Locale("ko", "KR");
         Locale localeDeDE = new Locale("de", "DE");
 
-        LocaleUtility.setLocale(LocaleUtility.defaultLocale);
+        LocaleUtility.setLocale(LocaleUtility.getDefaultLocale());
         // cp. check the default locale isn't zh-Hans.
         Assert.assertNotEquals("Error! Default locale is: " + this.locale, localeZhCN, LocaleUtility.getLocale());
 

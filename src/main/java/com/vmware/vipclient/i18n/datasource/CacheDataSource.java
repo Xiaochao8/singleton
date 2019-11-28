@@ -3,6 +3,7 @@
  */
 package com.vmware.vipclient.i18n.datasource;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,23 @@ import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.ProductService;
 
-public class CacheDataSource extends AbstractDataSource {
+class CacheDataSource extends AbstractDataSource {
+
+    private static HashMap<String, CacheDataSource> cacheDataSources = new HashMap<>();
+    private final VIPCfg cfg;
+
+    private CacheDataSource(final VIPCfg cfg) {
+        this.cfg = cfg;
+    }
+
+    public static synchronized CacheDataSource getCacheDataSource(final VIPCfg cfg) {
+        CacheDataSource inst = cacheDataSources.get(cfg.getProductName());
+        if (inst == null) {
+            inst = new CacheDataSource(cfg);
+        }
+        return inst;
+    }
+
     @Override
     public Type getSourceType() {
         // TODO Auto-generated method stub
@@ -70,25 +87,11 @@ public class CacheDataSource extends AbstractDataSource {
 
     }
 
-    @Override
     public void addProduct(final VIPCfg cfg) {
         final MessagesDTO dto = new MessagesDTO();
         dto.setProductID(cfg.getProductName());
         dto.setVersion(cfg.getVersion());
         new ProductService(dto).getAllComponentTranslation();
     }
-
-    private static CacheDataSource inst;
-
-    /**
-     * @return
-     */
-    public static synchronized CacheDataSource instance() {
-        if (inst == null) {
-            inst = new CacheDataSource();
-        }
-        return inst;
-    }
-
 
 }

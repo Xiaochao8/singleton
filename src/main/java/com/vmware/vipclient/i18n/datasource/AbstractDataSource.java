@@ -17,8 +17,6 @@ abstract class AbstractDataSource implements DataSource {
 
     protected abstract void refreshData(ProductData data);
 
-    protected abstract void addProduct(final VIPCfg cfg);
-
 
     protected VIPCfg getConfig(final String product) {
         VIPCfg cfg = VIPCfg.getSubInstance(product);

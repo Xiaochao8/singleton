@@ -14,7 +14,7 @@ public class ProductData extends HashMap<String, LocaleData> {
     /**
      *
      */
-    public ProductData(final String productName, final String versionName) {
+    ProductData(final String productName, final String versionName) {
         this.productName = productName;
         this.versionName = versionName;
     }

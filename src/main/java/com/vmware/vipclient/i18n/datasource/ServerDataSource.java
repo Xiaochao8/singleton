@@ -3,6 +3,7 @@
  */
 package com.vmware.vipclient.i18n.datasource;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,14 +11,17 @@ import com.vmware.vipclient.i18n.VIPCfg;
 
 public class ServerDataSource extends AbstractDataSource {
 
-    private static ServerDataSource inst;
+    private static HashMap<String, ServerDataSource> serverDataSources = new HashMap<>();
+    private final VIPCfg                             cfg;
 
-    /**
-     * @return
-     */
-    public static synchronized ServerDataSource instance() {
+    private ServerDataSource(final VIPCfg cfg) {
+        this.cfg = cfg;
+    }
+
+    public static synchronized ServerDataSource getServerDataSource(final VIPCfg cfg) {
+        ServerDataSource inst = serverDataSources.get(cfg.getProductName());
         if (inst == null) {
-            inst = new ServerDataSource();
+            inst = new ServerDataSource(cfg);
         }
         return inst;
     }
@@ -79,15 +83,9 @@ public class ServerDataSource extends AbstractDataSource {
 
     @Override
     public void refreshData(final ProductData data) {
-        // TODO Auto-generated method stub
-
+        // Server doesn't need to refresh
     }
 
 
-    @Override
-    protected void addProduct(final VIPCfg cfg) {
-        // TODO Auto-generated method stub
-
-    }
 
 }

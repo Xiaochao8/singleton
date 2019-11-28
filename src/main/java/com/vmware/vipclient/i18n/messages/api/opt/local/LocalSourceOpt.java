@@ -21,15 +21,13 @@ public class LocalSourceOpt {
 
     // load sources from local files.
     @SuppressWarnings("unchecked")
-    public static void loadResources(List<Map<String, Object>> components) throws IOException {
+    public static void loadResources(final List<Map<String, Object>> components) throws IOException {
         // If bundle has already been loaded, return. Don't need load again.
-        if (!LocalSourceOpt.sources.isEmpty()) {
+        if (!LocalSourceOpt.sources.isEmpty())
             return;
-        }
 
-        if (null == components || components.isEmpty()) {
+        if (null == components || components.isEmpty())
             throw new VIPJavaClientException("No sources are provided in config file!");
-        }
 
         // traverse component.
         for (Map<String, Object> entry : components) {
@@ -60,9 +58,10 @@ public class LocalSourceOpt {
      * @param dto
      * @return
      */
-    public static String get(MessagesDTO dto) {
+    public static String get(final MessagesDTO dto) {
         Map<?, ?> messages = sources.get(dto.getComponent());
         String result = (null == messages ? "" : (String) messages.get(dto.getKey()));
         return null == result ? "" : result;
     }
+
 }

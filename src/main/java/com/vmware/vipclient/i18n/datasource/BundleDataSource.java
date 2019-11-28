@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,17 +25,22 @@ import com.vmware.vipclient.i18n.util.StringUtil;
 public class BundleDataSource extends AbstractDataSource {
     private static final Logger     logger = LoggerFactory.getLogger(BundleDataSource.class);
 
-    private static BundleDataSource inst;
+    private static HashMap<String, BundleDataSource> bundleDataSources = new HashMap<>();
+    private final VIPCfg                             cfg;
 
-    /**
-     * @return
-     */
-    public static synchronized BundleDataSource instance() {
+    private BundleDataSource(final VIPCfg cfg) {
+        this.cfg = cfg;
+    }
+
+    public static synchronized BundleDataSource getBundleDataSource(final VIPCfg cfg) {
+        BundleDataSource inst = bundleDataSources.get(cfg.getProductName());
         if (inst == null) {
-            inst = new BundleDataSource();
+            inst = new BundleDataSource(cfg);
         }
+
         return inst;
     }
+
 
     @Override
     public Type getSourceType() {
@@ -50,14 +56,10 @@ public class BundleDataSource extends AbstractDataSource {
 
     @Override
     public ProductData getProductTranslation(final String product, final String version) {
-        VIPCfg cfg = this.getConfig(product);
-        if (cfg == null)
+        if (StringUtil.isEmpty(this.cfg.getBundleFolder()))
             return null;
 
-        if (StringUtil.isEmpty(cfg.getBundleFolder()))
-            return null;
-
-        Path productRoot = Paths.get(cfg.getBundleFolder(), product, version);
+        Path productRoot = Paths.get(this.cfg.getBundleFolder(), product, version);
         if (!productRoot.toFile().exists())
             return null;
 
@@ -139,16 +141,17 @@ public class BundleDataSource extends AbstractDataSource {
 
     @Override
     public void refreshData(final ProductData pData) {
+        if (this.status == Status.NA)
+            return;
+
         String product = pData.productName;
         String version = pData.versionName;
-        VIPCfg cfg = this.getConfig(product);
-        if (cfg == null)
+
+
+        if (StringUtil.isEmpty(this.cfg.getBundleFolder()))
             return;
 
-        if (StringUtil.isEmpty(cfg.getBundleFolder()))
-            return;
-
-        Path productRoot = Paths.get(cfg.getBundleFolder(), product, version);
+        Path productRoot = Paths.get(this.cfg.getBundleFolder(), product, version);
 
         try {
             Files.walkFileTree(productRoot, new SimpleFileVisitor<Path>() {
@@ -181,14 +184,6 @@ public class BundleDataSource extends AbstractDataSource {
         } catch (IOException e) {
             logger.error("", e);
         }
-    }
-
-
-
-    @Override
-    protected void addProduct(final VIPCfg cfg) {
-        // TODO Auto-generated method stub
-
     }
 
 }

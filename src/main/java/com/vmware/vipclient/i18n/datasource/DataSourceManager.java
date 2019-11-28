@@ -4,6 +4,7 @@
 package com.vmware.vipclient.i18n.datasource;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -18,25 +19,38 @@ import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
 public class DataSourceManager {
     private static final Logger      logger = LoggerFactory.getLogger(DataSourceManager.class);
 
-    private final CacheDataSource    cacheDataSource  = CacheDataSource.instance();
-    private final BundleDataSource   bundleDataSource = BundleDataSource.instance();
-    private final ServerDataSource   serverDataSource = ServerDataSource.instance();
+
+    private static HashMap<String, DataSourceManager> dataManagers     = new HashMap<>();
+
+    private final VIPCfg                              cfg;
+
+    private final CacheDataSource                     cacheDataSource;
+    private final BundleDataSource                    bundleDataSource;
+    private final ServerDataSource                    serverDataSource;
     private final List<AbstractDataSource> dataSources      = new ArrayList<>();
 
-    private static DataSourceManager inst;
 
     /**
      *
      */
-    private DataSourceManager() {
+    private DataSourceManager(final VIPCfg cfg) {
+        this.cfg = cfg;
+        this.cacheDataSource = CacheDataSource.getCacheDataSource(this.cfg);
+        this.bundleDataSource = BundleDataSource.getBundleDataSource(this.cfg);
+        this.serverDataSource = ServerDataSource.getServerDataSource(this.cfg);
         this.dataSources.add(this.cacheDataSource);
         this.dataSources.add(this.bundleDataSource);
         this.dataSources.add(this.serverDataSource);
     }
 
-    public static synchronized DataSourceManager instance() {
-        if (null == inst) {
-            inst = new DataSourceManager();
+    public static synchronized DataSourceManager getDataManager(final VIPCfg cfg) {
+        DataSourceManager inst = dataManagers.get(cfg.getProductName());
+        if (inst == null) {
+            inst = new DataSourceManager(cfg);
+
+            createTranslationCache();
+
+            inst.initCache();
         }
         return inst;
     }
@@ -54,17 +68,13 @@ public class DataSourceManager {
         if (iter.hasNext()) {
             AbstractDataSource source = iter.next();
 
-            if (source.status == Status.READY) {
-                data = source.getProductTranslation(product, version);
-            }
-            if (null != data && data.size() > 0) {
-            } else {
-                data = this.doGetProductTranslation(iter, product, version);
-                if (source.status != Status.NA) {
-                    source.refreshData(data);
-                }
-            }
+            if (source.status == Status.READY)
+                return source.getProductTranslation(product, version);
+
+            data = this.doGetProductTranslation(iter, product, version);
+            source.refreshData(data);
         }
+
         return data;
     }
 
@@ -124,30 +134,24 @@ public class DataSourceManager {
     }
 
 
+    // This means initializing cache for the product
     public void addProduct(final VIPCfg cfg) {
+
+    }
+
+    private static synchronized void createTranslationCache() {
         if (TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
             TranslationCacheManager.createTranslationCacheManager().registerCache(VIPCfg.CACHE_L3, MessageCache.class);
             DataSourceManager.logger.info("Translation Cache created.");
         }
-
-        this.initCache(cfg);
-
     }
 
-    public void initCache(final VIPCfg cfg) {
-        if (cfg.isInitializeCache() && this.cacheDataSource.getSourceStatus() == Status.READY) {
-            logger.info("Initialize Cache.");
-
-            this.getProductTranslation(cfg.getProductName(), cfg.getVersion());
+    public void initCache() {
+        if (this.cfg.isEnableCache() && this.cfg.isInitializeCache()) {
+            logger.info("Start initializing cache for pruduct {}.", this.cfg.getProductName());
+            this.getProductTranslation(this.cfg.getProductName(), this.cfg.getVersion());
         }
 
-        DataSynchronizer.startSynchronizer(cfg);
-
-        // final Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
-        // if (c != null && cfg.getCacheExpiredTime() > 0) {
-        // c.setExpiredTime(cfg.getCacheExpiredTime());
-        // }
+        DataSynchronizer.startSynchronizer(this.cfg);
     }
-
-
 }

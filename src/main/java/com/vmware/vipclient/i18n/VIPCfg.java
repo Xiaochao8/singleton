@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -27,7 +28,7 @@ import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
 import com.vmware.vipclient.i18n.datasource.DataSourceManager;
 import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
 import com.vmware.vipclient.i18n.exceptions.VIPJavaClientException;
-import com.vmware.vipclient.i18n.messages.api.opt.local.LocalSourceOpt;
+import com.vmware.vipclient.i18n.util.LocaleUtility;
 import com.vmware.vipclient.i18n.util.StringUtil;
 
 /**
@@ -57,6 +58,7 @@ public class VIPCfg {
     private boolean                        cleanCache;
     private long                           cacheExpiredTime;
     private boolean                        machineTranslation;
+    private final boolean                  enableCache    = true;
     private boolean                        initializeCache;
     private int                            interalCleanCache;
     private String                         productName;
@@ -68,9 +70,14 @@ public class VIPCfg {
     private String                         bundleFolder;
     private String                         i18nScope     = "numbers,dates,currencies,plurals,measurements";
 
+    private final String                   sourceLanguage = "en-US";
+
+    private String                         localBundleFolder;
+
     // define key for cache management
     public static final String             CACHE_L3      = "CACHE_L3";
     public static final String             CACHE_L2      = "CACHE_L2";
+
 
     public boolean isSubInstance() {
         return this.isSubInstance;
@@ -226,8 +233,7 @@ public class VIPCfg {
             throw new VIPClientInitException(
                     "Can't not initialize sub VIPCfg instance, the product name is not defined in config file.");
 
-        // Load source bundles
-        LocalSourceOpt.loadResources(this.components);
+        LocaleUtility.setSourceLocale(Locale.forLanguageTag(this.sourceLanguage));
     }
 
     /**
@@ -244,40 +250,13 @@ public class VIPCfg {
     }
 
     /**
-     * set cache from out-process
-     *
-     * @param c
-     */
-    public void setTranslationCache(final Cache c) {
-        this.translationCacheManager = TranslationCacheManager
-                .createTranslationCacheManager();
-        if (this.translationCacheManager != null) {
-            this.translationCacheManager.registerCache(VIPCfg.CACHE_L3, c);
-            this.logger.info("Translation Cache created.");
-        }
-        if (this.isInitializeCache()) {
-            this.logger.info("Initializing Cache.");
-            this.initializeMessageCache();
-        }
-        if (this.isCleanCache()) {
-            this.logger.info("startTaskOfCacheClean.");
-            Task.startTaskOfCacheClean(VIPCfg.getInstance(), this.interalCleanCache);
-        }
-        final Cache createdCache = TranslationCacheManager
-                .getCache(VIPCfg.CACHE_L3);
-        if (createdCache != null && this.getCacheExpiredTime() > 0) {
-            c.setExpiredTime(this.getCacheExpiredTime());
-        }
-    }
-
-    /**
      * create translation cache
      *
      * @param cacheClass
      * @return
      */
     public synchronized Cache createTranslationCache(final Class<?> cacheClass) {
-        DataSourceManager.instance().addProduct(this);
+        DataSourceManager.getDataManager(this);
 
         this.translationCacheManager = TranslationCacheManager.createTranslationCacheManager();
         return TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
@@ -307,7 +286,7 @@ public class VIPCfg {
      * load all translation to cache by product
      */
     public void initializeMessageCache() {
-        DataSourceManager.instance().initCache(this);
+        DataSourceManager.getDataManager(this).initCache();
     }
 
     public String getProductName() {
@@ -438,4 +417,11 @@ public class VIPCfg {
         this.bundleFolder = bundleFolder;
     }
 
+    public String getSourceLanguage() {
+        return this.sourceLanguage;
+    }
+
+    public boolean isEnableCache() {
+        return this.enableCache;
+    }
 }

@@ -11,38 +11,38 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LocaleUtility {
-    protected static final String[]                            defaultLocales = { "en", "en-US", "en_US" };
-
-    public static final Locale                                 defaultLocale  = Locale.US;
+    private static final String[]                              defaultLocales = { "en", "en-US", "en_US" };
+    private static Locale         defaultLocale  = Locale.US;
+    private static Locale         sourceLocale   = Locale.US;
 
     // Use ThreadLocal to combine the locale with local thread so that the
     // locale can be used by any code places.
     private static InheritableThreadLocal<Map<String, Locale>> threadLocal    = new InheritableThreadLocal<Map<String, Locale>>() {
-                                                                                  @Override
-                                                                                  protected Map<String, Locale> initialValue() {
-                                                                                      return new HashMap<>();
-                                                                                  }
+        @Override
+        protected Map<String, Locale> initialValue() {
+            return new HashMap<>();
+        }
 
-                                                                                  @Override
-                                                                                  protected Map<String, Locale> childValue(
-                                                                                          Map<String, Locale> parentValue) {
-                                                                                      return parentValue.entrySet()
-                                                                                              .stream().collect(
-                                                                                                      Collectors.toMap(
-                                                                                                              Map.Entry::getKey,
-                                                                                                              e -> (new Locale.Builder())
-                                                                                                                      .setLocale(
-                                                                                                                              e.getValue())
-                                                                                                                      .build()));
-                                                                                  }
-                                                                              };
+        @Override
+        protected Map<String, Locale> childValue(
+                final Map<String, Locale> parentValue) {
+            return parentValue.entrySet()
+                    .stream().collect(
+                            Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    e -> (new Locale.Builder())
+                                    .setLocale(
+                                            e.getValue())
+                                    .build()));
+        }
+    };
 
     /**
      * Set the locale to ThreadLocal
      *
      * @param locale
      */
-    public static void setLocale(Locale locale) {
+    public static void setLocale(final Locale locale) {
         Map<String, Locale> localeMap = threadLocal.get();
         localeMap.put(ConstantsKeys.LOCALE_L3, locale);
         threadLocal.set(localeMap);
@@ -56,11 +56,10 @@ public class LocaleUtility {
     public static Locale getLocale() {
         Map<String, Locale> localeMap = threadLocal.get();
         Locale locale = localeMap.get(ConstantsKeys.LOCALE_L3);
-        if (locale == null) {
+        if (locale == null)
             return defaultLocale;
-        } else {
+        else
             return locale;
-        }
     }
 
     /**
@@ -68,7 +67,7 @@ public class LocaleUtility {
      *
      * @param locale
      */
-    public static void setL2Locale(Locale locale) {
+    public static void setL2Locale(final Locale locale) {
         Map<String, Locale> localeMap = threadLocal.get();
         localeMap.put(ConstantsKeys.LOCALE_L2, locale);
         threadLocal.set(localeMap);
@@ -82,28 +81,26 @@ public class LocaleUtility {
     public static Locale getL2Locale() {
         Map<String, Locale> localeMap = threadLocal.get();
         Locale locale = localeMap.get(ConstantsKeys.LOCALE_L2);
-        if (locale == null) {
+        if (locale == null)
             return defaultLocale;
-        } else {
+        else
             return locale;
-        }
     }
 
     /*
      * Judge if a locale object is English locale.
      */
-    public static boolean isDefaultLocale(Locale locale) {
-        if (locale != null) {
+    public static boolean isDefaultLocale(final Locale locale) {
+        if (locale != null)
             return LocaleUtility.isDefaultLocale(locale.toLanguageTag());
-        } else {
+        else
             return false;
-        }
     }
 
     /*
      * Judge if a locale string is English locale string.
      */
-    public static boolean isDefaultLocale(String locale) {
+    public static boolean isDefaultLocale(final String locale) {
         boolean isDefault = false;
         if (locale != null && !locale.trim().equals("")) {
             for (String ls : LocaleUtility.defaultLocales) {
@@ -119,30 +116,29 @@ public class LocaleUtility {
     /*
      * format a locale to the mapped locale, e.g. zh-CN -> zh-Hans
      */
-    public static Locale fmtToMappedLocale(String zhLocale) {
+    public static Locale fmtToMappedLocale(final String zhLocale) {
         return fmtToMappedLocale(Locale.forLanguageTag(zhLocale.replace("_", "-")));
     }
 
     /*
      * format a locale to the mapped locale, e.g. zh-CN -> zh-Hans
      */
-    public static Locale fmtToMappedLocale(Locale zhLocale) {
+    public static Locale fmtToMappedLocale(final Locale zhLocale) {
         if (zhLocale.toLanguageTag().equalsIgnoreCase("zh-CN")
                 || zhLocale.toLanguageTag().equalsIgnoreCase(
-                        "zh-Hans-CN")) {
+                        "zh-Hans-CN"))
             return Locale.forLanguageTag("zh-Hans");
-        } else if (zhLocale.toLanguageTag().equalsIgnoreCase("zh-TW")
+        else if (zhLocale.toLanguageTag().equalsIgnoreCase("zh-TW")
                 || zhLocale.toLanguageTag().equalsIgnoreCase(
-                        "zh-Hant-TW")) {
+                        "zh-Hant-TW"))
             return Locale.forLanguageTag("zh-HANT");
-        }
         return zhLocale;
     }
 
     /*
      * pick up the matched locale from a locale list
      */
-    public static Locale pickupLocaleFromList(List<Locale> locales,
+    public static Locale pickupLocaleFromList(final List<Locale> locales,
             Locale preferredLocale) {
         Locale langLocale = null;
         preferredLocale = fmtToMappedLocale(preferredLocale);
@@ -161,9 +157,8 @@ public class LocaleUtility {
                 if (((preferredScript.equalsIgnoreCase("")) && (configuredScript
                         .equalsIgnoreCase("")))
                         || ((!preferredScript.equalsIgnoreCase("")) && (preferredScript
-                                .equalsIgnoreCase(configuredScript)))) {
+                                .equalsIgnoreCase(configuredScript))))
                     return configuredLocale;
-                }
                 langLocale = langLocale == null ? configuredLocale : langLocale;
             }
         }
@@ -175,22 +170,20 @@ public class LocaleUtility {
         // Other locale, like 'de-DE' 'ja-JP' etc.,
         // it will return 'de' 'ja'(main/parent language).
         if (langLocale != null
-                && (!langLocale.getLanguage().equalsIgnoreCase("zh"))) {
+                && (!langLocale.getLanguage().equalsIgnoreCase("zh")))
             return new Locale(langLocale.getLanguage());
-        }
         return preferredLocale;
     }
 
     /**
      * normalize a locale string(e.g. 'zh__#Hans', 'zh_CN_#Hans') to language tag(e.g. 'zh-Hans', 'zh-Hans-CN').
      */
-    public static String normalizeToLanguageTag(String localeStr) {
-        if (null == localeStr || "".equalsIgnoreCase(localeStr)) {
+    public static String normalizeToLanguageTag(final String localeStr) {
+        if (null == localeStr || "".equalsIgnoreCase(localeStr))
             return localeStr;
-        }
-        if (isLanguageTag(localeStr)) {
+        if (isLanguageTag(localeStr))
             return localeStr;
-        } else {
+        else {
             String language = "", country = "", script = "";
             String[] os = localeStr.split("_");
             for (int i = 0; i < os.length; i++) {
@@ -213,14 +206,32 @@ public class LocaleUtility {
 
     /**
      * validate that an argument is a well-formed BCP 47 tag
-     * 
+     *
      * @param languageTag
      * @return true if the format is fine
      */
-    public static boolean isLanguageTag(String languageTag) {
-        if (null == languageTag || "".equalsIgnoreCase(languageTag)) {
+    public static boolean isLanguageTag(final String languageTag) {
+        if (null == languageTag || "".equalsIgnoreCase(languageTag))
             return false;
-        }
         return languageTag.contains("-");
+    }
+
+
+    public static void setDefaultLocale(final Locale locale) {
+        defaultLocale = locale;
+
+    }
+
+    public static Locale getDefaultLocale() {
+        return defaultLocale;
+    }
+
+    public static void setSourceLocale(final Locale locale) {
+        sourceLocale = locale;
+
+    }
+
+    public static Locale getSourceLocale() {
+        return sourceLocale;
     }
 }
