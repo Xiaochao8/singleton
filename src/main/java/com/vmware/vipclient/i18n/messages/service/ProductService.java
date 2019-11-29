@@ -4,8 +4,7 @@
  */
 package com.vmware.vipclient.i18n.messages.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.simple.JSONArray;
@@ -20,15 +19,15 @@ import com.vmware.vipclient.i18n.util.LocaleUtility;
 public class ProductService {
     private MessagesDTO dto = null;
 
-    public ProductService(MessagesDTO dto) {
+    public ProductService(final MessagesDTO dto) {
         this.dto = dto;
     }
 
     // get supported components defined in vip service
     public JSONArray getComponentsFromRemoteVIP() {
         BaseDTO baseDTO = new BaseDTO();
-        baseDTO.setProductID(dto.getProductID());
-        baseDTO.setVersion(dto.getVersion());
+        baseDTO.setProductID(this.dto.getProductID());
+        baseDTO.setVersion(this.dto.getVersion());
         ProductBasedOpt dao = new ProductBasedOpt(baseDTO);
         return dao.getComponentsFromRemoteVIP();
     }
@@ -36,14 +35,14 @@ public class ProductService {
     // get supported locales defined in vip service
     public JSONArray getSupportedLocalesFromRemoteVIP() {
         BaseDTO baseDTO = new BaseDTO();
-        baseDTO.setProductID(dto.getProductID());
-        baseDTO.setVersion(dto.getVersion());
+        baseDTO.setProductID(this.dto.getProductID());
+        baseDTO.setVersion(this.dto.getVersion());
         ProductBasedOpt dao = new ProductBasedOpt(baseDTO);
         return dao.getSupportedLocalesFromRemoteVIP();
     }
 
-    public List<Map> getAllComponentTranslation() {
-        List<Map> list = new ArrayList<Map>();
+    public Map<MessagesDTO, Map<String, String>> getAllComponentTranslation() {
+        Map<MessagesDTO, Map<String, String>> list = new HashMap<>();
         Object[] locales = {};
         Object[] components = {};
         if (VIPCfg.getInstance().getMessageOrigin() == DataSourceEnum.VIP) {
@@ -53,14 +52,16 @@ public class ProductService {
         }
         for (Object locale : locales) {
             for (Object component : components) {
-                dto.setComponent(((String) component).trim());
-                dto.setLocale(LocaleUtility.fmtToMappedLocale((String) locale).toString().trim());
-                Map<String, String> retMap = new ComponentService(dto).getComponentTranslation();
+                MessagesDTO tempdto = new MessagesDTO(this.dto);
+                tempdto.setComponent(((String) component).trim());
+                tempdto.setLocale(LocaleUtility.fmtToMappedLocale((String) locale).toString().trim());
+                Map<String, String> retMap = new ComponentService(tempdto).getComponentTranslation();
                 if (retMap != null) {
-                    list.add(retMap);
+                    list.put(tempdto, retMap);
                 }
             }
         }
+
         return list;
     }
 }

@@ -72,7 +72,6 @@ public class VIPCfg {
 
     private final String                   sourceLanguage = "en-US";
 
-    private String                         localBundleFolder;
 
     // define key for cache management
     public static final String             CACHE_L3      = "CACHE_L3";

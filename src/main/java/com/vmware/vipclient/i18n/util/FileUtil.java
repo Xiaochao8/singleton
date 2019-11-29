@@ -7,14 +7,20 @@ package com.vmware.vipclient.i18n.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,6 +37,27 @@ public class FileUtil {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));) {
             props.load(reader);
         }
+        return props;
+    }
+
+    public static void savePropertiesFile(final String filepath, final Properties props) throws IOException {
+        try (OutputStream output = new FileOutputStream(filepath)) {
+            props.store(output, null);
+        }
+    }
+
+    public static Map<String, String> convertPropertiesToMap(final Properties props) {
+        Map<String, String> map = new HashMap<>();
+        for (Entry<Object, Object> entry : props.entrySet()) {
+            map.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+
+        return map;
+    }
+
+    public static Properties convertMapToProperties(final Map<String, String> map) {
+        Properties props = new Properties();
+        props.putAll(map);
         return props;
     }
 
@@ -107,5 +134,17 @@ public class FileUtil {
     public static String getLocale(final File file) {
         String baseName = getFileBasename(file);
         return baseName.substring(baseName.lastIndexOf('_') + 1);
+    }
+
+    public static void moveFile(final String from, final String to) throws IOException, InterruptedException {
+        File fromFile = new File(from);
+        int i =0;
+        while (!fromFile.renameTo(new File(to)) && i < 5) {
+            i++;
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+
+        if (i >= 5)
+            throw new IOException("Move failed");
     }
 }

@@ -27,5 +27,5 @@ machineTranslation : false
 
 
 sourceLanguage: en-US
-localBundleFolder: resources/bundles
+bundleFolder: resources/bundles
  

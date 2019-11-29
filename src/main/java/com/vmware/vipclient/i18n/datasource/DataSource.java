@@ -6,20 +6,19 @@ package com.vmware.vipclient.i18n.datasource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface DataSource {
 
-    ProductData getProductTranslation(String product, String version);
+    Set<String> getComponentList();
 
-    List<String> getComponentList(String product, String version);
+    Set<String> getLocaleList();
 
-    List<String> getLocaleList(String product, String version);
+    ProductData getProductTranslation();
 
-    ProductData getComponentTranslation(String product, String version, String locale, String component);
+    ComponentData getComponentTranslation(String locale, String component);
 
-    Map<String, Object> getComponentsTranslation(String product, String version, List<String> locale,
+    Map<String, Object> getComponentsTranslation(List<String> locale,
             List<String> component);
 
-    String getStringTranslation(String product, String version, String locale, String component, String key);
 }
-

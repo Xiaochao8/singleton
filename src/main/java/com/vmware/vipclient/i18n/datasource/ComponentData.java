@@ -11,7 +11,7 @@ public class ComponentData extends HashMap<String, String> {
 
     String componentName;
 
-    Map<Object, Object> messages;
+    Map<String, String> messages;
 
     /**
      *
@@ -20,11 +20,11 @@ public class ComponentData extends HashMap<String, String> {
         this.componentName = componentName;
     }
 
-    public void setData(final Map<Object, Object> data) {
+    public void setData(final Map<String, String> data) {
         this.messages = data;
     }
 
-    public Map<Object, Object> getData() {
+    public Map<String, String> getData() {
         return this.messages;
     }
 }

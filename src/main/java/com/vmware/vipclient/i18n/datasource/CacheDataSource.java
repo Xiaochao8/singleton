@@ -6,15 +6,17 @@ package com.vmware.vipclient.i18n.datasource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.vmware.vipclient.i18n.VIPCfg;
-import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
-import com.vmware.vipclient.i18n.messages.service.ProductService;
 
 class CacheDataSource extends AbstractDataSource {
 
     private static HashMap<String, CacheDataSource> cacheDataSources = new HashMap<>();
     private final VIPCfg cfg;
+
+    private ProductData                             productData;
 
     private CacheDataSource(final VIPCfg cfg) {
         this.cfg = cfg;
@@ -24,7 +26,11 @@ class CacheDataSource extends AbstractDataSource {
         CacheDataSource inst = cacheDataSources.get(cfg.getProductName());
         if (inst == null) {
             inst = new CacheDataSource(cfg);
+            if (cfg.isEnableCache()) {
+                inst.status = Status.Uninitialized;
+            }
         }
+
         return inst;
     }
 
@@ -41,57 +47,74 @@ class CacheDataSource extends AbstractDataSource {
     }
 
     @Override
-    public ProductData getProductTranslation(final String product, final String version) {
+    public synchronized ProductData getProductTranslation() {
+        if (this.status != Status.READY)
+            return null;
+
+        return this.productData;
+    }
+
+    synchronized void setProductTranslation(final ProductData data) {
+        this.productData = data;
+
+        this.status = Status.READY;
+    }
+
+    @Override
+    public synchronized Set<String> getComponentList() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<String> getComponentList(final String product, final String version) {
+    public synchronized Set<String> getLocaleList() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<String> getLocaleList(final String product, final String version) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ProductData getComponentTranslation(final String product, final String version, final String locale,
+    public ComponentData getComponentTranslation(final String locale,
             final String component) {
-        return null;
+        if (this.status != Status.READY)
+            return null;
+
+        return this.getProductTranslation().get(locale).get(component);
+
     }
 
     @Override
-    public Map<String, Object> getComponentsTranslation(final String product, final String version,
-            final List<String> locale,
-            final List<String> component) {
+    public Map<String, Object> getComponentsTranslation(final List<String> locale, final List<String> component) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
-    public String getStringTranslation(final String product, final String version, final String locale,
-            final String component,
-            final String key) {
-        // TODO Auto-generated method stub
-        return null;
+    public String getStringTranslation(final String locale, final String component, final String key) {
+        if (this.status != Status.READY)
+            return null;
+
+        return this.getComponentTranslation(locale, component).getData().get(key);
     }
 
 
     @Override
-    public void refreshData(final ProductData data) {
-        // TODO Auto-generated method stub
+    public synchronized void refreshData(final ProductData data) {
+        for(Entry<String, LocaleData> entry : data.entrySet()) {
+            String locale = entry.getKey();
+            LocaleData lData = entry.getValue();
 
+            for(Entry<String, ComponentData> compEntry: lData.entrySet()) {
+                String compName = compEntry.getKey();
+                ComponentData compData = compEntry.getValue();
+
+                LocaleData existingLocaleData = this.productData.get(locale);
+                if (null == existingLocaleData) {
+                    existingLocaleData = new LocaleData(locale);
+                    this.productData.put(locale, existingLocaleData);
+                }
+                existingLocaleData.put(compName, compData);
+            }
+        }
+
+        this.status = Status.READY;
     }
-
-    public void addProduct(final VIPCfg cfg) {
-        final MessagesDTO dto = new MessagesDTO();
-        dto.setProductID(cfg.getProductName());
-        dto.setVersion(cfg.getVersion());
-        new ProductService(dto).getAllComponentTranslation();
-    }
-
 }

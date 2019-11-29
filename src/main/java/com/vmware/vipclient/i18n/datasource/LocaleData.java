@@ -3,12 +3,12 @@
  */
 package com.vmware.vipclient.i18n.datasource;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
-public class LocaleData extends HashMap<String, ComponentData> {
+public class LocaleData extends ConcurrentHashMap<String, ComponentData> {
 
-    String                     localeName;
+    String localeName;
 
     /**
      *

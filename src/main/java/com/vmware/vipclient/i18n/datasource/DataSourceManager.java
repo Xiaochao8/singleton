@@ -51,27 +51,28 @@ public class DataSourceManager {
             createTranslationCache();
 
             inst.initCache();
+
+            DataSynchronizer.startSynchronizer(cfg);
         }
         return inst;
     }
 
-    public ProductData getProductTranslation(final String product, final String version) {
+    public ProductData getProductTranslation() {
 
-        ProductData data = this.doGetProductTranslation(this.dataSources.listIterator(), product, version);
+        ProductData data = this.doGetProductTranslation(this.dataSources.listIterator());
 
         return data;
     }
 
-    private ProductData doGetProductTranslation(final ListIterator<AbstractDataSource> iter, final String product,
-            final String version) {
+    private ProductData doGetProductTranslation(final ListIterator<AbstractDataSource> iter) {
         ProductData data = null;
         if (iter.hasNext()) {
             AbstractDataSource source = iter.next();
 
             if (source.status == Status.READY)
-                return source.getProductTranslation(product, version);
+                return source.getProductTranslation();
 
-            data = this.doGetProductTranslation(iter, product, version);
+            data = this.doGetProductTranslation(iter);
             source.refreshData(data);
         }
 
@@ -90,54 +91,44 @@ public class DataSourceManager {
     }
 
 
-    public Map<String, String> getComponentTranslation(final String product, final String version, final String locale,
+    public Map<String, String> getComponentTranslation(final String locale,
             final String component) {
         ListIterator<AbstractDataSource> iter = this.dataSources.listIterator();
-        ProductData data = this.doGetComponentTranslation(iter, product, version, locale, component);
-        return data.get(locale).get(component);
+        ComponentData data = this.doGetComponentTranslation(iter, locale, component);
+        return data;
 
     }
 
-    private ProductData doGetComponentTranslation(final ListIterator<AbstractDataSource> iter, final String product,
-            final String version, final String locale, final String component) {
-        ProductData data = null;
+    private ComponentData doGetComponentTranslation(final ListIterator<AbstractDataSource> iter,  final String locale, final String component) {
+        ComponentData data = null;
         if(iter.hasNext()) {
             AbstractDataSource source = iter.next();
 
-            if (source.status == Status.READY) {
-                data = source.getComponentTranslation(product, version, locale, component);
-            }
-            if (null != data && data.size() > 0) {
-            }
-            else {
-                data = this.doGetComponentTranslation(iter, product, version, locale, component);
-                if (source.status != Status.NA) {
-                    source.refreshData(data);
-                }
+            data = source.getComponentTranslation(locale, component);
+            if (null == data) {
+                data = this.doGetComponentTranslation(iter,  locale,                        component);
+                // The data must be not null if no exception throws
+                LocaleData lData = new LocaleData(locale);
+                lData.put(component, data);
+                ProductData pData = new ProductData(this.cfg.getProductName(), this.cfg.getVersion());
+                pData.put(locale, lData);
+                source.refreshData(pData);
             }
         }
         return data;
     }
 
 
-    public Map<String, Object> getComponentsTranslation(final String product, final String version,
-            final List<String> locale,
-            final List<String> component) {
+    public Map<String, Object> getComponentsTranslation(final List<String> locale, final List<String> component) {
         return null;
     }
 
 
-    public String getStringTranslation(final String product, final String version, final String locale,
-            final String component, final String key) {
+    public String getStringTranslation(final String locale, final String component, final String key) {
         // TODO Auto-generated method stub
         return null;
     }
 
-
-    // This means initializing cache for the product
-    public void addProduct(final VIPCfg cfg) {
-
-    }
 
     private static synchronized void createTranslationCache() {
         if (TranslationCacheManager.getCache(VIPCfg.CACHE_L3) == null) {
@@ -147,11 +138,11 @@ public class DataSourceManager {
     }
 
     public void initCache() {
-        if (this.cfg.isEnableCache() && this.cfg.isInitializeCache()) {
-            logger.info("Start initializing cache for pruduct {}.", this.cfg.getProductName());
-            this.getProductTranslation(this.cfg.getProductName(), this.cfg.getVersion());
-        }
+        if (!this.cfg.isEnableCache() || !this.cfg.isInitializeCache())
+            return;
 
-        DataSynchronizer.startSynchronizer(this.cfg);
+        logger.info("Start initializing cache for pruduct {}.", this.cfg.getProductName());
+        this.getProductTranslation();
+
     }
 }

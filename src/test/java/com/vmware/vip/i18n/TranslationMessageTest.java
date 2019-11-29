@@ -180,7 +180,7 @@ public class TranslationMessageTest extends BaseTestClass {
 
     @Test
     public void testGetAllComponentTranslation() {
-        List<Map> list = new ProductService(this.dto).getAllComponentTranslation();
+        Map<MessagesDTO, Map<String, String>> list = new ProductService(this.dto).getAllComponentTranslation();
         Assert.assertTrue(list.size() > 0);
     }
 

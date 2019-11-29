@@ -33,9 +33,19 @@ public class MessagesDTO extends BaseDTO {
         super.setVersion(VIPCfg.getInstance().getVersion());
     }
 
+    public MessagesDTO(final MessagesDTO another) {
+        super.setProductID(another.getProductID());
+        super.setVersion(another.getVersion());
+        this.comment = another.comment;
+        this.source = another.source;
+        this.key = another.key;
+        this.component = another.component;
+        this.locale = another.locale;
+    }
+
     /**
      * assembly the key of cache by productID, version, component and locale.
-     * 
+     *
      * @return The key of cache.
      */
     public String getCompositStrAsCacheKey() {
@@ -43,18 +53,18 @@ public class MessagesDTO extends BaseDTO {
         key.append(ConstantsKeys.UNDERLINE);
         key.append(super.getVersion());
         key.append(ConstantsKeys.UNDERLINE);
-        key.append(component == null ? ConstantsKeys.DEFAULT_COMPONENT
-                : component);
+        key.append(this.component == null ? ConstantsKeys.DEFAULT_COMPONENT
+                : this.component);
         key.append(ConstantsKeys.UNDERLINE);
         key.append(VIPCfg.getInstance().isPseudo());
         key.append(ConstantsKeys.UNDERLINE_POUND);
-        key.append(locale == null ? ConstantsKeys.EN
+        key.append(this.locale == null ? ConstantsKeys.EN
                 : LocaleUtility
-                        .fmtToMappedLocale(locale).toLanguageTag());
+                .fmtToMappedLocale(this.locale).toLanguageTag());
         return key.toString();
     }
 
-    public String encryption(String plainText) {
+    public String encryption(final String plainText) {
         String re_md5 = new String();
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -63,18 +73,20 @@ public class MessagesDTO extends BaseDTO {
             int i;
 
             StringBuffer buf = new StringBuffer("");
-            for (int offset = 0; offset < b.length; offset++) {
-                i = b[offset];
-                if (i < 0)
+            for (byte element : b) {
+                i = element;
+                if (i < 0) {
                     i += 256;
-                if (i < 16)
+                }
+                if (i < 16) {
                     buf.append("0");
+                }
                 buf.append(Integer.toHexString(i));
             }
             re_md5 = buf.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            logger.error("", e);
+            this.logger.error("", e);
         }
         return re_md5;
     }
@@ -84,54 +96,54 @@ public class MessagesDTO extends BaseDTO {
         key.append(ConstantsKeys.UNDERLINE);
         key.append(super.getVersion());
         key.append(ConstantsKeys.UNDERLINE);
-        key.append(component == null ? ConstantsKeys.DEFAULT_COMPONENT
-                : component);
+        key.append(this.component == null ? ConstantsKeys.DEFAULT_COMPONENT
+                : this.component);
         key.append(ConstantsKeys.UNDERLINE);
         key.append(ConstantsKeys.TRANSLATION_STATUS);
         key.append(ConstantsKeys.UNDERLINE);
-        key.append(locale == null ? ConstantsKeys.EN
+        key.append(this.locale == null ? ConstantsKeys.EN
                 : LocaleUtility
-                        .fmtToMappedLocale(locale).toLanguageTag());
+                .fmtToMappedLocale(this.locale).toLanguageTag());
         return key.toString();
     }
 
     public String getComment() {
-        return comment;
+        return this.comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
     public String getSource() {
-        return source;
+        return this.source;
     }
 
-    public void setSource(String source) {
+    public void setSource(final String source) {
         this.source = source;
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
     public String getComponent() {
-        return component;
+        return this.component;
     }
 
-    public void setComponent(String component) {
+    public void setComponent(final String component) {
         this.component = component;
     }
 
     public String getLocale() {
-        return locale;
+        return this.locale;
     }
 
-    public void setLocale(String locale) {
+    public void setLocale(final String locale) {
         this.locale = LocaleUtility.normalizeToLanguageTag(locale);
     }
 
