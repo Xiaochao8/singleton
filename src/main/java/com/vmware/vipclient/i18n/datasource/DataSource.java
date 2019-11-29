@@ -10,9 +10,9 @@ import java.util.Set;
 
 public interface DataSource {
 
-    Set<String> getComponentList();
+    Set<String> getComponents();
 
-    Set<String> getLocaleList();
+    Set<String> getLocales();
 
     ProductData getProductTranslation();
 

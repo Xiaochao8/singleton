@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +16,13 @@ import org.slf4j.LoggerFactory;
 import com.vmware.vipclient.i18n.VIPCfg;
 import com.vmware.vipclient.i18n.base.cache.MessageCache;
 import com.vmware.vipclient.i18n.base.cache.TranslationCacheManager;
+import com.vmware.vipclient.i18n.exceptions.VIPJavaClientException;
 
 public class DataSourceManager {
     private static final Logger      logger = LoggerFactory.getLogger(DataSourceManager.class);
 
 
-    private static HashMap<String, DataSourceManager> dataManagers     = new HashMap<>();
+    static HashMap<String, DataSourceManager> dataManagers = new HashMap<>();
 
     private final VIPCfg                              cfg;
 
@@ -38,6 +40,7 @@ public class DataSourceManager {
         this.cacheDataSource = CacheDataSource.getCacheDataSource(this.cfg);
         this.bundleDataSource = BundleDataSource.getBundleDataSource(this.cfg);
         this.serverDataSource = ServerDataSource.getServerDataSource(this.cfg);
+
         this.dataSources.add(this.cacheDataSource);
         this.dataSources.add(this.bundleDataSource);
         this.dataSources.add(this.serverDataSource);
@@ -58,10 +61,15 @@ public class DataSourceManager {
     }
 
     public ProductData getProductTranslation() {
+        // ProductData data = this.doGetProductTranslation(this.dataSources.listIterator());
 
-        ProductData data = this.doGetProductTranslation(this.dataSources.listIterator());
-
-        return data;
+        // try {
+        return this.cacheDataSource.getProductTranslation();
+        // } finally {
+        // if (this.cacheDataSource.isExpired()) {
+        // this.initCache();
+        // }
+        // }
     }
 
     private ProductData doGetProductTranslation(final ListIterator<AbstractDataSource> iter) {
@@ -79,24 +87,33 @@ public class DataSourceManager {
         return data;
     }
 
-    public List<String> getComponentList(final String product, final String version) {
-        // TODO Auto-generated method stub
-        return null;
+    public Set<String> getComponents() {
+        return this.cacheDataSource.getComponents();
     }
 
 
-    public List<String> getLocaleList(final String product, final String version) {
-        // TODO Auto-generated method stub
-        return null;
+    public Set<String> getLocales() {
+        return this.cacheDataSource.getLocales();
     }
 
 
-    public Map<String, String> getComponentTranslation(final String locale,
-            final String component) {
-        ListIterator<AbstractDataSource> iter = this.dataSources.listIterator();
-        ComponentData data = this.doGetComponentTranslation(iter, locale, component);
-        return data;
+    public Map<String, String> getComponentTranslation(final String locale, final String component) {
+        // if (!(this.isValidLocale(locale) && this.isValidComponent(component)))
+        // return null;
 
+        // ListIterator<AbstractDataSource> iter = this.dataSources.listIterator();
+        // ComponentData data = this.doGetComponentTranslation(iter, locale, component);
+        // return data;
+
+        return this.cacheDataSource.getComponentTranslation(locale, component);
+    }
+
+    private boolean isValidLocale(final String locale) {
+        return this.getLocales().contains(locale);
+    }
+
+    private boolean isValidComponent(final String component) {
+        return this.getComponents().contains(component);
     }
 
     private ComponentData doGetComponentTranslation(final ListIterator<AbstractDataSource> iter,  final String locale, final String component) {
@@ -125,8 +142,7 @@ public class DataSourceManager {
 
 
     public String getStringTranslation(final String locale, final String component, final String key) {
-        // TODO Auto-generated method stub
-        return null;
+        return this.cacheDataSource.getStringTranslation(locale, component, key);
     }
 
 
@@ -141,8 +157,38 @@ public class DataSourceManager {
         if (!this.cfg.isEnableCache() || !this.cfg.isInitializeCache())
             return;
 
-        logger.info("Start initializing cache for pruduct {}.", this.cfg.getProductName());
-        this.getProductTranslation();
+        logger.info("Initializing cache for pruduct {}.", this.cfg.getProductName());
 
+        ProductData pData = null;
+        try {
+            pData = this.serverDataSource.getProductTranslation();
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+
+        try {
+            if (null == pData || pData.isEmpty()) {
+                pData = this.bundleDataSource.getProductTranslation();
+            }
+            else {
+                this.bundleDataSource.setProductTranslation(pData);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+
+        if (null == pData || pData.isEmpty())
+            throw new VIPJavaClientException("Failed to get any data!");
+        else {
+            this.cacheDataSource.setProductTranslation(pData);
+        }
+    }
+
+    void syncCache() {
+        try {
+            this.initCache();
+        }catch(Exception e) {
+            logger.error("", e);
+        }
     }
 }

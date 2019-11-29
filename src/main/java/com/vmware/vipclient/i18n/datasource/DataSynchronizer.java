@@ -3,6 +3,9 @@
  */
 package com.vmware.vipclient.i18n.datasource;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +20,15 @@ class DataSynchronizer {
             return;
 
         logger.info("Start sache synchronizer.");
-        // Task.startTaskOfCacheClean(VIPCfg.getInstance(), cfg.getInteralCleanCache());
 
-    }
-
-    void synchronize() {
-
-
+        Timer timer = new Timer(true);
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                DataSourceManager dmgr = DataSourceManager.getDataManager(cfg);
+                dmgr.syncCache();
+            }
+        };
+        timer.scheduleAtFixedRate(task, cfg.getCacheExpiredTime(), cfg.getCacheExpiredTime());
     }
 }

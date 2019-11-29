@@ -34,6 +34,8 @@ public class BundleDataSource extends AbstractDataSource {
     private static HashMap<String, BundleDataSource> bundleDataSources = new HashMap<>();
     private final VIPCfg                             cfg;
 
+    private static String                            bundleSuffix      = ".properties";
+
     private BundleDataSource(final VIPCfg cfg) {
         this.cfg = cfg;
     }
@@ -77,7 +79,7 @@ public class BundleDataSource extends AbstractDataSource {
             Files.walkFileTree(productRoot, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
-                    if (!FileUtil.getFileExtension(file.toFile()).equalsIgnoreCase(".properties"))
+                    if (!FileUtil.getFileExtension(file.toFile()).equalsIgnoreCase(bundleSuffix))
                         return FileVisitResult.CONTINUE;
 
                     try {
@@ -128,7 +130,7 @@ public class BundleDataSource extends AbstractDataSource {
                     String compName = compEntry.getKey();
                     ComponentData compData = compEntry.getValue();
 
-                    Path filepath = Paths.get(productRoot.toString(), compName, "messages_" + locale + ".properties");
+                    Path filepath = Paths.get(productRoot.toString(), compName, "messages_" + locale + bundleSuffix);
                     FileUtil.savePropertiesFile(filepath.toString(),
                             FileUtil.convertMapToProperties(compData.getData()));
 
@@ -141,7 +143,7 @@ public class BundleDataSource extends AbstractDataSource {
     }
 
     @Override
-    public Set<String> getComponentList() {
+    public Set<String> getComponents() {
         if (this.status != Status.READY)
             return null;
 
@@ -152,7 +154,7 @@ public class BundleDataSource extends AbstractDataSource {
     }
 
     @Override
-    public Set<String> getLocaleList() {
+    public Set<String> getLocales() {
         if (this.status != Status.READY)
             return null;
 
@@ -191,7 +193,7 @@ public class BundleDataSource extends AbstractDataSource {
                 String compName = compEntry.getKey();
                 ComponentData compData = compEntry.getValue();
 
-                Path filepath = Paths.get(productRoot.toString(), compName, "messages_" + locale + ".properties");
+                Path filepath = Paths.get(productRoot.toString(), compName, "messages_" + locale + bundleSuffix);
                 try {
                     FileUtil.savePropertiesFile(filepath.toString(),
                             FileUtil.convertMapToProperties(compData.getData()));

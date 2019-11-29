@@ -17,6 +17,10 @@ class CacheDataSource extends AbstractDataSource {
     private final VIPCfg cfg;
 
     private ProductData                             productData;
+    private long lastSync;
+
+    Set<String>                                     supportedLocales;
+    Set<String>                                     supportedComponents;
 
     private CacheDataSource(final VIPCfg cfg) {
         this.cfg = cfg;
@@ -55,21 +59,27 @@ class CacheDataSource extends AbstractDataSource {
     }
 
     synchronized void setProductTranslation(final ProductData data) {
+        this.lastSync = System.currentTimeMillis();
         this.productData = data;
-
+        this.supportedComponents = this.productData.getComponents();
+        this.supportedLocales = this.productData.getLocales();
         this.status = Status.READY;
     }
 
     @Override
-    public synchronized Set<String> getComponentList() {
-        // TODO Auto-generated method stub
-        return null;
+    public synchronized Set<String> getComponents() {
+        if (this.status != Status.READY)
+            return null;
+
+        return this.productData.getComponents();
     }
 
     @Override
-    public synchronized Set<String> getLocaleList() {
-        // TODO Auto-generated method stub
-        return null;
+    public synchronized Set<String> getLocales() {
+        if (this.status != Status.READY)
+            return null;
+
+        return this.productData.getLocales();
     }
 
     @Override
@@ -115,6 +125,13 @@ class CacheDataSource extends AbstractDataSource {
             }
         }
 
+        this.supportedComponents.addAll(this.productData.getComponents());
+        this.supportedLocales.addAll(this.productData.getLocales());
+
         this.status = Status.READY;
+    }
+
+    boolean isExpired() {
+        return System.currentTimeMillis() - this.lastSync >= this.cfg.getCacheExpiredTime();
     }
 }

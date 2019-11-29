@@ -13,9 +13,9 @@ public class ProductData extends ConcurrentHashMap<String, LocaleData> {
     String versionName;
 
 
-    Set<String> components;
-
-    Set<String> locales;
+    // Set<String> components;
+    //
+    // Set<String> locales;
 
     /**
      *
@@ -26,15 +26,15 @@ public class ProductData extends ConcurrentHashMap<String, LocaleData> {
     }
 
     public Set<String> getLocales() {
-        if (null != this.locales && !this.locales.isEmpty())
-            return this.locales;
+        // if (null != this.locales && !this.locales.isEmpty())
+        // return this.locales;
 
         return this.keySet();
     }
 
     public Set<String> getComponents() {
-        if (null != this.components && !this.components.isEmpty())
-            return this.components;
+        // if (null != this.components && !this.components.isEmpty())
+        // return this.components;
 
         Set<String> compSet = new HashSet<>();
         for(Entry<String, LocaleData> lEntry : this.entrySet()) {

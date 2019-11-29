@@ -59,8 +59,8 @@ public class ServerDataSource extends AbstractDataSource {
 
         ProductData pData = new ProductData(this.cfg.getProductName(), this.cfg.getVersion());
 
-        for (String locale : this.getLocaleList()) {
-            for (String component : this.getComponentList()) {
+        for (String locale : this.getLocales()) {
+            for (String component : this.getComponents()) {
                 MessagesDTO dto = this.createDto();
                 dto.setLocale(locale);
                 dto.setComponent(component);
@@ -79,7 +79,7 @@ public class ServerDataSource extends AbstractDataSource {
     }
 
     @Override
-    public Set<String> getComponentList() {
+    public Set<String> getComponents() {
         if (this.status != Status.READY)
             return null;
 
@@ -90,7 +90,7 @@ public class ServerDataSource extends AbstractDataSource {
     }
 
     @Override
-    public Set<String> getLocaleList() {
+    public Set<String> getLocales() {
         if (this.status != Status.READY)
             return null;
 
