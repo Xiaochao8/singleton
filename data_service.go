@@ -51,11 +51,9 @@ func (ds *dataService) fetch(item *dataItem, wait bool) error {
 	if info.setUpdating() {
 		defer info.setUpdated()
 		logger.Debug(fmt.Sprintf("Start fetching ID: %+v", item.id))
-
-		info.setTime(time.Now().Unix())
-
 		for _, o := range ds.originChain {
 			if err = o.Get(item); err == nil {
+				info.setTime(time.Now().Unix())
 				break
 			}
 		}

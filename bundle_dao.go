@@ -6,11 +6,11 @@
 package sgtn
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 )
 
@@ -105,7 +105,7 @@ func (d *bundleDAO) GetComponentMessages(name, version, locale, component string
 	}
 
 	b := new(bundleFile)
-	err = json.Unmarshal(contents, b)
+	err = jsoniter.Unmarshal(contents, b)
 	if err != nil {
 		return nil, err
 	}

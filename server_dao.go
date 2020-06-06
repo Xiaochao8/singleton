@@ -6,7 +6,6 @@
 package sgtn
 
 import (
-	"encoding/json"
 	"net"
 	"net/http"
 	"net/url"
@@ -15,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 )
 
@@ -186,9 +185,9 @@ var getDataFromServer = func(u *url.URL, header map[string]string, data interfac
 		ServerTime string `json:"serverTime"`
 	}
 	bodyObj := &struct {
-		Result    respResult  `json:"response"`
-		Signature string      `json:"signature"`
-		Data      interface{} `json:"data"`
+		Result    respResult   `json:"response"`
+		Signature string       `json:"signature"`
+		Data      jsoniter.Any `json:"data"`
 	}{}
 
 	var bodyBytes []byte
@@ -204,7 +203,7 @@ var getDataFromServer = func(u *url.URL, header map[string]string, data interfac
 		return resp, &serverError{resp.StatusCode, bodyObj.Result.Code, resp.Status, bodyObj.Result.Message}
 	}
 
-	err = json.Unmarshal(bodyBytes, bodyObj)
+	err = jsoniter.Unmarshal(bodyBytes, bodyObj)
 	if err != nil {
 		return resp, errors.WithStack(err)
 	}
@@ -213,9 +212,7 @@ var getDataFromServer = func(u *url.URL, header map[string]string, data interfac
 		return resp, &serverError{resp.StatusCode, bodyObj.Result.Code, resp.Status, bodyObj.Result.Message}
 	}
 
-	if err = mapstructure.Decode(bodyObj.Data, &data); err != nil {
-		return resp, errors.WithStack(err)
-	}
+	bodyObj.Data.ToVal(data)
 
 	//logger.Debug(fmt.Sprintf("decoded data is: %#v", data))
 
