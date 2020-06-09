@@ -61,7 +61,7 @@ func (i *instance) doInitialize() {
 		dService.originChain = append(dService.originChain, &bundleService{i.bundle})
 	}
 
-	fallbackChains := []string{}
+	var fallbackChains  []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
 	if len(i.cfg.SourceLocale) != 0 && contains(fallbackChains, i.cfg.SourceLocale) == -1 {
 		fallbackChains = append(fallbackChains, i.cfg.SourceLocale)

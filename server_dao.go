@@ -99,7 +99,7 @@ func (s *serverDAO) get(item *dataItem) (err error) {
 }
 
 func (s *serverDAO) prepareURL(item *dataItem) *url.URL {
-	urlToQuery := url.URL(*s.svrURL)
+	urlToQuery := *s.svrURL
 	var myURL string
 
 	id := item.id
@@ -211,6 +211,9 @@ var getDataFromServer = func(u *url.URL, header map[string]string, data interfac
 	if !isBusinessSuccess(bodyObj.Result.Code) {
 		return resp, &serverError{resp.StatusCode, bodyObj.Result.Code, resp.Status, bodyObj.Result.Message}
 	}
+
+	// newData := bodyObj.Data.MustBeValid()
+	// bodyObj.Data.ToVal(newData)
 
 	bodyObj.Data.ToVal(data)
 

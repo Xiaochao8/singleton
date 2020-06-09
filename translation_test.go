@@ -325,7 +325,7 @@ func TestGetStringAbnormal(t *testing.T) {
 //jsoniter.ToVal() doesn't return any error, so comment this case out.
 // func TestDecodeError(t *testing.T) {
 // 	defer Trace(curFunName())()
-//
+
 // 	var tests = []struct {
 // 		desc      string
 // 		mocks     []string
@@ -333,10 +333,10 @@ func TestGetStringAbnormal(t *testing.T) {
 // 		component string
 // 		err       string
 // 	}{
-// 		{"DecodeError", []string{"componentMessages-zh-Hans-sunglow-decodeerror"}, "zh-Hans", "sunglow", "unconvertible type 'string'"},
+// 		{"DecodeError", []string{"componentMessages-zh-Hans-sunglow-decodeerror"}, "zh-Hans", "sunglow", "Wrong data from server"},
 // 	}
 // 	defer gock.Off()
-//
+
 // 	newCfg := testCfg
 // 	newCfg.LocalBundles = ""
 // 	resetInst(&newCfg)
@@ -345,15 +345,15 @@ func TestGetStringAbnormal(t *testing.T) {
 // 		for _, m := range testData.mocks {
 // 			EnableMockData(m)
 // 		}
-//
+
 // 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
 // 		assert.NotNil(t, err)
 // 		assert.Nil(t, messages)
 // 		assert.Contains(t, err.Error(), testData.err)
 // 	}
-//
+
 // 	assert.True(t, gock.IsDone())
-//
+
 // }
 
 func TestGetCompMessagesAbnormal(t *testing.T) {
