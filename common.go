@@ -35,13 +35,6 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-type messageOrigin interface {
-	Get(item *dataItem) error
-}
-type messageDAO messageOrigin
-
-type messageOriginList []messageOrigin
-
 //!+ error definition
 
 type serverError struct {

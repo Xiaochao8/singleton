@@ -124,10 +124,10 @@ type bundleFile struct {
 
 //!-bundleDAO
 
-func (s *bundleDAO) Get(item *dataItem) (err error) {
+func (d *bundleDAO) Get(item *dataItem) (err error) {
 	info := item.attrs.(*itemCacheInfo)
 
-	err = s.get(item)
+	err = d.get(item)
 	if err == nil {
 		var age int64 = cacheNeverExpires
 		if inst.server != nil {

@@ -47,6 +47,7 @@ func Initialize(cfg *Config) {
 func (i *instance) doInitialize() {
 	logger.Debug("Initializing Singleton client.")
 
+	var daos messageOriginList
 	cacheService := newCacheService()
 	if len(i.cfg.ServerURL) != 0 {
 		server, err := newServer(i.cfg.ServerURL)
@@ -54,12 +55,13 @@ func (i *instance) doInitialize() {
 			panic(err)
 		}
 		i.server = server
-		cacheService.daos = append(cacheService.daos, server)
+		daos = append(daos, server)
 	}
 	if strings.TrimSpace(i.cfg.LocalBundles) != "" {
 		i.bundle = &bundleDAO{i.cfg.LocalBundles}
-		cacheService.daos = append(cacheService.daos, i.bundle)
+		daos = append(daos, i.bundle)
 	}
+	cacheService.daos = daos
 
 	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)

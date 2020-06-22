@@ -15,7 +15,7 @@ import (
 //!+dataService
 
 type cacheService struct {
-	daos []messageOrigin
+	daos messageOrigin
 }
 
 func newCacheService() *cacheService {
@@ -44,19 +44,18 @@ func (ds *cacheService) fetch(item *dataItem, wait bool) error {
 	if info.setUpdating() {
 		defer info.setUpdated()
 		logger.Debug(fmt.Sprintf("Start fetching ID: %+v", item.id))
-		for _, o := range ds.daos {
-			if err = o.Get(item); isFetchSucess(err) {
-				if err == nil {
-					cache.Set(item.id, item.data)
-				} else {
-					item.data, _ = cache.Get(item.id)
-				}
 
-				info.setTime(time.Now().Unix())
-				return nil
+		if err = ds.daos.Get(item); isFetchSucess(err) {
+			if err == nil {
+				cache.Set(item.id, item.data)
+			} else {
+				item.data, _ = cache.Get(item.id)
 			}
 
+			info.setTime(time.Now().Unix())
+			return nil
 		}
+
 		return err
 
 	} else if wait {
