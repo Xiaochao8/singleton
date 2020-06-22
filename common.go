@@ -8,6 +8,8 @@ package sgtn
 import (
 	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // ComponentMsgs The interface of a component's messages
@@ -28,6 +30,17 @@ type dataItemID struct {
 	iType                            itemType
 	Name, Version, Locale, Component string
 }
+
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
+type messageOrigin interface {
+	Get(item *dataItem) error
+}
+type messageDAO messageOrigin
+
+type messageOriginList []messageOrigin
 
 //!+ error definition
 
@@ -62,10 +75,9 @@ type dataItem struct {
 
 //!- dataItem
 
-//contains determin if slices contains item. it's case insensitive
 func contains(slices []string, item string) int {
 	for i, s := range slices {
-		if strings.ToLower(s) == strings.ToLower(item) {
+		if strings.EqualFold(s, item) {
 			return i
 		}
 	}

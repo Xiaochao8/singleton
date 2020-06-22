@@ -26,7 +26,7 @@ func TestGetInst(t *testing.T) {
 	assert.NotNil(t, inst.trans)
 
 	// Verify data service
-	dataService := inst.trans.ds
+	dataService := inst.trans.msgOrigin
 	assert.NotNil(t, dataService)
 	assert.NotNil(t, cache)
 	assert.NotNil(t, cacheInfoMap)

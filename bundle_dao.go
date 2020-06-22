@@ -24,7 +24,7 @@ type bundleDAO struct {
 	root string
 }
 
-func (d *bundleDAO) Get(item *dataItem) (err error) {
+func (d *bundleDAO) get(item *dataItem) (err error) {
 	id := item.id
 	switch id.iType {
 	case itemComponent:
@@ -123,3 +123,23 @@ type bundleFile struct {
 }
 
 //!-bundleDAO
+
+func (s *bundleDAO) Get(item *dataItem) (err error) {
+	info := item.attrs.(*itemCacheInfo)
+
+	err = s.get(item)
+	if err == nil {
+		var age int64 = cacheNeverExpires
+		if inst.server != nil {
+			age = cacheDefaultExpires
+		}
+		info.setAge(age)
+
+		cache.Set(item.id, item.data)
+		return nil
+	}
+
+	//	logger.Error(fmt.Sprintf("Fail to get from bundle: %s", err.Error()))
+
+	return err
+}

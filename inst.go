@@ -47,26 +47,26 @@ func Initialize(cfg *Config) {
 func (i *instance) doInitialize() {
 	logger.Debug("Initializing Singleton client.")
 
-	dService := new(dataService)
+	cacheService := newCacheService()
 	if len(i.cfg.ServerURL) != 0 {
 		server, err := newServer(i.cfg.ServerURL)
 		if err != nil {
 			panic(err)
 		}
 		i.server = server
-		dService.originChain = append(dService.originChain, &serverService{server})
+		cacheService.daos = append(cacheService.daos, server)
 	}
 	if strings.TrimSpace(i.cfg.LocalBundles) != "" {
 		i.bundle = &bundleDAO{i.cfg.LocalBundles}
-		dService.originChain = append(dService.originChain, &bundleService{i.bundle})
+		cacheService.daos = append(cacheService.daos, i.bundle)
 	}
 
-	var fallbackChains  []string
+	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
 	if len(i.cfg.SourceLocale) != 0 && contains(fallbackChains, i.cfg.SourceLocale) == -1 {
 		fallbackChains = append(fallbackChains, i.cfg.SourceLocale)
 	}
-	i.trans = &defaultTrans{dService, fallbackChains}
+	i.trans = &defaultTrans{cacheService, fallbackChains}
 
 	initCacheInfoMap()
 	if cache == nil {

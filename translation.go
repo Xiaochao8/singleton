@@ -14,7 +14,7 @@ import (
 
 //!+ defaultTrans
 type defaultTrans struct {
-	ds            *dataService
+	msgOrigin     messageOrigin
 	fallbackChain []string
 }
 
@@ -76,7 +76,7 @@ func (t *defaultTrans) GetLocaleList(name, version string) (data []string, err e
 	}
 
 	item := &dataItem{dataItemID{itemLocales, name, version, "", ""}, nil, nil}
-	err = t.ds.get(item)
+	err = t.msgOrigin.Get(item)
 	data, _ = item.data.([]string)
 	return
 }
@@ -87,7 +87,7 @@ func (t *defaultTrans) GetComponentList(name, version string) (data []string, er
 	}
 
 	item := &dataItem{dataItemID{itemComponents, name, version, "", ""}, nil, nil}
-	err = t.ds.get(item)
+	err = t.msgOrigin.Get(item)
 	data, _ = item.data.([]string)
 	return
 }
@@ -98,7 +98,7 @@ func (t *defaultTrans) GetComponentMessages(name, version, locale, component str
 	}
 
 	item := &dataItem{dataItemID{itemComponent, name, version, locale, component}, nil, nil}
-	err = t.ds.get(item)
+	err = t.msgOrigin.Get(item)
 	data, _ = item.data.(ComponentMsgs)
 	return
 }

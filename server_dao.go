@@ -6,10 +6,13 @@
 package sgtn
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -262,3 +265,50 @@ type (
 )
 
 //!- REST API Response structures
+
+func (s *serverDAO) Get(item *dataItem) (err error) {
+	info := item.attrs.(*itemCacheInfo)
+	err = s.get(item)
+	if isFetchSucess(err) {
+		updateCacheControl(item, info)
+		return err
+	}
+	if e, ok := err.(stackTracer); ok {
+		logger.Error(fmt.Sprintf(serverFail+": %#v", e))
+	} else {
+		logger.Error(fmt.Sprintf(serverFail+": %s", err.Error()))
+	}
+
+	return err
+}
+func isFetchSucess(err error) bool {
+	if err != nil {
+		myErr, ok := err.(*serverError)
+		if !ok || myErr.code != http.StatusNotModified {
+			return false
+		}
+	}
+
+	return true
+}
+
+var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
+
+func updateCacheControl(item *dataItem, info *itemCacheInfo) {
+	headers := item.attrs.(http.Header)
+
+	info.setETag(headers.Get(httpHeaderETag))
+
+	cc := headers.Get(httpHeaderCacheControl)
+	results := cacheControlRE.FindStringSubmatch(cc)
+	if len(results) == 2 {
+		age, parseErr := strconv.ParseInt(results[1], 10, 64)
+		if parseErr == nil {
+			info.setAge(age)
+			return
+		}
+	}
+
+	info.setAge(cacheDefaultExpires)
+	logger.Error("Wrong cache control: " + cc)
+}
