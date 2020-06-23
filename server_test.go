@@ -78,7 +78,7 @@ func TestTimeout(t *testing.T) {
 	resetInst(&testCfg)
 	sgtnServer := inst.server
 
-	//Get first time to set server stats as timeout
+	// Get first time to set server stats as timeout
 	err := sgtnServer.get(item)
 	_, ok := errors.Cause(err).(net.Error)
 	assert.True(t, true, ok)
@@ -86,7 +86,7 @@ func TestTimeout(t *testing.T) {
 
 	assert.True(t, gock.IsPending())
 
-	//Get second time to get an error "Server times out" immediately
+	// Get second time to get an error "Server times out" immediately
 	err = sgtnServer.get(item)
 	assert.Equal(t, "Server times out", err.Error())
 }

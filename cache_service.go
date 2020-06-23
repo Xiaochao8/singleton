@@ -47,7 +47,7 @@ func (ds *cacheService) fetch(item *dataItem, wait bool) error {
 		defer info.setUpdated()
 		logger.Debug(fmt.Sprintf("Start fetching ID: %+v", item.id))
 
-		if err = ds.daos.Get(item); isFetchSucess(err) {
+		if err = ds.daos.Get(item); isFetchSuccess(err) {
 			if err == nil {
 				cache.Set(item.id, item.data)
 			} else {

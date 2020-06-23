@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	bundlePreffix = "messages_"
-	bundleSuffix  = ".json"
+	bundlePrefix = "messages_"
+	bundleSuffix = ".json"
 )
 
 //!+bundleDAO
@@ -78,7 +78,7 @@ func (d *bundleDAO) GetLocaleList(name, version string) ([]string, error) {
 
 	lSlice := make([]string, 0, len(locales))
 	for k := range locales {
-		lSlice = append(lSlice, strings.TrimSuffix(strings.TrimPrefix(k, bundlePreffix), bundleSuffix))
+		lSlice = append(lSlice, strings.TrimSuffix(strings.TrimPrefix(k, bundlePrefix), bundleSuffix))
 	}
 
 	return lSlice, nil
@@ -91,7 +91,7 @@ func (d *bundleDAO) getComponentMessages(name, version, locale, component string
 		return nil, err
 	}
 
-	filename := bundlePreffix + locale + bundleSuffix
+	filename := bundlePrefix + locale + bundleSuffix
 	for _, f := range files {
 		if !f.IsDir() && strings.ToLower(filename) == strings.ToLower(f.Name()) {
 			filename = f.Name()

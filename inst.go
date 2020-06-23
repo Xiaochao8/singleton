@@ -21,11 +21,11 @@ var (
 
 // instance Singleton instance
 type instance struct {
-	cfg           Config
-	trans         Translation
-	server        *serverDAO
-	bundle        *bundleDAO
-	initializOnce sync.Once
+	cfg            Config
+	trans          Translation
+	server         *serverDAO
+	bundle         *bundleDAO
+	initializeOnce sync.Once
 }
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 	httpclient = &http.Client{Timeout: time.Second * servertimeout}
 }
 
-//Initialize initialize the client
+// Initialize initialize the client
 func Initialize(cfg *Config) {
 	if err := checkConfig(cfg); err != nil {
 		panic(err)
@@ -41,7 +41,7 @@ func Initialize(cfg *Config) {
 
 	inst = &instance{}
 	inst.cfg = *cfg
-	inst.initializOnce.Do(inst.doInitialize)
+	inst.initializeOnce.Do(inst.doInitialize)
 }
 
 func (i *instance) doInitialize() {
@@ -88,7 +88,7 @@ func checkConfig(cfg *Config) error {
 // GetTranslation Get translation instance
 func GetTranslation() Translation {
 	if inst == nil {
-		panic(errors.New(uninitialzed))
+		panic(errors.New(uninitialized))
 	}
 
 	return inst.trans
@@ -97,7 +97,7 @@ func GetTranslation() Translation {
 // SetHTTPHeaders Set customized HTTP headers
 func SetHTTPHeaders(h map[string]string) error {
 	if inst == nil {
-		return errors.New(uninitialzed)
+		return errors.New(uninitialized)
 	}
 
 	server := inst.server

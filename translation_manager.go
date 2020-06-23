@@ -7,7 +7,6 @@ package sgtn
 
 import (
 	"fmt"
-	"strings"
 )
 
 type transMgr struct {
@@ -24,28 +23,21 @@ func newTransMgr(t Translation, fblocales []string) *transMgr {
 
 // GetStringMessage Get a message with optional arguments
 func (t *transMgr) GetStringMessage(name, version, locale, component, key string, args ...string) (string, error) {
-	message, err := t.Translation.GetStringMessage(name, version, locale, component, key)
+	message, err := t.Translation.GetStringMessage(name, version, locale, component, key, args...)
 	if err == nil {
 		return message, nil
 	}
 
 	i := contains(t.fallbackChain, locale)
-	// newLocale := locale
 	for m := i + 1; m < len(t.fallbackChain); m++ {
 		logger.Warn(fmt.Sprintf("fall back to locale '%s'", t.fallbackChain[m]))
-		message, err = t.Translation.GetStringMessage(name, version, t.fallbackChain[m], component, key)
+		message, err = t.Translation.GetStringMessage(name, version, t.fallbackChain[m], component, key, args...)
 		if err == nil {
-			// newLocale = fbLocle.defaultLocale
 			break
 		}
 	}
 	if err != nil {
 		return "", err
-	}
-
-	for i, arg := range args {
-		placeholder := fmt.Sprintf("{%d}", i)
-		message = strings.Replace(message, placeholder, arg, 1)
 	}
 
 	return message, nil

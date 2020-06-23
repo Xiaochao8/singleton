@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const serverRetryInterval = 2 //second
+const serverRetryInterval = 2 // second
 const (
 	serverNormal uint32 = iota
 	serverTimeout
@@ -269,7 +269,7 @@ type (
 func (s *serverDAO) Get(item *dataItem) (err error) {
 	info := item.attrs.(*itemCacheInfo)
 	err = s.get(item)
-	if isFetchSucess(err) {
+	if isFetchSuccess(err) {
 		updateCacheControl(item, info)
 		return err
 	}
@@ -281,7 +281,7 @@ func (s *serverDAO) Get(item *dataItem) (err error) {
 
 	return err
 }
-func isFetchSucess(err error) bool {
+func isFetchSuccess(err error) bool {
 	if err != nil {
 		myErr, ok := err.(*serverError)
 		if !ok || myErr.code != http.StatusNotModified {

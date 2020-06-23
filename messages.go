@@ -8,7 +8,7 @@ package sgtn
 const (
 	invalidItemType = "Invalid item type: %d"
 	serverFail      = "Fail to get from server"
-	uninitialzed    = "Client isn't initialized"
+	uninitialized   = "Client isn't initialized"
 	wrongPara       = "Wrong parameters"
 	wrongServerData = "Wrong data from server"
 )

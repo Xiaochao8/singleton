@@ -74,5 +74,5 @@ func TestFallbackToLocalBundles(t *testing.T) {
 	msgs, err := GetTranslation().getComponentMessages(name, version, locale, component)
 	assert.Nil(t, err)
 	assert.Equal(t, 4, msgs.(*defaultComponentMsgs).Size())
-	assert.Equal(t, int64(cacheDefaultExpires), info.age) //Set max age to cacheDefaultExpires when server is unavailable temporarily.
+	assert.Equal(t, int64(cacheDefaultExpires), info.age) // Set max age to cacheDefaultExpires when server is unavailable temporarily.
 }

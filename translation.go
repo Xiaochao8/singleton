@@ -7,6 +7,7 @@ package sgtn
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -26,10 +27,15 @@ func (t *transInst) GetStringMessage(name, version, locale, component, key strin
 	}
 
 	if msg, ok := bundleData.Get(key); ok {
+		for i, arg := range args {
+			placeholder := fmt.Sprintf("{%d}", i)
+			msg = strings.Replace(msg, placeholder, arg, 1)
+		}
 		return msg, nil
 	} else {
-		return "", fmt.Errorf("Fail to get message for locale: %s, component: %s, key: %s", locale, component, key)
+		return "", fmt.Errorf("fail to get message for locale: %s, component: %s, key: %s", locale, component, key)
 	}
+
 }
 
 func (t *transInst) GetLocaleList(name, version string) (data []string, err error) {
