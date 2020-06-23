@@ -22,7 +22,7 @@ var (
 // instance Singleton instance
 type instance struct {
 	cfg           Config
-	trans         *defaultTrans
+	trans         Translation
 	server        *serverDAO
 	bundle        *bundleDAO
 	initializOnce sync.Once
@@ -63,12 +63,10 @@ func (i *instance) doInitialize() {
 	}
 	cacheService.daos = daos
 
+	transImpl := transInst{cacheService}
 	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
-	if len(i.cfg.SourceLocale) != 0 && contains(fallbackChains, i.cfg.SourceLocale) == -1 {
-		fallbackChains = append(fallbackChains, i.cfg.SourceLocale)
-	}
-	i.trans = &defaultTrans{cacheService, fallbackChains}
+	i.trans = newTransMgr(&transImpl, fallbackChains)
 
 	initCacheInfoMap()
 	if cache == nil {

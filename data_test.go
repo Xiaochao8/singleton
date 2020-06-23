@@ -45,7 +45,7 @@ func TestCC(t *testing.T) {
 		info := getCacheInfo(item)
 		item.attrs = info
 
-		err := trans.(*defaultTrans).msgOrigin.(*cacheService).fetch(item, true)
+		err := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).fetch(item, true)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
