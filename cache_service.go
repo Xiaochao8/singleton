@@ -12,7 +12,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-//!+dataService
+var cache Cache
+
+//!+cacheService
 
 type cacheService struct {
 	daos messageOrigin
@@ -70,4 +72,4 @@ func (ds *cacheService) fetch(item *dataItem, wait bool) error {
 	return nil
 }
 
-//!-dataService
+//!-cacheService

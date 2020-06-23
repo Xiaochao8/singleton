@@ -134,8 +134,6 @@ func (d *bundleDAO) Get(item *dataItem) (err error) {
 			age = cacheDefaultExpires
 		}
 		info.setAge(age)
-
-		cache.Set(item.id, item.data)
 		return nil
 	}
 
