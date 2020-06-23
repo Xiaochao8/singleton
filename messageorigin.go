@@ -14,7 +14,7 @@ type messageOriginList []messageOrigin
 func (ds messageOriginList) Get(item *dataItem) error {
 	var err error
 	for _, o := range ds {
-		if err = o.Get(item); isFetchSuccess(err) {
+		if err = o.Get(item); isSuccess(err) {
 			return err
 		}
 	}

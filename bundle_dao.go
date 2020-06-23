@@ -19,12 +19,18 @@ const (
 	bundleSuffix = ".json"
 )
 
+type bundleFile struct {
+	Component string            `json:"component"`
+	Messages  map[string]string `json:"messages"`
+	Locale    string            `json:"locale"`
+}
+
 //!+bundleDAO
 type bundleDAO struct {
 	root string
 }
 
-func (d *bundleDAO) get(item *dataItem) (err error) {
+func (d *bundleDAO) Get(item *dataItem) (err error) {
 	id := item.id
 	switch id.iType {
 	case itemComponent:
@@ -35,6 +41,15 @@ func (d *bundleDAO) get(item *dataItem) (err error) {
 		item.data, err = d.GetComponentList(id.Name, id.Version)
 	default:
 		err = errors.Errorf(invalidItemType, item.id.iType)
+	}
+
+	if err == nil {
+		info := item.attrs.(*itemCacheInfo)
+		var age int64 = cacheNeverExpires
+		if inst.server != nil {
+			age = cacheDefaultExpires
+		}
+		info.setAge(age)
 	}
 
 	return
@@ -116,28 +131,4 @@ func (d *bundleDAO) getComponentMessages(name, version, locale, component string
 	return &defaultComponentMsgs{b.Messages}, nil
 }
 
-type bundleFile struct {
-	Component string            `json:"component"`
-	Messages  map[string]string `json:"messages"`
-	Locale    string            `json:"locale"`
-}
-
 //!-bundleDAO
-
-func (d *bundleDAO) Get(item *dataItem) (err error) {
-	info := item.attrs.(*itemCacheInfo)
-
-	err = d.get(item)
-	if err == nil {
-		var age int64 = cacheNeverExpires
-		if inst.server != nil {
-			age = cacheDefaultExpires
-		}
-		info.setAge(age)
-		return nil
-	}
-
-	//	logger.Error(fmt.Sprintf("Fail to get from bundle: %s", err.Error()))
-
-	return err
-}

@@ -40,7 +40,7 @@ func newServer(serverURL string) (*serverDAO, error) {
 }
 
 //!+ serverDAO
-// serverDAO serverDAO definition
+
 type serverDAO struct {
 	svrURL          *url.URL
 	status          uint32
@@ -48,7 +48,7 @@ type serverDAO struct {
 	headers         atomic.Value
 }
 
-func (s *serverDAO) get(item *dataItem) (err error) {
+func (s *serverDAO) Get(item *dataItem) (err error) {
 	var data interface{}
 	info := item.attrs.(*itemCacheInfo)
 
@@ -68,8 +68,15 @@ func (s *serverDAO) get(item *dataItem) (err error) {
 	headers := s.getHTTPHeaders()
 	headers[httpHeaderIfNoneMatch] = info.getETag()
 	resp, err := s.sendRequest(urlToQuery, headers, data)
-	if resp != nil {
-		item.attrs = resp.Header
+	if isSuccess(err) {
+		updateCacheControl(resp.Header, info)
+	} else {
+		if e, ok := err.(stackTracer); ok {
+			logger.Error(fmt.Sprintf(serverFail+": %#v", e))
+		} else {
+			logger.Error(fmt.Sprintf(serverFail+": %s", err.Error()))
+		}
+		return err
 	}
 	if err != nil {
 		return err
@@ -266,22 +273,7 @@ type (
 
 //!- REST API Response structures
 
-func (s *serverDAO) Get(item *dataItem) (err error) {
-	info := item.attrs.(*itemCacheInfo)
-	err = s.get(item)
-	if isFetchSuccess(err) {
-		updateCacheControl(item, info)
-		return err
-	}
-	if e, ok := err.(stackTracer); ok {
-		logger.Error(fmt.Sprintf(serverFail+": %#v", e))
-	} else {
-		logger.Error(fmt.Sprintf(serverFail+": %s", err.Error()))
-	}
-
-	return err
-}
-func isFetchSuccess(err error) bool {
+func isSuccess(err error) bool {
 	if err != nil {
 		myErr, ok := err.(*serverError)
 		if !ok || myErr.code != http.StatusNotModified {
@@ -294,9 +286,7 @@ func isFetchSuccess(err error) bool {
 
 var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
 
-func updateCacheControl(item *dataItem, info *itemCacheInfo) {
-	headers := item.attrs.(http.Header)
-
+func updateCacheControl(headers http.Header, info *itemCacheInfo) {
 	info.setETag(headers.Get(httpHeaderETag))
 
 	cc := headers.Get(httpHeaderCacheControl)
