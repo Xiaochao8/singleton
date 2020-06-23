@@ -44,7 +44,7 @@ func main() {
 	name, version, locale, component, key := "SgtnTest", "1.0.0", "zh-Hans", "sunglow", "application.title"
 
 	// Get translation of a component
-	compData, err := trans.GetComponentMessages(name, version, locale, component)
+	compData, err := trans.getComponentMessages(name, version, locale, component)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -67,7 +67,7 @@ Existing features
     * GetLocaleList: Get supported locale list
     * GetComponentList: Get supported component list
     * GetStringMessage: Get a message with optional arguments. Fallback to default locale is provided.
-    * GetComponentMessages: Get messages of a component. Fallback to default locale is **NOT** provided.
+    * getComponentMessages: Get messages of a component. Fallback to default locale is **NOT** provided.
  * Provide cache management as well as cache registration.
  * Support fallback to local bundles when failing to get from server
  * Support fallback to default locale when failing to get a string message of a nondefault locale.

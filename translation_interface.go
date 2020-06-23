@@ -16,6 +16,6 @@ type Translation interface {
 	// GetStringMessage Get a message with optional arguments
 	GetStringMessage(name, version, locale, component, key string, args ...string) (string, error)
 
-	// GetComponentMessages Get component messages
-	GetComponentMessages(name, version, locale, component string) (ComponentMsgs, error)
+	// getComponentMessages Get component messages
+	getComponentMessages(name, version, locale, component string) (ComponentMsgs, error)
 }

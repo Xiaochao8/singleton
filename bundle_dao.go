@@ -28,7 +28,7 @@ func (d *bundleDAO) get(item *dataItem) (err error) {
 	id := item.id
 	switch id.iType {
 	case itemComponent:
-		item.data, err = d.GetComponentMessages(id.Name, id.Version, id.Locale, id.Component)
+		item.data, err = d.getComponentMessages(id.Name, id.Version, id.Locale, id.Component)
 	case itemLocales:
 		item.data, err = d.GetLocaleList(id.Name, id.Version)
 	case itemComponents:
@@ -84,7 +84,7 @@ func (d *bundleDAO) GetLocaleList(name, version string) ([]string, error) {
 	return lSlice, nil
 }
 
-func (d *bundleDAO) GetComponentMessages(name, version, locale, component string) (ComponentMsgs, error) {
+func (d *bundleDAO) getComponentMessages(name, version, locale, component string) (ComponentMsgs, error) {
 	compDirPath := filepath.Join(d.root, name, version, component)
 	files, err := ioutil.ReadDir(compDirPath)
 	if err != nil {

@@ -39,7 +39,7 @@ func TestGetCompMessages(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
@@ -122,7 +122,7 @@ func TestRefreshCache(t *testing.T) {
 		info.setAge(100)
 
 		// Get component messages first to populate cache
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		if messages.(*defaultComponentMsgs).Size() != testData.expected {
 			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
 		}
@@ -138,7 +138,7 @@ func TestRefreshCache(t *testing.T) {
 		assert.Equal(t, testData.expected, messagesInCache.(*defaultComponentMsgs).Size())
 
 		// Getting before time out, no communication to server because mock is enabled
-		messages, err = trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err = trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 		if messages.(*defaultComponentMsgs).Size() != testData.expected {
 			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
@@ -147,7 +147,7 @@ func TestRefreshCache(t *testing.T) {
 		// Enable mock, time out cache and fetch(refresh) again. This time the data is same as before
 		EnableMockData(testData.mocks[1])
 		expireCache(info, info.age)
-		messages, err = trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err = trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 		assert.Equal(t, testData.expected, messages.(*defaultComponentMsgs).Size())
 
@@ -193,7 +193,7 @@ func TestRefreshCache2(t *testing.T) {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+				messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 				assert.Nil(t, err)
 				if messages.(*defaultComponentMsgs).Size() != testData.expected {
 					t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
@@ -204,7 +204,7 @@ func TestRefreshCache2(t *testing.T) {
 
 		gock.Flush()
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 		if messages.(*defaultComponentMsgs).Size() != testData.expected {
 			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
@@ -346,7 +346,7 @@ func TestGetStringAbnormal(t *testing.T) {
 // 			EnableMockData(m)
 // 		}
 
-// 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+// 		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 // 		assert.NotNil(t, err)
 // 		assert.Nil(t, messages)
 // 		assert.Contains(t, err.Error(), testData.err)
@@ -381,7 +381,7 @@ func TestGetCompMessagesAbnormal(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, messages)
 		assert.Contains(t, err.Error(), testData.err)
 
@@ -424,7 +424,7 @@ func TestGetCompMessagesWrongServer(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, messages)
 		assert.Contains(t, err.Error(), testData.err)
 
@@ -458,7 +458,7 @@ func TestGetCompMessagesWrongResponseContent(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, messages)
 		assert.Contains(t, err.Error(), testData.err)
 	}
@@ -491,7 +491,7 @@ func TestGetCompMessagesResponsePartial(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		messages, _ := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, _ := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		// assert.Contains(t, "Fail to get from server", err.Error())
 		assert.True(t, messages == nil || messages.(*defaultComponentMsgs).Size() == 0)
 	}
@@ -528,7 +528,7 @@ func TestAddHTTPHeader(t *testing.T) {
 			"pass": "goodpadd",
 		})
 
-		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+		messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 
 		if messages.(*defaultComponentMsgs).Size() != testData.expected {
@@ -692,7 +692,7 @@ func TestHTTP404(t *testing.T) {
 		EnableMockData(m)
 	}
 
-	messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
+	messages, err := trans.getComponentMessages(name, version, testData.locale, testData.component)
 	assert.NotNil(t, err)
 	assert.Nil(t, messages)
 

@@ -47,7 +47,7 @@ func TestBundleGetCompMessages(t *testing.T) {
 
 	locale := "fr"
 	component := "sunglow"
-	msgs, err := inst.trans.GetComponentMessages(name, version, locale, component)
+	msgs, err := inst.trans.getComponentMessages(name, version, locale, component)
 	assert.Nil(t, err)
 	assert.Equal(t, 4, msgs.(*defaultComponentMsgs).Size())
 }

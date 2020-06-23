@@ -15,7 +15,7 @@ import (
 // Config Singleton configuration
 type Config struct {
 	ServerURL     string `json:"online_service_url"`
-	LocalBundles  string `json:"offline_resources_base_url"`
+	LocalBundles  string `json:"offline_resource_location"`
 	DefaultLocale string `json:"default_locale"`
 	SourceLocale  string `json:"source_locale"`
 }
