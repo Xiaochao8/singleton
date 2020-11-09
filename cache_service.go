@@ -76,7 +76,6 @@ func (s *cacheService) refresh(item *dataItem, exist bool) error {
 		logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
 
 		info := getCacheInfo(item)
-		startTime := time.Now().Unix()
 		for _, dao := range s.origins {
 			if exist && !dao.IsExpired(item) {
 				return nil
@@ -87,10 +86,9 @@ func (s *cacheService) refresh(item *dataItem, exist bool) error {
 				item.attrs = info
 				err = dao.Get(item)
 				if isSuccess(err) {
-					info.setTime(startTime)
 					headers, ok := item.attrs.(http.Header)
 					if ok {
-						updateCacheControl(headers, info)
+						updateCacheInfo(headers, info)
 					}
 					if err == nil { // http code 200
 						cache.Set(item.id, item.data)
@@ -102,7 +100,6 @@ func (s *cacheService) refresh(item *dataItem, exist bool) error {
 			case *bundleDAO:
 				err = dao.Get(item)
 				if err == nil {
-					info.setTime(startTime)
 					cache.Set(item.id, item.data)
 					return nil
 				}
@@ -128,10 +125,12 @@ func (s *cacheService) refresh(item *dataItem, exist bool) error {
 
 var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
 
-func updateCacheControl(headers http.Header, info *itemCacheInfo) {
+func updateCacheInfo(headers http.Header, info *itemCacheInfo) {
 	if len(headers) == 0 || info == nil {
 		return
 	}
+
+	info.setTime(time.Now().Unix())
 
 	cc := headers.Get(httpHeaderCacheControl)
 	results := cacheControlRE.FindStringSubmatch(cc)
@@ -143,8 +142,8 @@ func updateCacheControl(headers http.Header, info *itemCacheInfo) {
 		}
 	}
 
-	info.setAge(cacheDefaultExpires)
 	logger.Warn("Wrong cache control: " + cc)
+	info.setAge(cacheDefaultExpires)
 }
 
 func isSuccess(err error) bool {
