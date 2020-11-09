@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"strconv"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -66,9 +65,14 @@ func (s *cacheService) IsExpired(item *dataItem) bool {
 
 func (s *cacheService) refresh(item *dataItem, exist bool) error {
 	var err error
-	status := s.getStatus(item)
-	if status.setUpdating() {
-		defer status.setUpdated()
+	actual, loaded := s.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
+	status := actual.(chan struct{})
+	if !loaded { // This is to make sure that there is only one thread to contact message source(service or storage)
+		defer func() {
+			defer close(status)
+			s.updateStatusMap.Delete(item.id)
+		}()
+
 		logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
 
 		info := getCacheInfo(item)
@@ -114,45 +118,13 @@ func (s *cacheService) refresh(item *dataItem, exist bool) error {
 
 		return err
 	} else if !exist {
-		status.waitUpdate()
+		<-status
 	}
 
 	return nil
 }
 
-func (s *cacheService) getStatus(item *dataItem) *itemUpdateStatus {
-	status := &itemUpdateStatus{}
-	actual, ok := s.updateStatusMap.LoadOrStore(item.id, status)
-	if ok {
-		return actual.(*itemUpdateStatus)
-	} else {
-		return status
-	}
-}
-
 // !-cacheService
-
-// !+itemUpdateStatus
-type itemUpdateStatus struct {
-	status uint32
-}
-
-func (i *itemUpdateStatus) setUpdating() (b bool) {
-	return atomic.CompareAndSwapUint32(&i.status, idle, updating)
-}
-func (i *itemUpdateStatus) setUpdated() {
-	atomic.StoreUint32(&i.status, idle)
-}
-func (i *itemUpdateStatus) waitUpdate() {
-	for {
-		if idle == atomic.LoadUint32(&i.status) {
-			return
-		}
-		time.Sleep(time.Microsecond * 10)
-	}
-}
-
-// !-itemUpdateStatus
 
 var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
 

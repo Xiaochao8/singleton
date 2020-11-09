@@ -116,7 +116,6 @@ func TestRefreshCache(t *testing.T) {
 		EnableMockData(testData.mocks[0])
 		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
 		info := getCacheInfo(item)
-		status := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).getStatus(item)
 		info.setAge(100)
 
 		// Get component messages first to populate cache
@@ -151,7 +150,14 @@ func TestRefreshCache(t *testing.T) {
 
 		// Start the go routine of refreshing cache, and wait for finish. Data entry number changes to 7.
 		time.Sleep(10 * time.Millisecond)
-		status.waitUpdate()
+		cs := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService)
+		status, loaded := cs.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
+		if loaded {
+			<-status.(chan struct{})
+		} else {
+			defer cs.updateStatusMap.Delete(item.id)
+		}
+
 		// Make sure mock data is consumed
 		assert.True(t, gock.IsDone())
 
