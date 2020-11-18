@@ -4,106 +4,49 @@
  */
 package com.vmware.vipclient.i18n;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.vmware.vipclient.i18n.exceptions.VIPClientInitException;
-import com.vmware.vipclient.i18n.util.VIPConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class VIPCfgFactory {
-    /**
-     * A lazy-loaded singleton VIPCfg using the "initialization-on-demand holder" design pattern
-     */
-    private static class GlobalCfgHolder {
-        static final VIPCfgWrapper globalCfg = new VIPCfgWrapper(new VIPCfg());
-    }
+	private static VIPCfgFactory inst = createInstance();
+	private static final String MAIN_PRODUCT_NAME = "mainProductName";
 
-    private static Logger logger = LoggerFactory.getLogger(VIPCfgFactory.class);
+	private final VIPCfg mainCfg = new VIPCfg();
+	private final Map<String, VIPCfg> configs = new ConcurrentHashMap<>();
 
-    public static VIPCfgWrapper getGlobalCfg() {
-        if (GlobalCfgHolder.globalCfg.getProductName() == null) {
-            logger.error("Global config hasn't been initialized.");
-            return null;
-        }
-        return GlobalCfgHolder.globalCfg;
-    }
+	private static VIPCfgFactory createInstance() {
+		VIPCfgFactory newInst = new VIPCfgFactory();
+		newInst.mainCfg.setProductName(MAIN_PRODUCT_NAME);
+		newInst.configs.put(newInst.mainCfg.getProductName(), newInst.mainCfg);
+		return newInst;
+	}
 
-    /**
-     * @deprecated This method was added for backwards compatibility with deprecated {@link VIPCfg#getInstance() getInstance}.
-     * Use the {@link #getGlobalCfg() getGlobalCfg} method instead.
-     */
-    public static VIPCfgWrapper getCfg() {
-        return GlobalCfgHolder.globalCfg;
-    }
+	public static VIPCfg getMainCfg() {
+		return inst.mainCfg;
+	}
 
-    /**
-     * A lazy-loaded singleton Map<String, VIPCfg> configs using the "initialization-on-demand holder" design pattern
-     */
-    private static class ConfigsHolder {
-        static final Map<String, VIPCfgWrapper> configs = new ConcurrentHashMap<>();
-    }
+	public static VIPCfg getCfg(String productName) {
+		synchronized (inst.configs) {
+			VIPCfg cfg = inst.configs.get(productName);
+			if (cfg != null) {
+				return cfg;
+			}
 
-    public static VIPCfgWrapper initialize(String cfgFile, boolean isGlobalCfg) throws VIPClientInitException {
-        ResourceBundle prop = ResourceBundle.getBundle(cfgFile);
-        if (prop == null) {
-            throw new VIPClientInitException("Can't initialize VIPCfg. Config file is null.");
-        } else if (!prop.containsKey("productName")) {
-            throw new VIPClientInitException("Can't initialize VIPCfg. Product name is not defined.");
-        }
-        String productName = prop.getString("productName");
-        VIPCfgWrapper cfgWrapper = getCfg(productName, isGlobalCfg);
-        cfgWrapper.getVipCfg().initialize(cfgFile);
-        return cfgWrapper;
-    }
+			VIPCfg newCfg = new VIPCfg();
+			newCfg.setProductName(productName);
+			inst.configs.put(productName, newCfg);
+			return newCfg;
+		}
+	}
 
-    public static VIPCfgWrapper initialize(String cfgFile) throws VIPClientInitException {
-        return initialize(cfgFile, false);
-    }
+	public static void changeProductName(VIPCfg cfg, String oldName) {
+		if (cfg.getProductName().equals(oldName)) {
+			return;
+		}
 
-    public static VIPCfgWrapper getCfg(String productName, boolean isGlobalCfg) {
-        if (!contains(productName)) {
-            synchronized (ConfigsHolder.configs) {
-                if (!contains(productName)) {
-                    VIPCfgWrapper cfgWrapper = isGlobalCfg ? GlobalCfgHolder.globalCfg : new VIPCfgWrapper(new VIPCfg());
-                    cfgWrapper.setProductName(productName);
-                    addCfg(cfgWrapper);
-                }
-            }
-        }
-        return ConfigsHolder.configs.get(productName);
-    }
-
-    public static VIPCfgWrapper getCfg(String productName) {
-        return getCfg(productName, false);
-    }
-
-    private static void addCfg(VIPCfgWrapper vipCfgWrapper) {
-        ConfigsHolder.configs.put(vipCfgWrapper.getProductName(), vipCfgWrapper);
-    }
-
-    private static boolean contains(String productName) {
-        return ConfigsHolder.configs.containsKey(productName);
-    }
-
-    public static class VIPCfgWrapper implements VIPConfig {
-        private String productName;
-        private VIPCfg vipCfg;
-
-        private VIPCfgWrapper(VIPCfg vipCfg) {
-            this.vipCfg = vipCfg;
-        }
-        public String getProductName() {
-            return productName;
-        }
-
-        private void setProductName(String productName) {
-            this.productName = productName;
-        }
-
-        public VIPCfg getVipCfg() {
-            return vipCfg;
-        }
-    }
+		synchronized (inst.configs) {
+			inst.configs.remove(oldName);
+			inst.configs.put(cfg.getProductName(), cfg);
+		}
+	}
 }

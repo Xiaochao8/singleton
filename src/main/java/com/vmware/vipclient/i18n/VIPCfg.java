@@ -24,6 +24,7 @@ import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.ProductService;
 import com.vmware.vipclient.i18n.util.ConstantsKeys;
 import com.vmware.vipclient.i18n.util.LocaleUtility;
+import com.vmware.vipclient.i18n.util.StringUtil;
 
 /**
  * a class uses to define the global environment setting for I18nFactory
@@ -56,7 +57,6 @@ public class VIPCfg {
     private boolean                    initializeCache;
     private int                        interalCleanCache;
 
-    @Deprecated
     private String                     productName;
 
     private String                     version;
@@ -67,17 +67,27 @@ public class VIPCfg {
     public static final String         CACHE_L3      = "CACHE_L3";
     public static final String         CACHE_L2      = "CACHE_L2";
 
-    protected VIPCfg() {
-
+    @Deprecated 
+    public boolean isSubInstance() {
+        return isSubInstance;
     }
+    
+    @Deprecated 
+    public void setSubInstance(boolean subInstance) {
+        isSubInstance = subInstance;
+    }
+
+    private boolean isSubInstance = false;
+    
+    protected VIPCfg() { }
 
     /**
      * @deprecated Use either {@link VIPCfgFactory#getCfg(String, boolean) getCfg} method
      * or {@link VIPCfgFactory#initialize(String, boolean)} method, with isGlobalCfg=true to initialize VIPCfg.
-     * Use {@link VIPCfgFactory#getGlobalCfg() getGlobalCfg} method to get the global instance.
+     * Use {@link VIPCfgFactory#getMainCfg() getGlobalCfg} method to get the global instance.
      */
     public static VIPCfg getInstance() {
-        return VIPCfgFactory.getCfg().getVipCfg();
+        return VIPCfgFactory.getMainCfg();
     }
 
     /**
@@ -85,7 +95,7 @@ public class VIPCfg {
      * or {@link VIPCfgFactory#initialize(String)} method to instantiate and/or get the VIPCfg instance.
      */
     public static VIPCfg getSubInstance(String productName) {
-         return VIPCfgFactory.getCfg(productName).getVipCfg();
+         return VIPCfgFactory.getCfg(productName);
     }
 
     /**
@@ -179,7 +189,7 @@ public class VIPCfg {
         }
         if (this.isCleanCache()) {
             logger.info("startTaskOfCacheClean.");
-            Task.startTaskOfCacheClean(VIPCfgFactory.getGlobalCfg().getVipCfg(), interalCleanCache);
+            Task.startTaskOfCacheClean(VIPCfgFactory.getMainCfg(), interalCleanCache);
         }
         Cache createdCache = TranslationCacheManager
                 .getCache(VIPCfg.CACHE_L3);
@@ -207,7 +217,7 @@ public class VIPCfg {
             }
             if (this.isCleanCache()) {
                 logger.info("startTaskOfCacheClean.");
-                Task.startTaskOfCacheClean(VIPCfgFactory.getGlobalCfg().getVipCfg(), interalCleanCache);
+                Task.startTaskOfCacheClean(VIPCfgFactory.getMainCfg(), interalCleanCache);
             }
             Cache c = TranslationCacheManager.getCache(VIPCfg.CACHE_L3);
             if (c != null && this.getCacheExpiredTime() != 0) {
@@ -230,7 +240,7 @@ public class VIPCfg {
         logger.info("Formatting cache created.");
         if (this.isCleanCache()) {
             logger.error("clean cache.");
-            Task.startTaskOfCacheClean(VIPCfgFactory.getGlobalCfg().getVipCfg(), interalCleanCache);
+            Task.startTaskOfCacheClean(VIPCfgFactory.getMainCfg(), interalCleanCache);
         }
         return TranslationCacheManager.getCache(VIPCfg.CACHE_L2);
     }
@@ -247,19 +257,13 @@ public class VIPCfg {
                 + TranslationCacheManager.getInstance().size() + ".");
     }
 
-    /**
-     * @deprecated Get VIPConfig instance using {@Link VIPCfgFactory#getCfg(String} or {@Link VIPCfgFactory#getGlobalCfg(}.
-     * Use {@link VIPConfig#getProductName() VIPConfig.getProductName} to get the product name.
-     */
     public String getProductName() {
         return productName;
     }
-
-    /**
-     * @deprecated Use {@link VIPCfgFactory#getCfg(String) to create the VIPCfg instance and set the product name at the same time.
-     */
-    public void setProductName(String productName) {
+    public void setProductName(String productName) {
+    	String oldName = this.productName;
         this.productName = productName;
+        VIPCfgFactory.changeProductName(this, oldName);
     }
 
     public String getVersion() {
