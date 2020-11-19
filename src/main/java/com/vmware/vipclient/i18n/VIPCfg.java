@@ -33,7 +33,6 @@ public class VIPCfg {
 
     Logger                             logger        = LoggerFactory.getLogger(VIPCfg.class);
 
-    // define global instance
     private VIPService                 vipService;
 
     // data origin
@@ -77,9 +76,10 @@ public class VIPCfg {
         isSubInstance = subInstance;
     }
 
+    @Deprecated 
     private boolean isSubInstance = false;
     
-    protected VIPCfg() { }
+    VIPCfg() {}
 
     /**
      * @deprecated Use either {@link VIPCfgFactory#getCfg(String, boolean) getCfg} method
@@ -120,11 +120,12 @@ public class VIPCfg {
     	ResourceBundle prop = ResourceBundle.getBundle(cfg);
     	if (prop == null) {
     		throw new VIPClientInitException("Can't initialize VIPCfg. Config file is null.");
-    	} else if (!prop.containsKey("productName")) {
+    	} else if (!prop.containsKey("productName") && this.getProductName() == null) {
             throw new VIPClientInitException("Can't initialize VIPCfg. Product name is not defined.");
         }
 
-        this.setProductName(prop.getString("productName"));
+        if (prop.containsKey("productName"))
+            this.setProductName(prop.getString("productName"));
 
         if (prop.containsKey("version"))
             this.setVersion(prop.getString("version"));
