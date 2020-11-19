@@ -10,9 +10,10 @@ import java.util.Map;
 public class VIPCfgFactory {
 	private static final VIPCfg mainCfg = new VIPCfg();
 	private static final Map<String, VIPCfg> configs = new HashMap<>();
-	
-	private VIPCfgFactory() {}
-	
+
+	private VIPCfgFactory() {
+	}
+
 	public static VIPCfg getMainCfg() {
 		return mainCfg;
 	}
@@ -24,12 +25,13 @@ public class VIPCfgFactory {
 				return cfg;
 			}
 
-			VIPCfg newCfg = new VIPCfg();
-			newCfg.setProductName(productName);
+			VIPCfg newCfg = new VIPCfg(productName);
+			configs.put(productName, newCfg);
 			return newCfg;
 		}
 	}
 
+	@Deprecated 
 	public static void changeProductName(VIPCfg cfg, String oldName) {
 		if (cfg.getProductName().equals(oldName)) {
 			return;

@@ -24,7 +24,6 @@ import com.vmware.vipclient.i18n.messages.dto.MessagesDTO;
 import com.vmware.vipclient.i18n.messages.service.ProductService;
 import com.vmware.vipclient.i18n.util.ConstantsKeys;
 import com.vmware.vipclient.i18n.util.LocaleUtility;
-import com.vmware.vipclient.i18n.util.StringUtil;
 
 /**
  * a class uses to define the global environment setting for I18nFactory
@@ -79,7 +78,10 @@ public class VIPCfg {
     @Deprecated 
     private boolean isSubInstance = false;
     
+    @Deprecated 
     VIPCfg() {}
+    
+    VIPCfg(String productName) {this.productName = productName;}
 
     /**
      * @deprecated Use either {@link VIPCfgFactory#getCfg(String, boolean) getCfg} method
@@ -261,7 +263,10 @@ public class VIPCfg {
     public String getProductName() {
         return productName;
     }
-    public void setProductName(String productName) {
+    /**
+     * @deprecated Use {@link VIPCfgFactory#getCfg(String) to create the VIPCfg instance and set the product name at the same time.
+     */
+    public void setProductName(String productName) {
     	String oldName = this.productName;
         this.productName = productName;
         VIPCfgFactory.changeProductName(this, oldName);
