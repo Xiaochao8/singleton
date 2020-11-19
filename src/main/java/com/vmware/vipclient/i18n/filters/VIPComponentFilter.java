@@ -51,15 +51,13 @@ public class VIPComponentFilter implements Filter {
         }
         OutputStream os = response.getOutputStream();
         response.setContentType("text/javascript;charset=UTF-8");
-        VIPCfg globalCfg = VIPCfg.getInstance();
-
         os.write(("var translation = {" + "\"messages\" : " + messages + ", "
-                + "\"productName\" : \"" + globalCfg.getProductName()
-                + "\", " + "\"version\" : \"" + globalCfg.getVersion()
+                + "\"productName\" : \"" + gc.getProductName()
+                + "\", " + "\"version\" : \"" + gc.getVersion()
                 + "\", " + "\"vipServer\" : \""
-                + globalCfg.getVipServer() + "\", " + "\"pseudo\" : \""
-                + globalCfg.isPseudo() + "\", "
-                + "\"collectSource\" : \"" + globalCfg.isCollectSource() + "\"};")
+                + gc.getVipServer() + "\", " + "\"pseudo\" : \""
+                + gc.isPseudo() + "\", "
+                + "\"collectSource\" : \"" + gc.isCollectSource() + "\"};")
                         .getBytes("UTF-8"));
     }
 
