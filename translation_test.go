@@ -151,11 +151,9 @@ func TestRefreshCache(t *testing.T) {
 		// Start the go routine of refreshing cache, and wait for finish. Data entry number changes to 7.
 		time.Sleep(10 * time.Millisecond)
 		cs := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService)
-		status, loaded := cs.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
-		if loaded {
-			<-status.(chan struct{})
-		} else {
-			defer cs.updateStatusMap.Delete(item.id)
+		_, loaded := cs.updateStatusMap.Load(item.id)
+		for loaded {
+			time.Sleep(100 * time.Millisecond)
 		}
 
 		// Make sure mock data is consumed

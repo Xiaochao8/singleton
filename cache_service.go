@@ -18,11 +18,6 @@ import (
 
 var cache Cache
 
-const (
-	idle uint32 = iota
-	updating
-)
-
 // !+cacheService
 type cacheService struct {
 	origins         messageOriginList
@@ -37,10 +32,7 @@ func (s *cacheService) Get(item *dataItem) (err error) {
 	data, ok := cache.Get(item.id)
 	if ok {
 		item.data = data
-		if s.IsExpired(item) {
-			go s.refresh(&dataItem{id: item.id}, true)
-		}
-
+		s.refresh(&dataItem{id: item.id}, true) // Will refresh in a seperate thread. Need a new item avoid wrong data modification.
 		return nil
 	}
 
@@ -63,62 +55,70 @@ func (s *cacheService) IsExpired(item *dataItem) bool {
 	return expired
 }
 
-func (s *cacheService) refresh(item *dataItem, exist bool) error {
-	var err error
+func (s *cacheService) refresh(item *dataItem, existInCache bool) (err error) {
 	actual, loaded := s.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
-	status := actual.(chan struct{})
-	if !loaded { // This is to make sure that there is only one thread to contact message source(service or storage)
-		defer func() {
+
+	if existInCache {
+		if !loaded && s.IsExpired(item) {
+			go s.doRefresh(&dataItem{id: item.id}, true)
+		}
+	} else {
+		status := actual.(chan struct{})
+		if !loaded {
 			defer close(status)
-			s.updateStatusMap.Delete(item.id)
-		}()
+			err = s.doRefresh(item, false)
+		} else {
+			<-status
+		}
+	}
+	return err
+}
 
-		logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
+func (s *cacheService) doRefresh(item *dataItem, existInCache bool) (err error) {
+	defer s.updateStatusMap.Delete(item.id)
 
-		info := getCacheInfo(item)
-		for _, dao := range s.origins {
-			if exist && !dao.IsExpired(item) {
+	logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
+
+	info := getCacheInfo(item)
+	for _, dao := range s.origins {
+		if existInCache && !dao.IsExpired(item) {
+			return nil
+		}
+
+		switch dao.(type) {
+		case *serverDAO:
+			item.attrs = info
+			err = dao.Get(item)
+			if isSuccess(err) {
+				headers, ok := item.attrs.(http.Header)
+				if ok {
+					updateCacheInfo(headers, info)
+				}
+				if err == nil { // http code 200
+					cache.Set(item.id, item.data)
+					info.setETag(headers.Get(httpHeaderETag))
+				}
+				setCacheInfo(item, info) // Save a new object to the info map
+
 				return nil
 			}
-
-			switch dao.(type) {
-			case *serverDAO:
-				item.attrs = info
-				err = dao.Get(item)
-				if isSuccess(err) {
-					headers, ok := item.attrs.(http.Header)
-					if ok {
-						updateCacheInfo(headers, info)
-					}
-					if err == nil { // http code 200
-						cache.Set(item.id, item.data)
-						info.setETag(headers.Get(httpHeaderETag))
-					}
-
-					return nil
-				}
-			case *bundleDAO:
-				err = dao.Get(item)
-				if err == nil {
-					cache.Set(item.id, item.data)
-					return nil
-				}
-			}
-
-			if err != nil {
-				logger.Error(fmt.Sprintf(originQueryFailure, dao, err.Error()))
-				if e, ok := err.(stackTracer); ok {
-					logger.Error(fmt.Sprintf("%+v", e.StackTrace()))
-				}
+		case *bundleDAO:
+			err = dao.Get(item)
+			if err == nil {
+				cache.Set(item.id, item.data)
+				return nil
 			}
 		}
 
-		return err
-	} else if !exist {
-		<-status
+		if err != nil {
+			logger.Error(fmt.Sprintf(originQueryFailure, dao, err.Error()))
+			if e, ok := err.(stackTracer); ok {
+				logger.Error(fmt.Sprintf("%+v", e.StackTrace()))
+			}
+		}
 	}
 
-	return nil
+	return err
 }
 
 // !-cacheService

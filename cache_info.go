@@ -17,8 +17,13 @@ func initCacheInfoMap() {
 }
 
 func getCacheInfo(item *dataItem) *itemCacheInfo {
-	t, _ := cacheInfoMap.LoadOrStore(item.id, newSingleCacheInfo())
-	return t.(*itemCacheInfo)
+	data, _ := cacheInfoMap.LoadOrStore(item.id, itemCacheInfo{0, cacheDefaultExpires, ""})
+	info := data.(itemCacheInfo)
+	return &info // Return the pointer of a new object instead of existing object in map
+}
+
+func setCacheInfo(item *dataItem, info *itemCacheInfo) {
+	cacheInfoMap.Store(item.id, *info) // Save an object instead of a pointer
 }
 
 //!+itemCacheInfo
@@ -26,29 +31,17 @@ type itemCacheInfo struct {
 	lastUpdate int64
 	age        int64
 	eTag       string
-	sync.RWMutex
-}
-
-func newSingleCacheInfo() *itemCacheInfo {
-	return &itemCacheInfo{0, cacheDefaultExpires, "", sync.RWMutex{}}
 }
 
 func (i *itemCacheInfo) setTime(t int64) {
-	i.Lock()
-	defer i.Unlock()
 	i.lastUpdate = t
 }
 
 func (i *itemCacheInfo) setAge(d int64) {
-	i.Lock()
-	defer i.Unlock()
 	i.age = d
 }
 
 func (i *itemCacheInfo) isExpired() bool {
-	i.RLock()
-	defer i.RUnlock()
-
 	return time.Now().Unix()-i.lastUpdate >= i.age
 }
 
