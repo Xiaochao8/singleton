@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
+ package sgtn
+
 type (
 	cacheOrigin interface {
 		messageOrigin

@@ -51,11 +51,11 @@ func (s *cacheService) Get(item *dataItem) (err error) {
 	data, ok := cache.Get(item.id)
 	if ok {
 		item.data = data
-		s.refresh(&dataItem{id: item.id}, true) // Will refresh in a seperate thread. Need a new item avoid wrong data modification.
+		s.refreshCache(item) // Will refresh in a seperate thread. Need a new item avoid wrong data modification.
 		return nil
 	}
 
-	err = s.refresh(item, false)
+	err = s.populateCache(item)
 	if err == nil {
 		item.data, ok = cache.Get(item.id)
 		if !ok {
@@ -73,48 +73,54 @@ func (s *cacheService) IsExpired(item *dataItem) (expired bool) {
 	return
 }
 
-func (s *cacheService) refresh(item *dataItem, cached bool) (err error) {
-	actual, loaded := s.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
-	status := actual.(chan struct{})
-
-	doRefresh := func(item *dataItem, existInCache bool) (err error) {
-		defer s.updateStatusMap.Delete(item.id)
-		defer close(status)
-
-		logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
-
-		for _, dao := range s.origins {
-			if existInCache && !dao.IsExpired(item) {
-				return nil
-			}
-
-			err = dao.Get(item)
-			if err != nil {
-				logger.Error(fmt.Sprintf(originQueryFailure, dao, err.Error()))
-				if e, ok := err.(stackTracer); ok {
-					logger.Error(fmt.Sprintf("%+v", e.StackTrace()))
-				}
-			} else {
-				return nil
-			}
-		}
-
-		return err
+func (s *cacheService) populateCache(item *dataItem) (err error) {
+	if status, locked := s.lockItem(item); locked {
+		err = s.doRefresh(item, false, status)
+	} else {
+		<-status
 	}
 
-	if !loaded {
-		if cached {
-			if s.IsExpired(item) {
-				go doRefresh(&dataItem{id: item.id}, true)
-			} else {
-				s.updateStatusMap.Delete(item.id)
+	return err
+}
+
+func (s *cacheService) refreshCache(item *dataItem) {
+	if s.IsExpired(item) {
+		status, locked := s.lockItem(item)
+		if locked {
+			go s.doRefresh(&dataItem{id: item.id}, true, status)
+		}
+	}
+}
+
+func (s *cacheService) lockItem(item *dataItem) (chan struct{}, bool) {
+	actual, loaded := s.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
+	status := actual.(chan struct{})
+	return status, !loaded
+}
+
+func (s *cacheService) unlockItem(item *dataItem, status chan struct{}) {
+	close(status)
+	s.updateStatusMap.Delete(item.id)
+}
+
+func (s *cacheService) doRefresh(item *dataItem, existInCache bool, status chan struct{}) (err error) {
+	defer s.unlockItem(item, status)
+
+	logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
+
+	for _, dao := range s.origins {
+		if existInCache && !dao.IsExpired(item) {
+			return nil
+		}
+
+		err = dao.Get(item)
+		if err != nil {
+			logger.Error(fmt.Sprintf(originQueryFailure, dao, err.Error()))
+			if e, ok := err.(stackTracer); ok {
+				logger.Error(fmt.Sprintf("%+v", e.StackTrace()))
 			}
 		} else {
-			err = doRefresh(item, false)
-		}
-	} else {
-		if !cached {
-			<-status
+			return nil
 		}
 	}
 
