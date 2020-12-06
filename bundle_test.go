@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+    "github.com/vmware/singleton/common"
 )
 
 func TestBundleGetComponentList(t *testing.T) {
@@ -32,7 +34,7 @@ func TestBundleGetLocaleList(t *testing.T) {
 	resetInst(&newCfg)
 
 	locales, err := inst.trans.GetLocaleList(name, version)
-	logger.Debug(fmt.Sprintf("%#v\n", locales))
+	common.Log.Debug(fmt.Sprintf("%#v\n", locales))
 	assert.Nil(t, err)
 	assert.Equal(t, 16, len(locales))
 }
@@ -47,7 +49,7 @@ func TestBundleGetCompMessages(t *testing.T) {
 	component := "sunglow"
 	msgs, err := inst.trans.GetComponentMessages(name, version, locale, component)
 	assert.Nil(t, err)
-	assert.Equal(t, 4, msgs.(*defaultComponentMsgs).Size())
+	assert.Equal(t, 4, msgs.(*common.DefaultComponentMsgs).Size())
 }
 
 func TestBundleDirNonexistent(t *testing.T) {

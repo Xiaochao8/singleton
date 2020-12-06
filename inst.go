@@ -12,25 +12,32 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
+	"github.com/vmware/singleton/cache"
+	"github.com/vmware/singleton/cache/cacheorigin"
+	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/msgorigin"
+	"github.com/vmware/singleton/msgorigin/localbundle"
+	server2 "github.com/vmware/singleton/msgorigin/server"
+	"github.com/vmware/singleton/translation"
 )
 
 var (
-	inst   *instance
-	logger Logger
+	inst *instance
 )
 
 // instance Singleton instance
 type instance struct {
 	cfg            Config
-	trans          Translation
-	server         *serverDAO
-	bundle         *bundleDAO
+	trans          translation.Translation
+	server         *server2.ServerDAO
+	bundle         *localbundle.BundleDAO
 	initializeOnce sync.Once
 }
 
 func init() {
-	SetLogger(newLogger())
-	httpclient = &http.Client{Timeout: time.Second * servertimeout}
+	SetLogger(common.NewLogger())
+	localbundle.HTTPClient = &http.Client{Timeout: time.Second * localbundle.ServerTimeout}
 }
 
 // Initialize initialize the client
@@ -45,11 +52,11 @@ func Initialize(cfg *Config) {
 }
 
 func (i *instance) doInitialize() {
-	logger.Info("Initializing Singleton client")
+	common.Log.Info("Initializing Singleton client")
 
-	var originList messageOriginList
+	var originList msgorigin.MessageOriginList
 	if len(i.cfg.ServerURL) != 0 {
-		server, err := newServer(i.cfg.ServerURL)
+		server, err := server2.NewServer(i.cfg.ServerURL)
 		if err != nil {
 			panic(err)
 		}
@@ -57,37 +64,37 @@ func (i *instance) doInitialize() {
 		originList = append(originList, server)
 	}
 	if strings.TrimSpace(i.cfg.LocalBundles) != "" {
-		i.bundle = &bundleDAO{i.cfg.LocalBundles}
+		i.bundle = &localbundle.BundleDAO{i.cfg.LocalBundles}
 		originList = append(originList, i.bundle)
 	}
-	cacheService := newCacheService(originList)
+	CacheService := cacheorigin.NewCacheService(originList)
 
-	transImpl := transInst{cacheService}
+	transImpl := translation.TransInst{CacheService}
 	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
-	i.trans = newTransMgr(&transImpl, fallbackChains)
+	i.trans = translation.NewTransMgr(&transImpl, fallbackChains)
 
-	initCacheInfoMap()
-	if cache == nil {
-		RegisterCache(newCache())
+	cacheorigin.InitCacheInfoMap()
+	if cacheorigin.CacheInst == nil {
+		RegisterCache(cache.NewCache())
 	}
 }
 
 func checkConfig(cfg *Config) error {
 	switch {
 	case cfg.LocalBundles == "" && cfg.ServerURL == "":
-		return errors.New(originNotProvided)
+		return errors.New(common.OriginNotProvided)
 	case cfg.DefaultLocale == "":
-		return errors.New(defaultLocaleNotProvided)
+		return errors.New(common.DefaultLocaleNotProvided)
 	default:
 		return nil
 	}
 }
 
 // GetTranslation Get translation instance
-func GetTranslation() Translation {
+func GetTranslation() translation.Translation {
 	if inst == nil {
-		panic(errors.New(uninitialized))
+		panic(errors.New(common.Uninitialized))
 	}
 
 	return inst.trans
@@ -96,27 +103,27 @@ func GetTranslation() Translation {
 // SetHTTPHeaders Set customized HTTP headers
 func SetHTTPHeaders(h map[string]string) error {
 	if inst == nil {
-		return errors.New(uninitialized)
+		return errors.New(common.Uninitialized)
 	}
 
 	server := inst.server
 	if server != nil {
-		server.setHTTPHeaders(h)
+		server.SetHTTPHeaders(h)
 	}
 
 	return nil
 }
 
 // RegisterCache Register cache implementation. There is a default implementation
-func RegisterCache(c Cache) {
-	if cache != nil {
+func RegisterCache(c cache.Cache) {
+	if cacheorigin.CacheInst != nil {
 		return
 	}
 
-	cache = c
+	cacheorigin.CacheInst = c
 }
 
 // SetLogger Set a global logger. There is a default console logger
-func SetLogger(l Logger) {
-	logger = l
+func SetLogger(l common.Logger) {
+	common.Log = l
 }

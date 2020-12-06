@@ -14,6 +14,9 @@ import (
 	"github.com/nbio/st"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
+
+	"github.com/vmware/singleton/cache/cacheorigin"
+	"github.com/vmware/singleton/common"
 )
 
 func TestGetCompMessages(t *testing.T) {
@@ -43,14 +46,14 @@ func TestGetCompMessages(t *testing.T) {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
 		}
-		if messages.(*defaultComponentMsgs).Size() != testData.expected {
-			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+		if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 
-		messagesInCache, found := cache.Get(dataItemID{itemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found := cacheorigin.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
 		assert.True(t, found)
 		assert.NotNil(t, messagesInCache)
-		assert.Equal(t, testData.expected, messagesInCache.(*defaultComponentMsgs).Size())
+		assert.Equal(t, testData.expected, messagesInCache.(*common.DefaultComponentMsgs).Size())
 	}
 
 	assert.True(t, gock.IsDone())
@@ -114,15 +117,15 @@ func TestRefreshCache(t *testing.T) {
 	trans := GetTranslation()
 	for _, testData := range tests {
 		EnableMockData(testData.mocks[0])
-		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
-		info := getCacheInfo(item)
-		info.setAge(100)
-		setCacheInfo(item, info)
+		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
+		info := cacheorigin.GetCacheInfo(item)
+		info.SetAge(100)
+		cacheorigin.SetCacheInfo(item, info)
 
 		// Get component messages first to populate cache
 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
-		if messages.(*defaultComponentMsgs).Size() != testData.expected {
-			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+		if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 
 		// Make sure mock data is consumed
@@ -130,16 +133,16 @@ func TestRefreshCache(t *testing.T) {
 		gock.Clean()
 
 		// Check the data in cache
-		messagesInCache, found := cache.Get(dataItemID{itemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found := cacheorigin.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
 		assert.True(t, found)
 		assert.NotNil(t, messagesInCache)
-		assert.Equal(t, testData.expected, messagesInCache.(*defaultComponentMsgs).Size())
+		assert.Equal(t, testData.expected, messagesInCache.(*common.DefaultComponentMsgs).Size())
 
 		// Getting before time out, no communication to server because mock is enabled
 		messages, err = trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
-		if messages.(*defaultComponentMsgs).Size() != testData.expected {
-			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+		if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 
 		// Enable mock, time out cache and fetch(refresh) again. This time the data is same as before
@@ -147,7 +150,7 @@ func TestRefreshCache(t *testing.T) {
 		expireCache(item)
 		messages, err = trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
-		assert.Equal(t, testData.expected, messages.(*defaultComponentMsgs).Size())
+		assert.Equal(t, testData.expected, messages.(*common.DefaultComponentMsgs).Size())
 
 		// Start the go routine of refreshing cache, and wait for finish. Data entry number changes to 7.
 		waitforUpdate(item)
@@ -156,9 +159,9 @@ func TestRefreshCache(t *testing.T) {
 		assert.True(t, gock.IsDone())
 
 		// Check the data in cache
-		messagesInCache, found = cache.Get(dataItemID{itemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found = cacheorigin.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
 		assert.True(t, found)
-		assert.Equal(t, 7, messagesInCache.(ComponentMsgs).(*defaultComponentMsgs).Size())
+		assert.Equal(t, 7, messagesInCache.(common.ComponentMsgs).(*common.DefaultComponentMsgs).Size())
 	}
 
 	assert.True(t, gock.IsDone())
@@ -192,8 +195,8 @@ func TestRefreshCache2(t *testing.T) {
 				defer wg.Done()
 				messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
 				assert.Nil(t, err)
-				if messages.(*defaultComponentMsgs).Size() != testData.expected {
-					t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+				if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+					t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 				}
 			}()
 		}
@@ -203,8 +206,8 @@ func TestRefreshCache2(t *testing.T) {
 
 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
-		if messages.(*defaultComponentMsgs).Size() != testData.expected {
-			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+		if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 	}
 }
@@ -379,7 +382,7 @@ func TestGetCompMessagesAbnormal(t *testing.T) {
 		assert.Nil(t, messages)
 		assert.Contains(t, err.Error(), testData.err)
 
-		compCache, found := cache.Get(dataItemID{itemComponent, name, version, testData.locale, testData.component})
+		compCache, found := cacheorigin.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
 		assert.False(t, found, testData.desc)
 		assert.Nil(t, compCache, testData.desc)
 	}
@@ -394,7 +397,7 @@ func TestGetCompMessagesWrongServer(t *testing.T) {
 	resetInst(&newCfg)
 	wrongServer, err := url.Parse("wrongserver")
 	assert.Nil(t, err)
-	inst.server.svrURL = wrongServer
+	inst.server.SvrURL = wrongServer
 
 	var tests = []struct {
 		desc      string
@@ -484,7 +487,7 @@ func TestGetCompMessagesResponsePartial(t *testing.T) {
 
 		messages, _ := trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		// assert.Contains(t, "Fail to get from server", err.Error())
-		assert.True(t, messages == nil || messages.(*defaultComponentMsgs).Size() == 0)
+		assert.True(t, messages == nil || messages.(*common.DefaultComponentMsgs).Size() == 0)
 	}
 
 	assert.True(t, gock.IsDone())
@@ -521,8 +524,8 @@ func TestAddHTTPHeader(t *testing.T) {
 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 
-		if messages.(*defaultComponentMsgs).Size() != testData.expected {
-			t.Errorf("%s = %d, want %d", testData.desc, messages.(*defaultComponentMsgs).Size(), testData.expected)
+		if messages.(*common.DefaultComponentMsgs).Size() != testData.expected {
+			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 	}
 
@@ -546,10 +549,10 @@ func TestGetComponentList(t *testing.T) {
 	newCfg.LocalBundles = ""
 	resetInst(&newCfg)
 	trans := GetTranslation()
-	item := &dataItem{dataItemID{itemComponents, name, version, "", ""}, nil, nil}
-	info := getCacheInfo(item)
-	info.setAge(100)
-	setCacheInfo(item, info)
+	item := &common.DataItem{common.DataItemID{common.ItemComponents, name, version, "", ""}, nil, nil}
+	info := cacheorigin.GetCacheInfo(item)
+	info.SetAge(100)
+	cacheorigin.SetCacheInfo(item, info)
 	for _, testData := range tests {
 
 		EnableMockData(testData.mocks[0])
@@ -614,10 +617,10 @@ func TestGetLocaleList(t *testing.T) {
 	for _, testData := range tests {
 		EnableMockData(testData.mocks[0])
 
-		item := &dataItem{dataItemID{itemLocales, name, version, "", ""}, nil, nil}
-		info := getCacheInfo(item)
-		info.setAge(100)
-		setCacheInfo(item, info)
+		item := &common.DataItem{common.DataItemID{common.ItemLocales, name, version, "", ""}, nil, nil}
+		info := cacheorigin.GetCacheInfo(item)
+		info.SetAge(100)
+		cacheorigin.SetCacheInfo(item, info)
 
 		locales, err := trans.GetLocaleList(name, version)
 		if err != nil {

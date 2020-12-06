@@ -12,20 +12,22 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
+    "github.com/vmware/singleton/msgorigin/localbundle"
 )
 
 func TestNewRequest(t *testing.T) {
 
-	saved := newHTTPRequest
-	defer func() { newHTTPRequest = saved }()
+	saved := localbundle.NewHTTPRequest
+	defer func() { localbundle.NewHTTPRequest = saved }()
 
 	errMsg := "TestNewRequest"
-	newHTTPRequest = func(method, url string, body io.Reader) (*http.Request, error) {
+	localbundle.NewHTTPRequest = func(method, url string, body io.Reader) (*http.Request, error) {
 		return nil, errors.New(errMsg)
 	}
 
 	urlToGet := "any url"
-	_, err := httpget(urlToGet, map[string]string{}, nil)
+	_, err := localbundle.HTTPGet(urlToGet, map[string]string{}, nil)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), errMsg)
 }

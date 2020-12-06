@@ -11,6 +11,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+    "github.com/vmware/singleton/common"
 )
 
 type ConfigTestSuite struct {
@@ -33,7 +35,7 @@ func (suite *ConfigTestSuite) TestNewConfigNoFile() {
 
 	assert.Nil(suite.T(), cfg)
 	assert.NotNil(suite.T(), err)
-	logger.Debug(err.Error())
+	common.Log.Debug(err.Error())
 	assert.Contains(suite.T(), err.Error(), cfPath)
 }
 

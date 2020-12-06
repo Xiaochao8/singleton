@@ -11,18 +11,20 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
+
+    "github.com/vmware/singleton/common"
 )
 
 func TestLogger(t *testing.T) {
 
-	saved := logger
-	defer func() { logger = saved }()
+	saved := common.Log
+	defer func() { common.Log = saved }()
 
 	buf := new(bytes.Buffer)
-	logger = &defaultLogger{zerolog.New(buf).With().Timestamp().Logger()}
+	common.Log = &common.DefaultLogger{zerolog.New(buf).With().Timestamp().Logger()}
 
 	msg := "Test Warn Level"
-	logger.Warn(msg)
+	common.Log.Warn(msg)
 
 	assert.Contains(t, buf.String(), msg)
 }

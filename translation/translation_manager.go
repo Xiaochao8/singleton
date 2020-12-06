@@ -3,31 +3,33 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package sgtn
+package translation
 
 import (
 	"fmt"
+
+	"github.com/vmware/singleton/common"
 )
 
-type transMgr struct {
+type TransMgr struct {
 	Translation
 	fallbackChain []string
 }
 
-func newTransMgr(t Translation, fblocales []string) *transMgr {
-	return &transMgr{Translation: t, fallbackChain: fblocales}
+func NewTransMgr(t Translation, fblocales []string) *TransMgr {
+	return &TransMgr{Translation: t, fallbackChain: fblocales}
 }
 
 // GetStringMessage Get a message with optional arguments
-func (t *transMgr) GetStringMessage(name, version, locale, component, key string, args ...string) (string, error) {
+func (t *TransMgr) GetStringMessage(name, version, locale, component, key string, args ...string) (string, error) {
 	message, err := t.Translation.GetStringMessage(name, version, locale, component, key, args...)
 	if err == nil {
 		return message, nil
 	}
 
-	i := indexIgnoreCase(t.fallbackChain, locale)
+	i := common.IndexIgnoreCase(t.fallbackChain, locale)
 	for m := i + 1; m < len(t.fallbackChain); m++ {
-		logger.Warn(fmt.Sprintf("fall back to locale '%s'", t.fallbackChain[m]))
+		common.Log.Warn(fmt.Sprintf("fall back to locale '%s'", t.fallbackChain[m]))
 		message, err = t.Translation.GetStringMessage(name, version, t.fallbackChain[m], component, key, args...)
 		if err == nil {
 			return message, nil

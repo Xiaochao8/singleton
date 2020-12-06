@@ -26,6 +26,11 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/h2non/gock.v1"
+
+	"github.com/vmware/singleton/cache"
+	"github.com/vmware/singleton/cache/cacheorigin"
+	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/translation"
 )
 
 var name, version = "SgtnTest", "1.0.0"
@@ -36,7 +41,7 @@ var loglevel = flag.Int("loglevel", 0, "sets log level to 0(debug), 1(info)...")
 
 func init() {
 	newLogger := log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	SetLogger(&defaultLogger{newLogger})
+	SetLogger(&common.DefaultLogger{newLogger})
 }
 
 func TestMain(m *testing.M) {
@@ -73,9 +78,9 @@ func PrintRespBody(url string, resp *http.Response) io.Reader {
 
 func Trace(msg string) func() {
 	start := time.Now()
-	logger.Debug(fmt.Sprintf("---Enter %s", msg))
+	common.Log.Debug(fmt.Sprintf("---Enter %s", msg))
 	return func() {
-		logger.Debug(fmt.Sprintf("---Exit  %s (%s)", msg, time.Since(start)))
+		common.Log.Debug(fmt.Sprintf("---Exit  %s (%s)", msg, time.Since(start)))
 	}
 }
 
@@ -222,7 +227,7 @@ func EnableMockData(key string) *gock.Request {
 }
 
 func EnableMockDataWithTimes(key string, times int) *gock.Request {
-	logger.Debug(fmt.Sprintf("Enabling mock %s, times %d", key, times))
+	common.Log.Debug(fmt.Sprintf("Enabling mock %s, times %d", key, times))
 	data := mockData[key]
 
 	req := gock.New(testCfg.ServerURL)
@@ -268,9 +273,9 @@ func fileExist(filepath string) (bool, error) {
 
 // This isn't thread safe because Go runs tests parallel possibly.
 func clearCache() {
-	logger.Debug("clearcache")
-	cache = newCache()
-	initCacheInfoMap()
+	common.Log.Debug("clearcache")
+	cacheorigin.CacheInst = cache.NewCache()
+	cacheorigin.InitCacheInfoMap()
 }
 
 func curFunName() string {
@@ -282,20 +287,20 @@ func curFunName() string {
 }
 
 func resetInst(cfg *Config) {
-	cache = newCache()
+	cacheorigin.CacheInst = cache.NewCache()
 	Initialize(cfg)
 }
 
-func expireCache(item *dataItem) {
-	info := getCacheInfo(item)
-	info.setTime(time.Now().Unix() - info.age)
-	setCacheInfo(item, info)
+func expireCache(item *common.DataItem) {
+	info := cacheorigin.GetCacheInfo(item)
+	info.SetTime(time.Now().Unix() - info.GetAge())
+	cacheorigin.SetCacheInfo(item, info)
 }
 
-func waitforUpdate(item *dataItem) {
-	cs := GetTranslation().(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService)
+func waitforUpdate(item *common.DataItem) {
+	cs := GetTranslation().(*translation.TransMgr).Translation.(*translation.TransInst).MsgOrigin.(*cacheorigin.CacheService)
 	for {
-		if status, ok := cs.updateStatusMap.Load(item.id); ok {
+		if status, ok := cs.UpdateStatusMap.Load(item.ID); ok {
 			<-status.(chan struct{})
 			break
 		}

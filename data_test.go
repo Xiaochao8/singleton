@@ -10,6 +10,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
+
+	"github.com/vmware/singleton/cache/cacheorigin"
+	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/translation"
 )
 
 // Test cache control
@@ -40,22 +44,22 @@ func TestCC(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
+		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
 
-		err := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).populateCache(item)
+		err := trans.(*translation.TransMgr).Translation.(*translation.TransInst).MsgOrigin.(*cacheorigin.CacheService).PopulateCache(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
 		}
 
-		info := getCacheInfo(item)
-		item.data, _ = cache.Get(item.id)
-		messages := item.data.(ComponentMsgs)
+		info := cacheorigin.GetCacheInfo(item)
+		item.Data, _ = cacheorigin.CacheInst.Get(item.ID)
+		messages := item.Data.(common.ComponentMsgs)
 
 		assert.NotNil(t, info)
-		assert.Equal(t, testData.etag, info.getETag())
-		assert.Equal(t, testData.maxage, info.age)
-		assert.Equal(t, testData.msgLen, messages.(*defaultComponentMsgs).Size())
+		assert.Equal(t, testData.etag, info.GetETag())
+		assert.Equal(t, testData.maxage, info.GetAge())
+		assert.Equal(t, testData.msgLen, messages.(*common.DefaultComponentMsgs).Size())
 
 		assert.True(t, gock.IsDone())
 
@@ -67,11 +71,11 @@ func TestFallbackToLocalBundles(t *testing.T) {
 	resetInst(&testCfg)
 
 	locale, component := "fr", "sunglow"
-	item := &dataItem{dataItemID{itemComponent, name, version, locale, component}, nil, nil}
-	info := getCacheInfo(item)
+	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	info := cacheorigin.GetCacheInfo(item)
 
 	msgs, err := GetTranslation().GetComponentMessages(name, version, locale, component)
 	assert.Nil(t, err)
-	assert.Equal(t, 4, msgs.(*defaultComponentMsgs).Size())
-	assert.Equal(t, int64(cacheDefaultExpires), info.age) // Set max age to cacheDefaultExpires when server is unavailable temporarily.
+	assert.Equal(t, 4, msgs.(*common.DefaultComponentMsgs).Size())
+	assert.Equal(t, int64(common.CacheDefaultExpires), info.GetAge()) // Set max age to cacheDefaultExpires when server is unavailable temporarily.
 }

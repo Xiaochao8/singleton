@@ -15,15 +15,20 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
+
+	"github.com/vmware/singleton/cache/cacheorigin"
+	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/msgorigin/localbundle"
+	"github.com/vmware/singleton/msgorigin/server"
 )
 
 func TestGetLocaleCompAbnormal(t *testing.T) {
 
-	saved := getDataFromServer
-	defer func() { getDataFromServer = saved }()
+	saved := server.GetDataFromServer
+	defer func() { server.GetDataFromServer = saved }()
 
 	errMsg := "TestGetLocaleCompAbnormal"
-	getDataFromServer = func(u *url.URL, header map[string]string, data interface{}) (*http.Response, error) {
+	server.GetDataFromServer = func(u *url.URL, header map[string]string, data interface{}) (*http.Response, error) {
 		return nil, errors.New(errMsg)
 	}
 
@@ -52,10 +57,10 @@ func TestGetLocaleCompAbnormal(t *testing.T) {
 
 func TestTimeout(t *testing.T) {
 
-	oldClient := httpclient
+	oldClient := localbundle.HTTPClient
 	defer func() {
 		gock.Off()
-		httpclient = oldClient
+		localbundle.HTTPClient = oldClient
 	}()
 
 	newTimeout := time.Microsecond * 10
@@ -64,14 +69,14 @@ func TestTimeout(t *testing.T) {
 			return net.DialTimeout(network, addr, newTimeout)
 		},
 	}
-	httpclient = &http.Client{Transport: &transport}
+	localbundle.HTTPClient = &http.Client{Transport: &transport}
 
 	mockReq := EnableMockDataWithTimes("componentMessages-fr-sunglow", 1)
 	mockReq.Mock.Response().Delay(time.Microsecond * 11)
 
 	locale, component := "fr", "sunglow"
-	item := &dataItem{dataItemID{itemComponent, name, version, locale, component}, nil, nil}
-	item.attrs = getCacheInfo(item)
+	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item.Attrs = cacheorigin.GetCacheInfo(item)
 
 	resetInst(&testCfg)
 	sgtnServer := inst.server
@@ -80,7 +85,7 @@ func TestTimeout(t *testing.T) {
 	err := sgtnServer.Get(item)
 	_, ok := errors.Cause(err).(net.Error)
 	assert.True(t, true, ok)
-	assert.Equal(t, serverTimeout, sgtnServer.status)
+	assert.Equal(t, server.ServerTimeout, sgtnServer.Status)
 
 	assert.True(t, gock.IsPending())
 
@@ -97,17 +102,17 @@ func TestTimeout2(t *testing.T) {
 	EnableMockDataWithTimes("componentMessages-fr-sunglow", 1)
 
 	locale, component := "fr", "sunglow"
-	item := &dataItem{dataItemID{itemComponent, name, version, locale, component}, nil, nil}
-	item.attrs = getCacheInfo(item)
+	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item.Attrs = cacheorigin.GetCacheInfo(item)
 
 	resetInst(&testCfg)
 	sgtnServer := inst.server
 
-	sgtnServer.status = serverTimeout
-	sgtnServer.lastErrorMoment = time.Now().Unix() - serverRetryInterval - 1
+	sgtnServer.Status = server.ServerTimeout
+	sgtnServer.LastErrorMoment = time.Now().Unix() - server.ServerRetryInterval - 1
 	err := sgtnServer.Get(item)
 	assert.Nil(t, err)
-	assert.Equal(t, serverNormal, sgtnServer.status)
+	assert.Equal(t, server.ServerNormal, sgtnServer.Status)
 }
 
 func TestVersionFallback(t *testing.T) {
@@ -122,7 +127,7 @@ func TestVersionFallback(t *testing.T) {
 	messages, err := inst.trans.GetComponentMessages(name, "1.0.1", "en", "sunglow")
 	assert.Nil(t, err)
 	assert.NotNil(t, messages)
-	assert.Equal(t, 7, messages.(*defaultComponentMsgs).Size())
+	assert.Equal(t, 7, messages.(*common.DefaultComponentMsgs).Size())
 
 	assert.True(t, gock.IsDone())
 }

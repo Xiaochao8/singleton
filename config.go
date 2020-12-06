@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 
 	json "github.com/json-iterator/go"
+
+    "github.com/vmware/singleton/common"
 )
 
 // Config Singleton configuration
@@ -31,7 +33,7 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	logger.Info(fmt.Sprintf("Created a new config: %#v", cfg))
+	common.Log.Info(fmt.Sprintf("Created a new config: %#v", cfg))
 
 	return &cfg, nil
 }
