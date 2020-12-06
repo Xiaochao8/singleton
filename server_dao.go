@@ -36,7 +36,7 @@ func newServer(serverURL string) (*serverDAO, error) {
 	return s, nil
 }
 
-//!+ serverDAO
+//!+serverDAO
 
 type serverDAO struct {
 	svrURL          *url.URL
@@ -96,11 +96,6 @@ func (s *serverDAO) Get(item *dataItem) (err error) {
 	}
 
 	return nil
-}
-
-func (s *serverDAO) IsExpired(item *dataItem) bool {
-	info := getCacheInfo(item)
-	return info.isExpired()
 }
 
 func (s *serverDAO) prepareURL(item *dataItem) *url.URL {
@@ -172,9 +167,9 @@ func (s *serverDAO) getHTTPHeaders() (newHeaders map[string]string) {
 	return
 }
 
-//!- serverDAO
+//!-serverDAO
 
-//!+ common functions
+//!+common functions
 func addURLParams(u *url.URL, args map[string]string) {
 	values := u.Query()
 	for k, v := range args {
@@ -234,9 +229,9 @@ func isBusinessSuccess(code int) bool {
 	return (code >= 200 && code < 300) || (code >= 600 && code < 700)
 }
 
-//!- common functions
+//!-common functions
 
-//!+ REST API Response structures
+//!+REST API Response structures
 type (
 	queryProduct struct {
 		Name       string   `json:"productName"`
@@ -265,4 +260,4 @@ type (
 	}
 )
 
-//!- REST API Response structures
+//!-REST API Response structures

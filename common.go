@@ -35,7 +35,7 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-//!+ error definition
+//!+error definition
 type serverError struct {
 	code         int
 	businessCode int
@@ -48,9 +48,9 @@ func (e *serverError) Error() string {
 		e.code, e.msg, e.businessCode, e.businessMsg)
 }
 
-//!- error definition
+//!-error definition
 
-//!+ dataItem
+//!+dataItem
 type itemType int8
 
 const (
@@ -65,17 +65,25 @@ type dataItem struct {
 	attrs interface{}
 }
 
-//!- dataItem
+//!-dataItem
 
-//!+ messageOrigin
-type messageOrigin interface {
-	Get(item *dataItem) error
-	IsExpired(item *dataItem) bool
-}
+//!+messageOrigin
+type (
+	messageOrigin interface {
+		Get(item *dataItem) error
+	}
 
-type messageOriginList []messageOrigin
+	cacheOrigin interface {
+		messageOrigin
+		IsExpired(item *dataItem) bool
+	}
 
-//!- messageOrigin
+	messageOriginList []messageOrigin
+
+	cacheOriginList []cacheOrigin
+)
+
+//!-messageOrigin
 
 func indexIgnoreCase(slices []string, item string) int {
 	for i, s := range slices {

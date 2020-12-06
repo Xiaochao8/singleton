@@ -26,6 +26,7 @@ type bundleFile struct {
 }
 
 //!+bundleDAO
+
 type bundleDAO struct {
 	root string
 }
@@ -44,10 +45,6 @@ func (d *bundleDAO) Get(item *dataItem) (err error) {
 	}
 
 	return
-}
-
-func (d *bundleDAO) IsExpired(*dataItem) bool {
-	return false
 }
 
 func (d *bundleDAO) GetComponentList(name, version string) ([]string, error) {
