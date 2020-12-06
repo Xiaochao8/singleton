@@ -73,14 +73,7 @@ type (
 		Get(item *dataItem) error
 	}
 
-	cacheOrigin interface {
-		messageOrigin
-		IsExpired(item *dataItem) bool
-	}
-
 	messageOriginList []messageOrigin
-
-	cacheOriginList []cacheOrigin
 )
 
 //!-messageOrigin
