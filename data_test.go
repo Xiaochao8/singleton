@@ -42,7 +42,7 @@ func TestCC(t *testing.T) {
 
 		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
 
-		err := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).refresh(item, false)
+		err := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).populateCache(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
@@ -58,6 +58,8 @@ func TestCC(t *testing.T) {
 		assert.Equal(t, testData.msgLen, messages.(*defaultComponentMsgs).Size())
 
 		assert.True(t, gock.IsDone())
+
+		expireCache(item)
 	}
 }
 

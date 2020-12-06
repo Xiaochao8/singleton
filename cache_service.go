@@ -20,7 +20,7 @@ var cache Cache
 
 type (
 	cacheService struct {
-		origins         cacheOriginList
+		cacheOrigin
 		updateStatusMap sync.Map
 	}
 	serverCache struct {
@@ -34,19 +34,19 @@ type (
 //!+cacheService
 
 func newCacheService(originList messageOriginList) *cacheService {
-	cs := cacheService{updateStatusMap: sync.Map{}}
-
+	oList := cacheOriginList{}
 	for _, msgOrigin := range originList {
 		switch msgOrigin.(type) {
 		case *serverDAO:
-			cs.origins = append(cs.origins, &serverCache{msgOrigin.(*serverDAO)})
+			oList = append(oList, &serverCache{msgOrigin.(*serverDAO)})
 		case *bundleDAO:
-			cs.origins = append(cs.origins, &bundleCache{msgOrigin.(*bundleDAO)})
+			oList = append(oList, &bundleCache{msgOrigin.(*bundleDAO)})
 		}
 	}
 
-	return &cs
+	return &cacheService{updateStatusMap: sync.Map{}, cacheOrigin: oList}
 }
+
 func (s *cacheService) Get(item *dataItem) (err error) {
 	data, ok := cache.Get(item.id)
 	if ok {
@@ -65,17 +65,9 @@ func (s *cacheService) Get(item *dataItem) (err error) {
 	return err
 }
 
-func (s *cacheService) IsExpired(item *dataItem) (expired bool) {
-	for _, o := range s.origins {
-		return o.IsExpired(item)
-	}
-
-	return
-}
-
 func (s *cacheService) populateCache(item *dataItem) (err error) {
 	if status, locked := s.lockItem(item); locked {
-		err = s.doRefresh(item, false, status)
+		err = s.fetch(item, false, status)
 	} else {
 		<-status
 	}
@@ -87,7 +79,7 @@ func (s *cacheService) refreshCache(item *dataItem) {
 	if s.IsExpired(item) {
 		status, locked := s.lockItem(item)
 		if locked {
-			go s.doRefresh(&dataItem{id: item.id}, true, status)
+			go s.fetch(&dataItem{id: item.id}, true, status)
 		}
 	}
 }
@@ -103,28 +95,12 @@ func (s *cacheService) unlockItem(item *dataItem, status chan struct{}) {
 	s.updateStatusMap.Delete(item.id)
 }
 
-func (s *cacheService) doRefresh(item *dataItem, existInCache bool, status chan struct{}) (err error) {
+func (s *cacheService) fetch(item *dataItem, existInCache bool, status chan struct{}) (err error) {
 	defer s.unlockItem(item, status)
 
 	logger.Info(fmt.Sprintf("Start fetching ID: %+v", item.id))
 
-	for _, dao := range s.origins {
-		if existInCache && !dao.IsExpired(item) {
-			return nil
-		}
-
-		err = dao.Get(item)
-		if err != nil {
-			logger.Error(fmt.Sprintf(originQueryFailure, dao, err.Error()))
-			if e, ok := err.(stackTracer); ok {
-				logger.Error(fmt.Sprintf("%+v", e.StackTrace()))
-			}
-		} else {
-			return nil
-		}
-	}
-
-	return err
+	return s.cacheOrigin.Get(item)
 }
 
 //!-cacheService

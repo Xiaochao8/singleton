@@ -286,8 +286,10 @@ func resetInst(cfg *Config) {
 	Initialize(cfg)
 }
 
-func expireCache(info *itemCacheInfo, cacheExpiredTime int64) {
-	info.setTime(time.Now().Unix() - cacheExpiredTime)
+func expireCache(item *dataItem) {
+	info := getCacheInfo(item)
+	info.setTime(time.Now().Unix() - info.age)
+	setCacheInfo(item, info)
 }
 
 func waitforUpdate(item *dataItem) {
