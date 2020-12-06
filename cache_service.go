@@ -65,16 +65,15 @@ func (s *cacheService) Get(item *dataItem) (err error) {
 	return err
 }
 
-func (s *cacheService) IsExpired(item *dataItem) bool {
-	var expired bool
+func (s *cacheService) IsExpired(item *dataItem) (expired bool) {
 	for _, o := range s.origins {
 		return o.IsExpired(item)
 	}
 
-	return expired
+	return
 }
 
-func (s *cacheService) refresh(item *dataItem, existInCache bool) (err error) {
+func (s *cacheService) refresh(item *dataItem, cached bool) (err error) {
 	actual, loaded := s.updateStatusMap.LoadOrStore(item.id, make(chan struct{}))
 	status := actual.(chan struct{})
 
@@ -103,14 +102,18 @@ func (s *cacheService) refresh(item *dataItem, existInCache bool) (err error) {
 		return err
 	}
 
-	if existInCache {
-		if !loaded && s.IsExpired(item) {
-			go doRefresh(&dataItem{id: item.id}, true)
+	if !loaded {
+		if cached {
+			if s.IsExpired(item) {
+				go doRefresh(&dataItem{id: item.id}, true)
+			} else {
+				s.updateStatusMap.Delete(item.id)
+			}
+		} else {
+			err = doRefresh(item, false)
 		}
 	} else {
-		if !loaded {
-			err = doRefresh(item, false)
-		} else {
+		if !cached {
 			<-status
 		}
 	}
@@ -150,11 +153,11 @@ func (c *serverCache) Get(item *dataItem) (err error) {
 var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
 
 func (*serverCache) updateCacheInfo(headers http.Header, info *itemCacheInfo) {
+	info.setTime(time.Now().Unix())
+
 	if len(headers) == 0 || info == nil {
 		return
 	}
-
-	info.setTime(time.Now().Unix())
 
 	cc := headers.Get(httpHeaderCacheControl)
 	results := cacheControlRE.FindStringSubmatch(cc)

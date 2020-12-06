@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//!+ transInst
+//!+transInst
 type transInst struct {
 	msgOrigin messageOrigin
 }
@@ -76,4 +76,4 @@ func (t *transInst) GetComponentMessages(name, version, locale, component string
 	return
 }
 
-//!- transInst
+//!-transInst

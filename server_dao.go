@@ -217,6 +217,7 @@ var getDataFromServer = func(u *url.URL, header map[string]string, data interfac
 	bodyObj.Data.ToVal(data)
 
 	//logger.Debug(fmt.Sprintf("decoded data is: %#v", data))
+	//logger.Debug(fmt.Sprintf("HTTP headers are: %+v", resp.Header))
 
 	return resp, nil
 }

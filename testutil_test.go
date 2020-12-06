@@ -18,7 +18,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -283,11 +282,21 @@ func curFunName() string {
 }
 
 func resetInst(cfg *Config) {
-	inst = &instance{}
 	cache = newCache()
 	Initialize(cfg)
 }
 
 func expireCache(info *itemCacheInfo, cacheExpiredTime int64) {
-	info.setTime(atomic.LoadInt64(&info.lastUpdate) - cacheExpiredTime)
+	info.setTime(time.Now().Unix() - cacheExpiredTime)
+}
+
+func waitforUpdate(item *dataItem) {
+	cs := GetTranslation().(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService)
+	for {
+		if status, ok := cs.updateStatusMap.Load(item.id); ok {
+			<-status.(chan struct{})
+			break
+		}
+		time.Sleep(time.Microsecond * 10)
+	}
 }

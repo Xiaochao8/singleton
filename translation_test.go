@@ -117,6 +117,7 @@ func TestRefreshCache(t *testing.T) {
 		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
 		info := getCacheInfo(item)
 		info.setAge(100)
+		setCacheInfo(item, info)
 
 		// Get component messages first to populate cache
 		messages, err := trans.GetComponentMessages(name, version, testData.locale, testData.component)
@@ -144,17 +145,13 @@ func TestRefreshCache(t *testing.T) {
 		// Enable mock, time out cache and fetch(refresh) again. This time the data is same as before
 		EnableMockData(testData.mocks[1])
 		expireCache(info, info.age)
+		setCacheInfo(item, info)
 		messages, err = trans.GetComponentMessages(name, version, testData.locale, testData.component)
 		assert.Nil(t, err)
 		assert.Equal(t, testData.expected, messages.(*defaultComponentMsgs).Size())
 
 		// Start the go routine of refreshing cache, and wait for finish. Data entry number changes to 7.
-		time.Sleep(10 * time.Millisecond)
-		cs := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService)
-		_, loaded := cs.updateStatusMap.Load(item.id)
-		for loaded {
-			time.Sleep(100 * time.Millisecond)
-		}
+		waitforUpdate(item)
 
 		// Make sure mock data is consumed
 		assert.True(t, gock.IsDone())
@@ -553,6 +550,7 @@ func TestGetComponentList(t *testing.T) {
 	item := &dataItem{dataItemID{itemComponents, name, version, "", ""}, nil, nil}
 	info := getCacheInfo(item)
 	info.setAge(100)
+	setCacheInfo(item, info)
 	for _, testData := range tests {
 
 		EnableMockData(testData.mocks[0])
@@ -576,8 +574,9 @@ func TestGetComponentList(t *testing.T) {
 		// Expire cache and get again
 		EnableMockData(testData.mocks[1])
 		expireCache(info, info.age)
+		setCacheInfo(item, info)
 		components, err = trans.GetComponentList(name, version)
-		time.Sleep(time.Millisecond * 10)
+		waitforUpdate(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
@@ -620,6 +619,7 @@ func TestGetLocaleList(t *testing.T) {
 		item := &dataItem{dataItemID{itemLocales, name, version, "", ""}, nil, nil}
 		info := getCacheInfo(item)
 		info.setAge(100)
+		setCacheInfo(item, info)
 
 		locales, err := trans.GetLocaleList(name, version)
 		if err != nil {
@@ -641,8 +641,9 @@ func TestGetLocaleList(t *testing.T) {
 		// Expire cache and get again
 		EnableMockData(testData.mocks[1])
 		expireCache(info, info.age)
+		setCacheInfo(item, info)
 		locales, err = trans.GetLocaleList(name, version)
-		time.Sleep(time.Millisecond * 10)
+		waitforUpdate(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue

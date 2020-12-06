@@ -41,8 +41,6 @@ func TestCC(t *testing.T) {
 		}
 
 		item := &dataItem{dataItemID{itemComponent, name, version, testData.locale, testData.component}, nil, nil}
-		info := getCacheInfo(item)
-		item.attrs = info
 
 		err := trans.(*transMgr).Translation.(*transInst).msgOrigin.(*cacheService).refresh(item, false)
 		if err != nil {
@@ -50,6 +48,7 @@ func TestCC(t *testing.T) {
 			continue
 		}
 
+		info := getCacheInfo(item)
 		item.data, _ = cache.Get(item.id)
 		messages := item.data.(ComponentMsgs)
 

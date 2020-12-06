@@ -27,6 +27,7 @@ func setCacheInfo(item *dataItem, info *itemCacheInfo) {
 }
 
 //!+itemCacheInfo
+
 type itemCacheInfo struct {
 	lastUpdate int64
 	age        int64
