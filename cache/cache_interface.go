@@ -5,7 +5,7 @@
 
 package cache
 
-// Cache the interface of Cache
+// Cache the interface of cache
 type Cache interface {
 	// Get
 	Get(key interface{}) (value interface{}, found bool)
