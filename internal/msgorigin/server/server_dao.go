@@ -17,9 +17,7 @@ import (
 	json "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/common"
-	"github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
 
 const ServerRetryInterval = 2 // second
@@ -51,7 +49,7 @@ type ServerDAO struct {
 
 func (s *ServerDAO) Get(item *common.DataItem) (err error) {
 	var data interface{}
-	info := item.Attrs.(*cache.ItemCacheInfo)
+	info := item.Attrs.(*ItemCacheInfo)
 
 	switch item.ID.IType {
 	case common.ItemComponent:
@@ -196,7 +194,7 @@ var GetDataFromServer = func(u *url.URL, header map[string]string, data interfac
 	}{}
 
 	var bodyBytes []byte
-	resp, err := localbundle.HTTPGet(u.String(), header, &bodyBytes)
+	resp, err := HTTPGet(u.String(), header, &bodyBytes)
 	if err != nil {
 		return resp, err
 	}

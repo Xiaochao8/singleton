@@ -16,9 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	server2 "github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
-	"github.com/vmware/singleton/internal/msgorigin/localbundle"
 	"github.com/vmware/singleton/internal/msgorigin/server"
 )
 
@@ -57,10 +56,10 @@ func TestGetLocaleCompAbnormal(t *testing.T) {
 
 func TestTimeout(t *testing.T) {
 
-	oldClient := localbundle.HTTPClient
+	oldClient := server.HTTPClient
 	defer func() {
 		gock.Off()
-		localbundle.HTTPClient = oldClient
+		server.HTTPClient = oldClient
 	}()
 
 	newTimeout := time.Microsecond * 10
@@ -69,14 +68,14 @@ func TestTimeout(t *testing.T) {
 			return net.DialTimeout(network, addr, newTimeout)
 		},
 	}
-	localbundle.HTTPClient = &http.Client{Transport: &transport}
+	server.HTTPClient = &http.Client{Transport: &transport}
 
 	mockReq := EnableMockDataWithTimes("componentMessages-fr-sunglow", 1)
 	mockReq.Mock.Response().Delay(time.Microsecond * 11)
 
 	locale, component := "fr", "sunglow"
 	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
-	item.Attrs = cacheorigin.GetCacheInfo(item)
+	item.Attrs = server2.GetCacheInfo(item)
 
 	resetInst(&testCfg)
 	sgtnServer := inst.server
@@ -103,7 +102,7 @@ func TestTimeout2(t *testing.T) {
 
 	locale, component := "fr", "sunglow"
 	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
-	item.Attrs = cacheorigin.GetCacheInfo(item)
+	item.Attrs = server2.GetCacheInfo(item)
 
 	resetInst(&testCfg)
 	sgtnServer := inst.server

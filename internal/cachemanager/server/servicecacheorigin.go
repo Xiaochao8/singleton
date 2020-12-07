@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package cacheorigin
+package server
 
 import (
-    "net/http"
+	"net/http"
 	"regexp"
 	"strconv"
 	"sync"
 	"time"
 
-    "github.com/vmware/singleton/internal/cache"
-    "github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin/server"
 )
 
@@ -37,7 +37,7 @@ func (c *ServerCache) Get(item *common.DataItem) (err error) {
 			c.updateCacheInfo(headers, info)
 		}
 		if err == nil { // http code 200
-			CacheInst.Set(item.ID, item.Data)
+			cacheimpl.CacheInst.Set(item.ID, item.Data)
 			info.SetETag(headers.Get(common.HTTPHeaderETag))
 		}
 		SetCacheInfo(item, info) // Save a new object to the info map
@@ -50,7 +50,7 @@ func (c *ServerCache) Get(item *common.DataItem) (err error) {
 
 var cacheControlRE = regexp.MustCompile(`(?i)\bmax-age\b\s*=\s*\b(\d+)\b`)
 
-func (*ServerCache) updateCacheInfo(headers http.Header, info *cache.ItemCacheInfo) {
+func (*ServerCache) updateCacheInfo(headers http.Header, info *server.ItemCacheInfo) {
 	info.SetTime(time.Now().Unix())
 
 	if len(headers) == 0 || info == nil {
@@ -90,12 +90,12 @@ func InitCacheInfoMap() {
 	CacheInfoMap = new(sync.Map)
 }
 
-func GetCacheInfo(item *common.DataItem) *cache.ItemCacheInfo {
-	data, _ := CacheInfoMap.LoadOrStore(item.ID, *cache.NewItemCacheInfo())
-	info := data.(cache.ItemCacheInfo)
+func GetCacheInfo(item *common.DataItem) *server.ItemCacheInfo {
+	data, _ := CacheInfoMap.LoadOrStore(item.ID, *server.NewItemCacheInfo())
+	info := data.(server.ItemCacheInfo)
 	return &info // Return the pointer of a new object instead of existing object in map
 }
 
-func SetCacheInfo(item *common.DataItem, info *cache.ItemCacheInfo) {
+func SetCacheInfo(item *common.DataItem, info *server.ItemCacheInfo) {
 	CacheInfoMap.Store(item.ID, *info) // Save an object instead of a pointer
 }

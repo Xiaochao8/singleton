@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package cacheorigin
+package localbundle
 
 import (
+    "github.com/vmware/singleton/internal/cacheimpl"
     "github.com/vmware/singleton/internal/common"
     "github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
@@ -23,7 +24,7 @@ func (*BundleCache) IsExpired(item *common.DataItem) bool {
 func (c *BundleCache) Get(item *common.DataItem) (err error) {
     err = c.BundleDAO.Get(item)
     if err == nil {
-        CacheInst.Set(item.ID, item.Data)
+        cacheimpl.CacheInst.Set(item.ID, item.Data)
         return nil
     }
     return err

@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware/singleton/internal/cache"
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
 )
 
@@ -23,7 +23,7 @@ func TestCacheExpireWhenNeverExpire(t *testing.T) {
 
 	locale, component := "fr", "sunglow"
 	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
-	info := cacheorigin.GetCacheInfo(item)
+	info := server.GetCacheInfo(item)
 
 	GetTranslation().GetComponentMessages(name, version, locale, component)
 
@@ -43,18 +43,18 @@ func TestCacheExpireWhenNeverExpire(t *testing.T) {
 }
 
 func TestRegisterCache(t *testing.T) {
-	if cacheorigin.CacheInst == nil {
+	if cacheimpl.CacheInst == nil {
 		resetInst(&testCfg)
 	}
 
-	oldCache := cacheorigin.CacheInst
-	newCache := cache.NewCache()
+	oldCache := cacheimpl.CacheInst
+	newCache := cacheimpl.NewCache()
 	RegisterCache(newCache)
 	//Check cache doesn't change because cache is already initialized.
-	assert.Equal(t, oldCache, cacheorigin.CacheInst)
+	assert.Equal(t, oldCache, cacheimpl.CacheInst)
 
-	cacheorigin.CacheInst = nil
+	cacheimpl.CacheInst = nil
 	RegisterCache(newCache)
 	//Check cache is changed because cache is nil before registration.
-	assert.Equal(t, newCache, cacheorigin.CacheInst)
+	assert.Equal(t, newCache, cacheimpl.CacheInst)
 }

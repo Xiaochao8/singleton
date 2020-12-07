@@ -10,7 +10,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -30,8 +31,8 @@ func TestGetInst(t *testing.T) {
 
 	s := inst.trans.(*translation.TransMgr).TransInst.MsgOrigin
 	assert.NotNil(t, s)
-	assert.NotNil(t, cacheorigin.CacheInst)
-	assert.NotNil(t, cacheorigin.CacheInfoMap)
+	assert.NotNil(t, cacheimpl.CacheInst)
+	assert.NotNil(t, server.CacheInfoMap)
 }
 
 func TestCheckConfig(t *testing.T) {

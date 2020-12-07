@@ -13,8 +13,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/internal/cache"
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/cache"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cachemanager"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin"
 	"github.com/vmware/singleton/internal/msgorigin/localbundle"
@@ -37,7 +38,7 @@ type instance struct {
 
 func init() {
 	SetLogger(common.NewLogger())
-	localbundle.HTTPClient = &http.Client{Timeout: time.Second * common.ServerTimeout}
+	server2.HTTPClient = &http.Client{Timeout: time.Second * common.ServerTimeout}
 }
 
 // Initialize initialize the client
@@ -67,16 +68,15 @@ func (i *instance) doInitialize() {
 		i.bundle = &localbundle.BundleDAO{i.cfg.LocalBundles}
 		originList = append(originList, i.bundle)
 	}
-	CacheService := cacheorigin.NewCacheService(originList)
+	CacheService := cachemanager.NewCacheService(originList)
 
 	transImpl := translation.TransInst{CacheService}
 	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
 	i.trans = translation.NewTransMgr(&transImpl, fallbackChains)
 
-	cacheorigin.InitCacheInfoMap()
-	if cacheorigin.CacheInst == nil {
-		RegisterCache(cache.NewCache())
+	if cacheimpl.CacheInst == nil {
+		RegisterCache(cacheimpl.NewCache())
 	}
 }
 
@@ -116,11 +116,11 @@ func SetHTTPHeaders(h map[string]string) error {
 
 // RegisterCache Register cache implementation. There is a default implementation
 func RegisterCache(c cache.Cache) {
-	if cacheorigin.CacheInst != nil {
+	if cacheimpl.CacheInst != nil {
 		return
 	}
 
-	cacheorigin.CacheInst = c
+	cacheimpl.CacheInst = c
 }
 
 // SetLogger Set a global logger. There is a default console logger

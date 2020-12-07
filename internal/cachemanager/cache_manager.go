@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package cacheorigin
+package cachemanager
 
 import (
 	"fmt"
@@ -11,14 +11,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	localbundle2 "github.com/vmware/singleton/internal/cachemanager/localbundle"
+	server2 "github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin"
 	"github.com/vmware/singleton/internal/msgorigin/localbundle"
 	"github.com/vmware/singleton/internal/msgorigin/server"
 )
-
-var CacheInst cache.Cache
 
 type (
 	CacheService struct {
@@ -34,9 +34,10 @@ func NewCacheService(originList msgorigin.MessageOriginList) *CacheService {
 	for _, msgOrigin := range originList {
 		switch msgOrigin.(type) {
 		case *server.ServerDAO:
-			oList = append(oList, &ServerCache{msgOrigin.(*server.ServerDAO)})
+			oList = append(oList, &server2.ServerCache{msgOrigin.(*server.ServerDAO)})
+			server2.InitCacheInfoMap()
 		case *localbundle.BundleDAO:
-			oList = append(oList, &BundleCache{msgOrigin.(*localbundle.BundleDAO)})
+			oList = append(oList, &localbundle2.BundleCache{msgOrigin.(*localbundle.BundleDAO)})
 		}
 	}
 
@@ -44,7 +45,7 @@ func NewCacheService(originList msgorigin.MessageOriginList) *CacheService {
 }
 
 func (s *CacheService) Get(item *common.DataItem) (err error) {
-	data, ok := CacheInst.Get(item.ID)
+	data, ok := cacheimpl.CacheInst.Get(item.ID)
 	if ok {
 		item.Data = data
 		s.refreshCache(item) // Will refresh in a seperate thread. Need a new item avoid wrong data modification.
@@ -53,7 +54,7 @@ func (s *CacheService) Get(item *common.DataItem) (err error) {
 
 	err = s.PopulateCache(item)
 	if err == nil {
-		item.Data, ok = CacheInst.Get(item.ID)
+		item.Data, ok = cacheimpl.CacheInst.Get(item.ID)
 		if !ok {
 			return errors.New(fmt.Sprintf("Fail to get: %+v", item.ID))
 		}

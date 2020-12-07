@@ -27,8 +27,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/internal/cache"
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cachemanager"
+	"github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -275,8 +276,8 @@ func fileExist(filepath string) (bool, error) {
 // This isn't thread safe because Go runs tests parallel possibly.
 func clearCache() {
 	common.Log.Debug("clearcache")
-	cacheorigin.CacheInst = cache.NewCache()
-	cacheorigin.InitCacheInfoMap()
+	cacheimpl.CacheInst = cacheimpl.NewCache()
+	server.InitCacheInfoMap()
 }
 
 func curFunName() string {
@@ -288,18 +289,18 @@ func curFunName() string {
 }
 
 func resetInst(cfg *Config) {
-	cacheorigin.CacheInst = cache.NewCache()
+	cacheimpl.CacheInst = cacheimpl.NewCache()
 	Initialize(cfg)
 }
 
 func expireCache(item *common.DataItem) {
-	info := cacheorigin.GetCacheInfo(item)
+	info := server.GetCacheInfo(item)
 	info.SetTime(time.Now().Unix() - info.GetAge())
-	cacheorigin.SetCacheInfo(item, info)
+	server.SetCacheInfo(item, info)
 }
 
 func waitforUpdate(item *common.DataItem) {
-	cs := GetTranslation().(*translation.TransMgr).TransInst.MsgOrigin.(*cacheorigin.CacheService)
+	cs := GetTranslation().(*translation.TransMgr).TransInst.MsgOrigin.(*cachemanager.CacheService)
 	for {
 		if status, ok := cs.UpdateStatusMap.Load(item.ID); ok {
 			<-status.(chan struct{})

@@ -11,7 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cachemanager"
+	"github.com/vmware/singleton/internal/cachemanager/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -46,14 +48,14 @@ func TestCC(t *testing.T) {
 
 		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
 
-		err := trans.(*translation.TransMgr).TransInst.MsgOrigin.(*cacheorigin.CacheService).PopulateCache(item)
+		err := trans.(*translation.TransMgr).TransInst.MsgOrigin.(*cachemanager.CacheService).PopulateCache(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue
 		}
 
-		info := cacheorigin.GetCacheInfo(item)
-		item.Data, _ = cacheorigin.CacheInst.Get(item.ID)
+		info := server.GetCacheInfo(item)
+		item.Data, _ = cacheimpl.CacheInst.Get(item.ID)
 		messages := item.Data.(common.ComponentMsgs)
 
 		assert.NotNil(t, info)
@@ -72,7 +74,7 @@ func TestFallbackToLocalBundles(t *testing.T) {
 
 	locale, component := "fr", "sunglow"
 	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
-	info := cacheorigin.GetCacheInfo(item)
+	info := server.GetCacheInfo(item)
 
 	msgs, err := GetTranslation().GetComponentMessages(name, version, locale, component)
 	assert.Nil(t, err)
