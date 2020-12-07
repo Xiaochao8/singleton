@@ -6,8 +6,8 @@
 package cacheorigin
 
 import (
-    "github.com/vmware/singleton/common"
-    "github.com/vmware/singleton/msgorigin/localbundle"
+    "github.com/vmware/singleton/internal/common"
+    "github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
 
 //!+BundleCache

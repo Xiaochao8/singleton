@@ -27,10 +27,10 @@ import (
 	"github.com/rs/zerolog/log"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/translation"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/translation"
 )
 
 var name, version = "SgtnTest", "1.0.0"
@@ -123,6 +123,7 @@ func formatAtom(v reflect.Value) string {
 }
 
 //!+display
+
 func display(path string, v reflect.Value) {
 	fmt.Printf("\tkind: %s\n", v.Kind())
 	switch v.Kind() {
@@ -298,7 +299,7 @@ func expireCache(item *common.DataItem) {
 }
 
 func waitforUpdate(item *common.DataItem) {
-	cs := GetTranslation().(*translation.TransMgr).Translation.(*translation.TransInst).MsgOrigin.(*cacheorigin.CacheService)
+	cs := GetTranslation().(*translation.TransMgr).TransInst.MsgOrigin.(*cacheorigin.CacheService)
 	for {
 		if status, ok := cs.UpdateStatusMap.Load(item.ID); ok {
 			<-status.(chan struct{})

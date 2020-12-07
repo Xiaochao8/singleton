@@ -13,13 +13,13 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin"
-	"github.com/vmware/singleton/msgorigin/localbundle"
-	server2 "github.com/vmware/singleton/msgorigin/server"
-	"github.com/vmware/singleton/translation"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin"
+	"github.com/vmware/singleton/internal/msgorigin/localbundle"
+	server2 "github.com/vmware/singleton/internal/msgorigin/server"
+	"github.com/vmware/singleton/internal/translation"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 // instance Singleton instance
 type instance struct {
 	cfg            Config
-	trans          translation.Translation
+	trans          Translation
 	server         *server2.ServerDAO
 	bundle         *localbundle.BundleDAO
 	initializeOnce sync.Once
@@ -37,7 +37,7 @@ type instance struct {
 
 func init() {
 	SetLogger(common.NewLogger())
-	localbundle.HTTPClient = &http.Client{Timeout: time.Second * localbundle.ServerTimeout}
+	localbundle.HTTPClient = &http.Client{Timeout: time.Second * common.ServerTimeout}
 }
 
 // Initialize initialize the client
@@ -92,7 +92,7 @@ func checkConfig(cfg *Config) error {
 }
 
 // GetTranslation Get translation instance
-func GetTranslation() translation.Translation {
+func GetTranslation() Translation {
 	if inst == nil {
 		panic(errors.New(common.Uninitialized))
 	}

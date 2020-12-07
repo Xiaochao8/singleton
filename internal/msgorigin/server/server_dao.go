@@ -6,7 +6,6 @@
 package server
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -18,9 +17,9 @@ import (
 	json "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin/localbundle"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
 
 const ServerRetryInterval = 2 // second
@@ -112,16 +111,16 @@ func (s *ServerDAO) prepareURL(item *common.DataItem) *url.URL {
 
 	switch item.ID.IType {
 	case common.ItemComponent:
-		myURL = common.ProductTranslationGetConst
-		addURLParams(&urlToQuery, map[string]string{common.LocalesConst: locale, common.ComponentsConst: component})
+		myURL = ProductTranslationGetConst
+		addURLParams(&urlToQuery, map[string]string{LocalesConst: locale, ComponentsConst: component})
 	case common.ItemLocales:
-		myURL = common.ProductLocaleListGetConst
+		myURL = ProductLocaleListGetConst
 	case common.ItemComponents:
-		myURL = common.ProductComponentListGetConst
+		myURL = ProductComponentListGetConst
 	}
 
-	myURL = strings.Replace(myURL, "{"+common.ProductNameConst+"}", name, 1)
-	myURL = strings.Replace(myURL, "{"+common.VersionConst+"}", version, 1)
+	myURL = strings.Replace(myURL, "{"+ProductNameConst+"}", name, 1)
+	myURL = strings.Replace(myURL, "{"+VersionConst+"}", version, 1)
 
 	urlToQuery.Path = path.Join(urlToQuery.Path, myURL)
 
@@ -175,6 +174,7 @@ func (s *ServerDAO) getHTTPHeaders() (newHeaders map[string]string) {
 //!-serverDAO
 
 //!+common functions
+
 func addURLParams(u *url.URL, args map[string]string) {
 	values := u.Query()
 	for k, v := range args {
@@ -238,6 +238,7 @@ func isBusinessSuccess(code int) bool {
 //!-common functions
 
 //!+REST API Response structures
+
 type (
 	queryProduct struct {
 		Name       string   `json:"productName"`

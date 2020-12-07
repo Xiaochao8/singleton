@@ -10,9 +10,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
 )
 
 func TestCacheExpireWhenNeverExpire(t *testing.T) {

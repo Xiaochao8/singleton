@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-    "github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/common"
 )
 
 type ConfigTestSuite struct {

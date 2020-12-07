@@ -10,8 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin"
 )
 
 type (

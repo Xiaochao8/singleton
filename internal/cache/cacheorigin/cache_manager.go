@@ -11,11 +11,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin"
-	"github.com/vmware/singleton/msgorigin/localbundle"
-	"github.com/vmware/singleton/msgorigin/server"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin"
+	"github.com/vmware/singleton/internal/msgorigin/localbundle"
+	"github.com/vmware/singleton/internal/msgorigin/server"
 )
 
 var CacheInst cache.Cache

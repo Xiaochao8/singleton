@@ -11,7 +11,7 @@ import (
 
 	json "github.com/json-iterator/go"
 
-    "github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/common"
 )
 
 // Config Singleton configuration

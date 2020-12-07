@@ -8,7 +8,7 @@ package cache
 import (
 	"time"
 
-	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/common"
 )
 
 //!+itemCacheInfo

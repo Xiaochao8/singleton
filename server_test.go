@@ -16,10 +16,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin/localbundle"
-	"github.com/vmware/singleton/msgorigin/server"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin/localbundle"
+	"github.com/vmware/singleton/internal/msgorigin/server"
 )
 
 func TestGetLocaleCompAbnormal(t *testing.T) {

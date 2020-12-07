@@ -46,6 +46,7 @@ func (e *ServerError) Error() string {
 //!-error definition
 
 //!+dataItem
+
 type itemType int8
 
 const (

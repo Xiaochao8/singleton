@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-    "github.com/vmware/singleton/msgorigin/localbundle"
+	"github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
 
 func TestNewRequest(t *testing.T) {

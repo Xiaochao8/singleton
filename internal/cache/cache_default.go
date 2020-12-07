@@ -6,7 +6,7 @@
 package cache
 
 import (
-    "sync"
+	"sync"
 )
 
 type defaultCache struct {

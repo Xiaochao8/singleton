@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/translation"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/translation"
 )
 
 // Test cache control
@@ -46,7 +46,7 @@ func TestCC(t *testing.T) {
 
 		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
 
-		err := trans.(*translation.TransMgr).Translation.(*translation.TransInst).MsgOrigin.(*cacheorigin.CacheService).PopulateCache(item)
+		err := trans.(*translation.TransMgr).TransInst.MsgOrigin.(*cacheorigin.CacheService).PopulateCache(item)
 		if err != nil {
 			t.Errorf("%s failed: %v", testData.desc, err)
 			continue

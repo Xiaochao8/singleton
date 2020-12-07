@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/cache/cacheorigin"
-	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/cache/cacheorigin"
+	"github.com/vmware/singleton/internal/common"
 )
 
 func TestGetCompMessages(t *testing.T) {

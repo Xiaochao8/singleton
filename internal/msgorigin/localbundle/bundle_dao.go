@@ -13,7 +13,7 @@ import (
 	json "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/common"
 )
 
 const (

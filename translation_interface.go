@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package translation
+package sgtn
 
-import "github.com/vmware/singleton/common"
+import "github.com/vmware/singleton/internal/common"
 
 // Translation interface of translation
 type Translation interface {

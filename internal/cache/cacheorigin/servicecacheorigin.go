@@ -6,15 +6,15 @@
 package cacheorigin
 
 import (
-	"net/http"
+    "net/http"
 	"regexp"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/common"
-	"github.com/vmware/singleton/msgorigin/server"
+    "github.com/vmware/singleton/internal/cache"
+    "github.com/vmware/singleton/internal/common"
+	"github.com/vmware/singleton/internal/msgorigin/server"
 )
 
 //!+ServerCache

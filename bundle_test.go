@@ -12,7 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-    "github.com/vmware/singleton/common"
+	"github.com/vmware/singleton/internal/common"
 )
 
 func TestBundleGetComponentList(t *testing.T) {

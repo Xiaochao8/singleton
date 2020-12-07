@@ -11,11 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/common"
-)
-
-const (
-	ServerTimeout = 10
+	"github.com/vmware/singleton/internal/common"
 )
 
 var (

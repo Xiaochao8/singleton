@@ -6,7 +6,7 @@
 package msgorigin
 
 import (
-    "github.com/vmware/singleton/common"
+    "github.com/vmware/singleton/internal/common"
 )
 
 type (
