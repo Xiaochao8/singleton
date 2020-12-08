@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/vmware/singleton/internal/cacheimpl"
-	"github.com/vmware/singleton/internal/cachemanager/server"
+    "github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 )
 
@@ -22,7 +22,7 @@ func TestCacheExpireWhenNeverExpire(t *testing.T) {
 	resetInst(&newCfg)
 
 	locale, component := "fr", "sunglow"
-	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: locale, Component: component}}
 	info := server.GetCacheInfo(item)
 
 	GetTranslation().GetComponentMessages(name, version, locale, component)

@@ -21,7 +21,7 @@ func TestLogger(t *testing.T) {
 	defer func() { common.Log = saved }()
 
 	buf := new(bytes.Buffer)
-	common.Log = &common.DefaultLogger{zerolog.New(buf).With().Timestamp().Logger()}
+	common.Log = &common.DefaultLogger{Logger: zerolog.New(buf).With().Timestamp().Logger()}
 
 	msg := "Test Warn Level"
 	common.Log.Warn(msg)

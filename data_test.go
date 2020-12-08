@@ -12,8 +12,8 @@ import (
 	"gopkg.in/h2non/gock.v1"
 
 	"github.com/vmware/singleton/internal/cacheimpl"
-	"github.com/vmware/singleton/internal/cachemanager"
-	"github.com/vmware/singleton/internal/cachemanager/server"
+	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
+	"github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -46,7 +46,7 @@ func TestCC(t *testing.T) {
 			EnableMockData(m)
 		}
 
-		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
+		item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component}}
 
 		err := trans.(*translation.TransMgr).TransInst.MsgOrigin.(*cachemanager.CacheService).PopulateCache(item)
 		if err != nil {
@@ -73,7 +73,7 @@ func TestFallbackToLocalBundles(t *testing.T) {
 	resetInst(&testCfg)
 
 	locale, component := "fr", "sunglow"
-	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: locale, Component: component}}
 	info := server.GetCacheInfo(item)
 
 	msgs, err := GetTranslation().GetComponentMessages(name, version, locale, component)

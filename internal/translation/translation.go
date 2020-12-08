@@ -46,7 +46,7 @@ func (t *TransInst) GetLocaleList(name, version string) (data []string, err erro
 		return nil, errors.New(common.WrongPara)
 	}
 
-	item := &common.DataItem{common.DataItemID{common.ItemLocales, name, version, "", ""}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemLocales, Name: name, Version: version}}
 	err = t.MsgOrigin.Get(item)
 	if nil != item.Data {
 		data, _ = item.Data.([]string)
@@ -59,7 +59,7 @@ func (t *TransInst) GetComponentList(name, version string) (data []string, err e
 		return nil, errors.New(common.WrongPara)
 	}
 
-	item := &common.DataItem{common.DataItemID{common.ItemComponents, name, version, "", ""}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponents, Name: name, Version: version}}
 	err = t.MsgOrigin.Get(item)
 	if nil != item.Data {
 		data, _ = item.Data.([]string)
@@ -72,7 +72,7 @@ func (t *TransInst) GetComponentMessages(name, version, locale, component string
 		return nil, errors.New(common.WrongPara)
 	}
 
-	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: locale, Component: component}}
 	err = t.MsgOrigin.Get(item)
 	if nil != item.Data {
 		data, _ = item.Data.(common.ComponentMsgs)

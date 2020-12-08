@@ -202,7 +202,7 @@ var GetDataFromServer = func(u *url.URL, header map[string]string, data interfac
 	// Log.Debug(fmt.Sprintf("resp is: %#v", resp))
 
 	if !isHTTPSuccess(resp.StatusCode) {
-		return resp, &common.ServerError{resp.StatusCode, bodyObj.Result.Code, resp.Status, bodyObj.Result.Message}
+		return resp, &common.ServerError{Code: resp.StatusCode, BusinessCode: bodyObj.Result.Code, Msg: resp.Status, BusinessMsg: bodyObj.Result.Message}
 	}
 
 	err = json.Unmarshal(bodyBytes, bodyObj)
@@ -211,7 +211,7 @@ var GetDataFromServer = func(u *url.URL, header map[string]string, data interfac
 	}
 
 	if !isBusinessSuccess(bodyObj.Result.Code) {
-		return resp, &common.ServerError{resp.StatusCode, bodyObj.Result.Code, resp.Status, bodyObj.Result.Message}
+		return resp, &common.ServerError{Code: resp.StatusCode, BusinessCode: bodyObj.Result.Code, Msg: resp.Status, BusinessMsg: bodyObj.Result.Message}
 	}
 
 	// newData := bodyObj.Data.MustBeValid()

@@ -17,7 +17,7 @@ type BundleCache struct {
     *localbundle.BundleDAO
 }
 
-func (*BundleCache) IsExpired(item *common.DataItem) bool {
+func (*BundleCache) IsExpired(*common.DataItem) bool {
     return false
 }
 

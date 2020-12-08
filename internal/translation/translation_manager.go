@@ -35,9 +35,6 @@ func (t *TransMgr) GetStringMessage(name, version, locale, component, key string
 			return message, nil
 		}
 	}
-	if err != nil {
-		return key, err
-	}
 
-	return message, nil
+	return key, err
 }

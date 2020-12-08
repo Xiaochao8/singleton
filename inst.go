@@ -15,7 +15,7 @@ import (
 
 	"github.com/vmware/singleton/cache"
 	"github.com/vmware/singleton/internal/cacheimpl"
-	"github.com/vmware/singleton/internal/cachemanager"
+	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin"
 	"github.com/vmware/singleton/internal/msgorigin/localbundle"
@@ -65,12 +65,12 @@ func (i *instance) doInitialize() {
 		originList = append(originList, server)
 	}
 	if strings.TrimSpace(i.cfg.LocalBundles) != "" {
-		i.bundle = &localbundle.BundleDAO{i.cfg.LocalBundles}
+		i.bundle = &localbundle.BundleDAO{Root: i.cfg.LocalBundles}
 		originList = append(originList, i.bundle)
 	}
 	CacheService := cachemanager.NewCacheService(originList)
 
-	transImpl := translation.TransInst{CacheService}
+	transImpl := translation.TransInst{MsgOrigin: CacheService}
 	var fallbackChains []string
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
 	i.trans = translation.NewTransMgr(&transImpl, fallbackChains)

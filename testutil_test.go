@@ -28,8 +28,8 @@ import (
 	"gopkg.in/h2non/gock.v1"
 
 	"github.com/vmware/singleton/internal/cacheimpl"
-	"github.com/vmware/singleton/internal/cachemanager"
-	"github.com/vmware/singleton/internal/cachemanager/server"
+	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
+    "github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -42,7 +42,7 @@ var loglevel = flag.Int("loglevel", 0, "sets log level to 0(debug), 1(info)...")
 
 func init() {
 	newLogger := log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	SetLogger(&common.DefaultLogger{newLogger})
+	SetLogger(&common.DefaultLogger{Logger: newLogger})
 }
 
 func TestMain(m *testing.M) {

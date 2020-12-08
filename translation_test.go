@@ -16,7 +16,7 @@ import (
 	"gopkg.in/h2non/gock.v1"
 
 	"github.com/vmware/singleton/internal/cacheimpl"
-	"github.com/vmware/singleton/internal/cachemanager/server"
+	"github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 )
 
@@ -51,7 +51,7 @@ func TestGetCompMessages(t *testing.T) {
 			t.Errorf("%s = %d, want %d", testData.desc, messages.(*common.DefaultComponentMsgs).Size(), testData.expected)
 		}
 
-		messagesInCache, found := cacheimpl.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found := cacheimpl.CacheInst.Get(common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component})
 		assert.True(t, found)
 		assert.NotNil(t, messagesInCache)
 		assert.Equal(t, testData.expected, messagesInCache.(*common.DefaultComponentMsgs).Size())
@@ -118,7 +118,7 @@ func TestRefreshCache(t *testing.T) {
 	trans := GetTranslation()
 	for _, testData := range tests {
 		EnableMockData(testData.mocks[0])
-		item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component}, nil, nil}
+		item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component}}
 		info := server.GetCacheInfo(item)
 		info.SetAge(100)
 		server.SetCacheInfo(item, info)
@@ -134,7 +134,7 @@ func TestRefreshCache(t *testing.T) {
 		gock.Clean()
 
 		// Check the data in cache
-		messagesInCache, found := cacheimpl.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found := cacheimpl.CacheInst.Get(common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component})
 		assert.True(t, found)
 		assert.NotNil(t, messagesInCache)
 		assert.Equal(t, testData.expected, messagesInCache.(*common.DefaultComponentMsgs).Size())
@@ -160,7 +160,7 @@ func TestRefreshCache(t *testing.T) {
 		assert.True(t, gock.IsDone())
 
 		// Check the data in cache
-		messagesInCache, found = cacheimpl.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
+		messagesInCache, found = cacheimpl.CacheInst.Get(common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component})
 		assert.True(t, found)
 		assert.Equal(t, 7, messagesInCache.(common.ComponentMsgs).(*common.DefaultComponentMsgs).Size())
 	}
@@ -383,7 +383,7 @@ func TestGetCompMessagesAbnormal(t *testing.T) {
 		assert.Nil(t, messages)
 		assert.Contains(t, err.Error(), testData.err)
 
-		compCache, found := cacheimpl.CacheInst.Get(common.DataItemID{common.ItemComponent, name, version, testData.locale, testData.component})
+		compCache, found := cacheimpl.CacheInst.Get(common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: testData.locale, Component: testData.component})
 		assert.False(t, found, testData.desc)
 		assert.Nil(t, compCache, testData.desc)
 	}
@@ -550,7 +550,7 @@ func TestGetComponentList(t *testing.T) {
 	newCfg.LocalBundles = ""
 	resetInst(&newCfg)
 	trans := GetTranslation()
-	item := &common.DataItem{common.DataItemID{common.ItemComponents, name, version, "", ""}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponents, Name: name, Version: version}}
 	info := server.GetCacheInfo(item)
 	info.SetAge(100)
 	server.SetCacheInfo(item, info)
@@ -618,7 +618,7 @@ func TestGetLocaleList(t *testing.T) {
 	for _, testData := range tests {
 		EnableMockData(testData.mocks[0])
 
-		item := &common.DataItem{common.DataItemID{common.ItemLocales, name, version, "", ""}, nil, nil}
+		item := &common.DataItem{ID: common.DataItemID{IType: common.ItemLocales, Name: name, Version: version}}
 		info := server.GetCacheInfo(item)
 		info.SetAge(100)
 		server.SetCacheInfo(item, info)

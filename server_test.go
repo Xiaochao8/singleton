@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	server2 "github.com/vmware/singleton/internal/cachemanager/server"
+	server2 "github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin/server"
 )
@@ -74,7 +74,7 @@ func TestTimeout(t *testing.T) {
 	mockReq.Mock.Response().Delay(time.Microsecond * 11)
 
 	locale, component := "fr", "sunglow"
-	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: locale, Component: component}}
 	item.Attrs = server2.GetCacheInfo(item)
 
 	resetInst(&testCfg)
@@ -101,7 +101,7 @@ func TestTimeout2(t *testing.T) {
 	EnableMockDataWithTimes("componentMessages-fr-sunglow", 1)
 
 	locale, component := "fr", "sunglow"
-	item := &common.DataItem{common.DataItemID{common.ItemComponent, name, version, locale, component}, nil, nil}
+	item := &common.DataItem{ID: common.DataItemID{IType: common.ItemComponent, Name: name, Version: version, Locale: locale, Component: component}}
 	item.Attrs = server2.GetCacheInfo(item)
 
 	resetInst(&testCfg)
