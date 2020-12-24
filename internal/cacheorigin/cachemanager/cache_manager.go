@@ -11,7 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/cacheorigin"
 	localbundle2 "github.com/vmware/singleton/internal/cacheorigin/localbundle"
 	server2 "github.com/vmware/singleton/internal/cacheorigin/server"
@@ -46,7 +46,7 @@ func NewCacheService(originList msgorigin.MessageOriginList) *CacheService {
 }
 
 func (s *CacheService) Get(item *common.DataItem) (err error) {
-	data, ok := cacheimpl.CacheInst.Get(item.ID)
+	data, ok := cache.CacheInst.Get(item.ID)
 	if ok {
 		item.Data = data
 		s.refreshCache(item) // Will refresh in a seperate thread. Need a new item avoid wrong data modification.
@@ -55,7 +55,7 @@ func (s *CacheService) Get(item *common.DataItem) (err error) {
 
 	err = s.PopulateCache(item)
 	if err == nil {
-		item.Data, ok = cacheimpl.CacheInst.Get(item.ID)
+		item.Data, ok = cache.CacheInst.Get(item.ID)
 		if !ok {
 			return errors.New(fmt.Sprintf("Fail to get: %+v", item.ID))
 		}
@@ -95,7 +95,7 @@ func (s *CacheService) unlockItem(item *common.DataItem, status chan struct{}) {
 func (s *CacheService) fetch(item *common.DataItem, status chan struct{}) (err error) {
 	defer s.unlockItem(item, status)
 
-	if _, cached := cacheimpl.CacheInst.Get(item.ID); cached && !s.IsExpired(item) {
+	if _, cached := cache.CacheInst.Get(item.ID); cached && !s.IsExpired(item) {
 		return nil
 	}
 

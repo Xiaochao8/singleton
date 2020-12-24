@@ -13,8 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/cache"
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin"
@@ -26,6 +25,8 @@ import (
 var (
 	inst *instance
 )
+
+type Cache cache.Cache
 
 // instance Singleton instance
 type instance struct {
@@ -75,8 +76,8 @@ func (i *instance) doInitialize() {
 	fallbackChains = append(fallbackChains, i.cfg.DefaultLocale)
 	i.trans = translation.NewTransMgr(&transImpl, fallbackChains)
 
-	if cacheimpl.CacheInst == nil {
-		RegisterCache(cacheimpl.NewCache())
+	if cache.CacheInst == nil {
+		RegisterCache(cache.NewCache())
 	}
 }
 
@@ -116,11 +117,11 @@ func SetHTTPHeaders(h map[string]string) error {
 
 // RegisterCache Register cache implementation. There is a default implementation
 func RegisterCache(c cache.Cache) {
-	if cacheimpl.CacheInst != nil {
+	if cache.CacheInst != nil {
 		return
 	}
 
-	cacheimpl.CacheInst = c
+	cache.CacheInst = c
 }
 
 // SetLogger Set a global logger. There is a default console logger

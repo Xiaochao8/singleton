@@ -6,13 +6,13 @@
 package server
 
 import (
-    "net/http"
+	"net/http"
 	"regexp"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin/server"
 )
@@ -37,7 +37,7 @@ func (c *ServerCache) Get(item *common.DataItem) (err error) {
 			c.updateCacheInfo(headers, info)
 		}
 		if err == nil { // http code 200
-			cacheimpl.CacheInst.Set(item.ID, item.Data)
+			cache.CacheInst.Set(item.ID, item.Data)
 			info.SetETag(headers.Get(common.HTTPHeaderETag))
 		}
 		SetCacheInfo(item, info) // Save a new object to the info map

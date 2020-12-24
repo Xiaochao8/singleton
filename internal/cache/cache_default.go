@@ -3,15 +3,13 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package cacheimpl
+package cache
 
 import (
 	"sync"
-
-	"github.com/vmware/singleton/cache"
 )
 
-var CacheInst cache.Cache
+var CacheInst Cache
 
 type DefaultCache struct {
 	m sync.Map

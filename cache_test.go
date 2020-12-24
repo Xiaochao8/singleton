@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
-    "github.com/vmware/singleton/internal/cacheorigin/server"
+	"github.com/vmware/singleton/internal/cache"
+	"github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 )
 
@@ -43,18 +43,18 @@ func TestCacheExpireWhenNeverExpire(t *testing.T) {
 }
 
 func TestRegisterCache(t *testing.T) {
-	if cacheimpl.CacheInst == nil {
+	if cache.CacheInst == nil {
 		resetInst(&testCfg)
 	}
 
-	oldCache := cacheimpl.CacheInst
-	newCache := cacheimpl.NewCache()
+	oldCache := cache.CacheInst
+	newCache := cache.NewCache()
 	RegisterCache(newCache)
 	//Check cache doesn't change because cache is already initialized.
-	assert.Equal(t, oldCache, cacheimpl.CacheInst)
+	assert.Equal(t, oldCache, cache.CacheInst)
 
-	cacheimpl.CacheInst = nil
+	cache.CacheInst = nil
 	RegisterCache(newCache)
 	//Check cache is changed because cache is nil before registration.
-	assert.Equal(t, newCache, cacheimpl.CacheInst)
+	assert.Equal(t, newCache, cache.CacheInst)
 }

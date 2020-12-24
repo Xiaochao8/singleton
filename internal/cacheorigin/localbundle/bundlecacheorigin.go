@@ -6,7 +6,7 @@
 package localbundle
 
 import (
-    "github.com/vmware/singleton/internal/cacheimpl"
+    "github.com/vmware/singleton/internal/cache"
     "github.com/vmware/singleton/internal/common"
     "github.com/vmware/singleton/internal/msgorigin/localbundle"
 )
@@ -24,7 +24,7 @@ func (*BundleCache) IsExpired(*common.DataItem) bool {
 func (c *BundleCache) Get(item *common.DataItem) (err error) {
     err = c.BundleDAO.Get(item)
     if err == nil {
-        cacheimpl.CacheInst.Set(item.ID, item.Data)
+        cache.CacheInst.Set(item.ID, item.Data)
         return nil
     }
     return err

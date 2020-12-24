@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
 	"github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
@@ -55,7 +55,7 @@ func TestCC(t *testing.T) {
 		}
 
 		info := server.GetCacheInfo(item)
-		item.Data, _ = cacheimpl.CacheInst.Get(item.ID)
+		item.Data, _ = cache.CacheInst.Get(item.ID)
 		messages := item.Data.(common.ComponentMsgs)
 
 		assert.NotNil(t, info)

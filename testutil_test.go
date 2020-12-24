@@ -27,9 +27,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"gopkg.in/h2non/gock.v1"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/cacheorigin/cachemanager"
-    "github.com/vmware/singleton/internal/cacheorigin/server"
+	"github.com/vmware/singleton/internal/cacheorigin/server"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/translation"
 )
@@ -276,7 +276,7 @@ func fileExist(filepath string) (bool, error) {
 // This isn't thread safe because Go runs tests parallel possibly.
 func clearCache() {
 	common.Log.Debug("clearcache")
-	cacheimpl.CacheInst = cacheimpl.NewCache()
+	cache.CacheInst = cache.NewCache()
 	server.InitCacheInfoMap()
 }
 
@@ -289,7 +289,7 @@ func curFunName() string {
 }
 
 func resetInst(cfg *Config) {
-	cacheimpl.CacheInst = cacheimpl.NewCache()
+	cache.CacheInst = cache.NewCache()
 	Initialize(cfg)
 }
 

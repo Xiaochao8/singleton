@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware/singleton/internal/cacheimpl"
+	"github.com/vmware/singleton/internal/cache"
 	"github.com/vmware/singleton/internal/common"
 	"github.com/vmware/singleton/internal/msgorigin"
 )
@@ -25,7 +25,7 @@ type (
 )
 
 func (ol CacheOriginList) Get(item *common.DataItem) (err error) {
-	_, cached := cacheimpl.CacheInst.Get(item.ID)
+	_, cached := cache.CacheInst.Get(item.ID)
 
 	for _, dao := range ol {
 		if cached && !dao.IsExpired(item) {
