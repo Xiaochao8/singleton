@@ -1,0 +1,17 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/g11n-ws"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.springframework.boot:spring-boot-gradle-plugin
+    versions:
+    - 2.4.2
+    - 2.4.3
+    - 2.4.4
+    - 2.4.5
+  - dependency-name: org.sonarsource.scanner.gradle:sonarqube-gradle-plugin
+    versions:
+    - 3.1.1
